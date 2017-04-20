@@ -1,0 +1,5 @@
+use_frameworks!
+
+target 'IDMCore_Example' do
+  pod 'IDMCore', :path => '../'
+end

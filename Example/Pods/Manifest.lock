@@ -1,0 +1,16 @@
+PODS:
+  - IDMCore (2.0.6)
+
+DEPENDENCIES:
+  - IDMCore (from `../`)
+
+EXTERNAL SOURCES:
+  IDMCore:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  IDMCore: 85d1247b32cd5e637b3a0e3359c353fc36d4973b
+
+PODFILE CHECKSUM: 68b178cfbaf13ff3ffe83c44484b110fa35ce60d
+
+COCOAPODS: 1.2.1

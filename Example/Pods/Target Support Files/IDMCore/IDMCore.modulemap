@@ -1,0 +1,6 @@
+framework module IDMCore {
+  umbrella header "IDMCore-umbrella.h"
+
+  export *
+  module * { export * }
+}
