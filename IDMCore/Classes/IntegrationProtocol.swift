@@ -8,12 +8,12 @@
 
 import Foundation
 
-public protocol CanPresentLoadingView {
+public protocol LoadingHandlerProtocol {
     func presentLoadingView()
     func dismissLoadingView()
 }
 
-public protocol CanPresentErrorAlert {
+public protocol ErrorHandlerProtocol {
     func presentErrorAlert(error: Error?)
 }
 
@@ -103,8 +103,8 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
     }
     
     public func execute<DataBindingType: DataBindingProtocol> (parameters: DataProviderType.ParameterType? = nil,
-                        loadingPresenter :CanPresentLoadingView? = nil,
-                        errorAlertPresenter: CanPresentErrorAlert? = nil,
+                        loadingPresenter : LoadingHandlerProtocol? = nil,
+                        errorAlertPresenter: ErrorHandlerProtocol? = nil,
                         dataBinding: DataBindingType?)
         where DataBindingType.ModelType == ResultType,
         DataBindingType.ParameterType == DataProviderType.ParameterType {
@@ -121,8 +121,8 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
     
     public func execute<DataBindingType: DataBindingProtocol> (parameters: DataProviderType.ParameterType? = nil,
                         delegate: DataBindingType?)
-        where DataBindingType: CanPresentLoadingView,
-        DataBindingType: CanPresentErrorAlert,
+        where DataBindingType: LoadingHandlerProtocol,
+        DataBindingType: ErrorHandlerProtocol,
         DataBindingType.ModelType == ResultType,
         DataBindingType.ParameterType == DataProviderType.ParameterType {
             execute(parameters: parameters, loadingPresenter: delegate, errorAlertPresenter: delegate, dataBinding: delegate)
@@ -130,8 +130,8 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
     
     
     public func execute(parameters:DataProviderType.ParameterType? = nil,
-                        loadingPresenter :CanPresentLoadingView? = nil,
-                        errorAlertPresenter: CanPresentErrorAlert? = nil,
+                        loadingPresenter: LoadingHandlerProtocol? = nil,
+                        errorAlertPresenter: ErrorHandlerProtocol? = nil,
                         successHandler:((ResultType?) -> ())?) {
         execute(parameters: parameters, loadingHandler: {
             loadingPresenter?.presentLoadingView()

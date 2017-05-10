@@ -1,5 +1,5 @@
 //
-//  DefaultDataBinding.swift
+//  Integrator.swift
 //  IDMCore
 //
 //  Created by NGUYEN CHI CONG on 8/31/16.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-open class DefaultDataBinding<ParameterType,ModelType>: DataBindingProtocol {
+open class DefaultDataBinding<ParameterType, ModelType>: DataBindingProtocol {
     open func bindingData(_ parameters:ParameterType?, data: ModelType?) {
         fatalError("Must overrided by subclass")
     }

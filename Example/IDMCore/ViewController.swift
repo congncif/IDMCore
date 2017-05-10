@@ -11,9 +11,9 @@ import IDMCore
 
 class DataProvider1: DataProviderProtocol {
     
-    func request(parameters: String?, completion: ((Bool, String?, Error?) -> ())?) -> (() -> ())? {
+    func request(parameters: String?, completion: @escaping ((Bool, String?, Error?) -> ())) -> (() -> ())? {
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(3)) {
-            completion?(true, "result 1", nil)
+            completion(true, "result 1", nil)
         }
 
         return {}
@@ -21,9 +21,9 @@ class DataProvider1: DataProviderProtocol {
 }
 
 class DataProvider2: DataProviderProtocol {
-    func request(parameters: Int?, completion: ((Bool, String?, Error?) -> ())?) -> (() -> ())? {
+    func request(parameters: Int?, completion: @escaping ((Bool, String?, Error?) -> ())) -> (() -> ())? {
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(2)) {
-            completion?(true, "result 2", nil)
+            completion(true, "result 2", nil)
         }
         
         return {}
@@ -40,11 +40,11 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         integrator.prepareCall().onSuccess { (result) in
-            print(result?.data)
+            print(result?.data ?? "x")
             }.call()
         
         integrator2.prepareCall().onSuccess { (results) in
-            print(results)
+            print(results ?? "x")
         }.call()
     }
 

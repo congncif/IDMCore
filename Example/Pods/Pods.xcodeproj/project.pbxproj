@@ -17,6 +17,7 @@
 		61584E1F058D6590A18E92B28DE5B1A9 /* Pods-IDMCore_Example-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7E9891DE8D99057C567551183BC633C9 /* Pods-IDMCore_Example-dummy.m */; };
 		6C16FF50F0E35083E0B8E7D810F89DB8 /* IDMCore-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = E3EAF60D58900D9CE2BA3D12D034A169 /* IDMCore-dummy.m */; };
 		95539735191FB56BC2D81ACBA13737C2 /* IntegrationCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E4D7CAB0B2A98CB8CFCA7EAD29176 /* IntegrationCall.swift */; };
+		9FF02D911EC2EBC7001D45A2 /* Integrator+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF02D901EC2EBC7001D45A2 /* Integrator+Extensions.swift */; };
 		BD1D612BAC087E037792ED28FE6B0C8B /* IDMCore-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 381FB4CC49373501D6C64C9458D48A94 /* IDMCore-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C2BC59A1B19D010A3D90305B6E8643B9 /* AutoIntegrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6EF1FCDF1A9861482C5E564ABC3B17 /* AutoIntegrator.swift */; };
 		EB920D5B64BC9A3874FD903CA8993069 /* Integrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAB234D57659DC868FC92E827E6046A2 /* Integrator.swift */; };
@@ -36,7 +37,7 @@
 /* Begin PBXFileReference section */
 		003B1A07C1BD4B329EE24298A5678715 /* Pods-IDMCore_Example-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-IDMCore_Example-acknowledgements.markdown"; sourceTree = "<group>"; };
 		0DD60DC238CFBD7AD19FE5E49E50F023 /* IDMCore.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = IDMCore.xcconfig; sourceTree = "<group>"; };
-		23DAC4F4B19D67B072D6BE50CAAC89D8 /* IDMCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = IDMCore.framework; path = IDMCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		23DAC4F4B19D67B072D6BE50CAAC89D8 /* IDMCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IDMCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		255A77CF5200CD5605E9466810AE3B5A /* IntegrationProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationProtocol.swift; sourceTree = "<group>"; };
 		2F94C651AABEF876FB872CAE34254046 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3269F78E0A8578557DC9EE1BA4F10DD2 /* DataProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DataProvider.swift; sourceTree = "<group>"; };
@@ -48,19 +49,20 @@
 		6B451B8E3ABE49CD90060141EA25CB16 /* Pods-IDMCore_Example-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-IDMCore_Example-frameworks.sh"; sourceTree = "<group>"; };
 		7E80CFF99FFAD96B0E3A8F0239EC29C8 /* GroupDataProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GroupDataProvider.swift; sourceTree = "<group>"; };
 		7E9891DE8D99057C567551183BC633C9 /* Pods-IDMCore_Example-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-IDMCore_Example-dummy.m"; sourceTree = "<group>"; };
-		80F908398DB7AA8816F0530B8DD35BC5 /* Pods_IDMCore_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_IDMCore_Example.framework; path = "Pods-IDMCore_Example.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
-		93A4A3777CF96A4AAC1D13BA6DCCEA73 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		80F908398DB7AA8816F0530B8DD35BC5 /* Pods_IDMCore_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_IDMCore_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		93A4A3777CF96A4AAC1D13BA6DCCEA73 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		9447CEE0A7ADBCDA572B3FBADF2CB6C4 /* IDMCore-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "IDMCore-prefix.pch"; sourceTree = "<group>"; };
 		979EBAC9B267CB4CCCA5425B756273CD /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9918EC5A37B5F17A1CC73518C99654BE /* Pods-IDMCore_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-IDMCore_Example.release.xcconfig"; sourceTree = "<group>"; };
+		9FF02D901EC2EBC7001D45A2 /* Integrator+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Integrator+Extensions.swift"; sourceTree = "<group>"; };
 		AAB234D57659DC868FC92E827E6046A2 /* Integrator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Integrator.swift; sourceTree = "<group>"; };
-		B3AF524E124B07E79A130DD9E956BE94 /* IDMCore.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; path = IDMCore.modulemap; sourceTree = "<group>"; };
+		B3AF524E124B07E79A130DD9E956BE94 /* IDMCore.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; path = IDMCore.modulemap; sourceTree = "<group>"; };
 		D0748D4C96A02C1A2DA55E364FA7ED4E /* ModelProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModelProtocol.swift; sourceTree = "<group>"; };
 		D842632026ACEF5EA4964D3F8E6744C1 /* DataProviderProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DataProviderProtocol.swift; sourceTree = "<group>"; };
 		E3EAF60D58900D9CE2BA3D12D034A169 /* IDMCore-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "IDMCore-dummy.m"; sourceTree = "<group>"; };
 		E88A815FC5B3232A4EBF149E665DB1AF /* Pods-IDMCore_Example-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-IDMCore_Example-umbrella.h"; sourceTree = "<group>"; };
 		F1826B41A5B2D96F52C92C818E3AF863 /* Pods-IDMCore_Example-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-IDMCore_Example-acknowledgements.plist"; sourceTree = "<group>"; };
-		F8CD44D262CE795B2E62C7119428636F /* Pods-IDMCore_Example.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; path = "Pods-IDMCore_Example.modulemap"; sourceTree = "<group>"; };
+		F8CD44D262CE795B2E62C7119428636F /* Pods-IDMCore_Example.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "sourcecode.module-map"; path = "Pods-IDMCore_Example.modulemap"; sourceTree = "<group>"; };
 		FB19F18D2C1926FF4040923473195D9A /* Pods-IDMCore_Example-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-IDMCore_Example-resources.sh"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -144,9 +146,9 @@
 				583E4D7CAB0B2A98CB8CFCA7EAD29176 /* IntegrationCall.swift */,
 				255A77CF5200CD5605E9466810AE3B5A /* IntegrationProtocol.swift */,
 				AAB234D57659DC868FC92E827E6046A2 /* Integrator.swift */,
+				9FF02D901EC2EBC7001D45A2 /* Integrator+Extensions.swift */,
 				D0748D4C96A02C1A2DA55E364FA7ED4E /* ModelProtocol.swift */,
 			);
-			name = Classes;
 			path = Classes;
 			sourceTree = "<group>";
 		};
@@ -182,7 +184,6 @@
 			children = (
 				6C3D8B06206EEAACE452F1BE6A95A8B1 /* Classes */,
 			);
-			name = IDMCore;
 			path = IDMCore;
 			sourceTree = "<group>";
 		};
@@ -308,6 +309,7 @@
 				95539735191FB56BC2D81ACBA13737C2 /* IntegrationCall.swift in Sources */,
 				4CD87473A8D3A9024F7CE51BED44FDFD /* IntegrationProtocol.swift in Sources */,
 				EB920D5B64BC9A3874FD903CA8993069 /* Integrator.swift in Sources */,
+				9FF02D911EC2EBC7001D45A2 /* Integrator+Extensions.swift in Sources */,
 				3226DB0A8AA2686816E5F0B5463E223C /* ModelProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
