@@ -40,7 +40,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         integrator.prepareCall().onSuccess { result in
-            print(result?.data ?? "x")
+            print(result ?? "x")
         }.call()
 
         integrator2.prepareCall().onSuccess { results in

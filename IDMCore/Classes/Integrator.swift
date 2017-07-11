@@ -43,8 +43,8 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     public typealias ModelType = IntegrateModel
     public typealias ResultType = IntegrateResult
 
-    open fileprivate(set) var dataProvider: DataProviderType
-    open fileprivate(set) var executingType: IntegrationType
+    open var dataProvider: DataProviderType
+    open var executingType: IntegrationType
 
     fileprivate var defaultCall: IntegrationCall<ResultType> = IntegrationCall<ResultType>()
     fileprivate var infoQueue: [CallInfo] = []

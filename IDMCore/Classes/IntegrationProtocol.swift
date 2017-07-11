@@ -40,6 +40,8 @@ public protocol IntegrationProtocol {
 
     // Add this method to handle universal call
     func prepareCall(parameters: DataProviderType.ParameterType?) -> IntegrationCall<ResultType>
+    
+    var noValueError: Error? { get }
 }
 
 extension IntegrationProtocol {
@@ -47,6 +49,10 @@ extension IntegrationProtocol {
     // Default method for prepare call
     func prepareCall(parameters _: DataProviderType.ParameterType?) -> IntegrationCall<ResultType> {
         return IntegrationCall<ResultType>()
+    }
+    
+    public var noValueError: Error? {
+        return nil
     }
 }
 
@@ -58,17 +64,33 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                 error: Error?,
                 completion: ((Bool, ResultType?, Error?) -> Void)?) {
 
-        var results: ResultType?
+        let noValueError = self.noValueError
         if success {
             DispatchQueue.global(qos: .background).async(execute: {
-                results = ModelType(from: data)?.getData()
+                var newError = error
+                var newSuccess = success
+                var results: ResultType?
+                if let model = ModelType(from: data) {
+                    if let err = model.invalidDataError {
+                        newSuccess = false
+                        newError = err
+                    } else {
+                        results = model.getData()
+                    }
+                } else {
+                    if let err = noValueError {
+                        newSuccess = false
+                        newError = err
+                    }
+                }
+                
                 DispatchQueue.main.async {
-                    completion?(success, results, error)
+                    completion?(newSuccess, results, newError)
                 }
             })
         } else {
             DispatchQueue.main.async {
-                completion?(success, results, error)
+                completion?(success, nil, error)
             }
         }
     }
