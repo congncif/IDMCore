@@ -10,7 +10,7 @@ import Foundation
 
 public protocol ModelProtocol {
     associatedtype DataType
-    
+
     init?(from data: DataType?)
     func getData<ReturnType>() -> ReturnType?
 }
@@ -19,7 +19,7 @@ public protocol SelfModelProtocol: ModelProtocol {}
 
 extension SelfModelProtocol {
     public typealias DataType = Self
-    
+
     public init?(from data: Self?) {
         guard let data = data else {
             return nil
@@ -38,12 +38,12 @@ extension ModelProtocol {
 }
 
 public struct AutoWrapModel<Type>: ModelProtocol {
-    
+
     public fileprivate(set) var data: Type?
     public init?(from data: Type?) {
         self.data = data
     }
-    
+
     public func getData<ReturnType>() -> ReturnType? {
         if ReturnType.self == Type.self {
             return data as? ReturnType

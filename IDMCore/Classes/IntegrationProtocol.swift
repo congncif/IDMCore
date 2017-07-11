@@ -27,39 +27,38 @@ public protocol IntegrationProtocol {
     associatedtype DataProviderType: DataProviderProtocol
     associatedtype ModelType: ModelProtocol
     associatedtype ResultType
-    
+
     var dataProvider: DataProviderType { get }
-    
-    func execute(parameters:DataProviderType.ParameterType?,
-                 completion: ((Bool, ResultType?, Error?) -> ())?)
-    func execute(parameters:DataProviderType.ParameterType?,
-                 loadingHandler: (() -> ())?,
-                 successHandler: ((ResultType?) -> ())?,
-                 failureHandler: ((Error?) -> ())?,
-                 completionHandler: (() -> ())?)
-    
+
+    func execute(parameters: DataProviderType.ParameterType?,
+                 completion: ((Bool, ResultType?, Error?) -> Void)?)
+    func execute(parameters: DataProviderType.ParameterType?,
+                 loadingHandler: (() -> Void)?,
+                 successHandler: ((ResultType?) -> Void)?,
+                 failureHandler: ((Error?) -> Void)?,
+                 completionHandler: (() -> Void)?)
+
     // Add this method to handle universal call
-    func prepareCall(parameters:DataProviderType.ParameterType?) -> IntegrationCall<ResultType>
-    
+    func prepareCall(parameters: DataProviderType.ParameterType?) -> IntegrationCall<ResultType>
 }
 
 extension IntegrationProtocol {
-    
+
     // Default method for prepare call
-    func prepareCall(parameters:DataProviderType.ParameterType?) -> IntegrationCall<ResultType> {
+    func prepareCall(parameters _: DataProviderType.ParameterType?) -> IntegrationCall<ResultType> {
         return IntegrationCall<ResultType>()
     }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 public extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataType {
-    
+
     func finish(success: Bool,
                 data: DataProviderType.DataType?,
                 error: Error?,
-                completion: ((Bool, ResultType?, Error?) -> ())?) {
-        
-        var results: ResultType? = nil
+                completion: ((Bool, ResultType?, Error?) -> Void)?) {
+
+        var results: ResultType?
         if success {
             DispatchQueue.global(qos: .background).async(execute: {
                 results = ModelType(from: data)?.getData()
@@ -67,30 +66,30 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                     completion?(success, results, error)
                 }
             })
-        }else {
+        } else {
             DispatchQueue.main.async {
                 completion?(success, results, error)
             }
         }
     }
-    
-    public func execute(parameters:DataProviderType.ParameterType? = nil,
-                        completion: ((Bool, ResultType?, Error?) -> ())? = nil) {
-        _ = self.dataProvider.request(parameters: parameters) { (success, data, error) in
+
+    public func execute(parameters: DataProviderType.ParameterType? = nil,
+                        completion: ((Bool, ResultType?, Error?) -> Void)? = nil) {
+        _ = dataProvider.request(parameters: parameters) { success, data, error in
             self.finish(success: success, data: data, error: error, completion: completion)
         }
     }
-    
-    public func execute(parameters:DataProviderType.ParameterType? = nil,
-                        loadingHandler: (() -> ())? ,
-                        successHandler: ((ResultType?) -> ())?,
-                        failureHandler: ((Error?) -> ())? = nil,
-                        completionHandler: (() -> ())?) {
-        
+
+    public func execute(parameters: DataProviderType.ParameterType? = nil,
+                        loadingHandler: (() -> Void)?,
+                        successHandler: ((ResultType?) -> Void)?,
+                        failureHandler: ((Error?) -> Void)? = nil,
+                        completionHandler: (() -> Void)?) {
+
         DispatchQueue.main.async(execute: {
             loadingHandler?()
         })
-        execute(parameters: parameters) { (success, model, error) in
+        execute(parameters: parameters) { success, model, error in
             if success {
                 successHandler?(model)
             } else {
@@ -101,48 +100,45 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
             }
         }
     }
-    
-    public func execute<DataBindingType: DataBindingProtocol> (parameters: DataProviderType.ParameterType? = nil,
-                        loadingPresenter : LoadingHandlerProtocol? = nil,
-                        errorAlertPresenter: ErrorHandlerProtocol? = nil,
-                        dataBinding: DataBindingType?)
+
+    public func execute<DataBindingType: DataBindingProtocol>(parameters: DataProviderType.ParameterType? = nil,
+                                                              loadingPresenter: LoadingHandlerProtocol? = nil,
+                                                              errorAlertPresenter: ErrorHandlerProtocol? = nil,
+                                                              dataBinding: DataBindingType?)
         where DataBindingType.ModelType == ResultType,
         DataBindingType.ParameterType == DataProviderType.ParameterType {
-            execute(parameters: parameters, loadingHandler: {
-                loadingPresenter?.presentLoadingView()
-            }, successHandler: { (data) in
-                dataBinding?.bindingData(parameters, data: data)
-            }, failureHandler: { (error) in
-                errorAlertPresenter?.presentErrorAlert(error: error)
-            }) {
-                loadingPresenter?.dismissLoadingView()
-            }
-    }
-    
-    public func execute<DataBindingType: DataBindingProtocol> (parameters: DataProviderType.ParameterType? = nil,
-                        delegate: DataBindingType?)
-        where DataBindingType: LoadingHandlerProtocol,
-        DataBindingType: ErrorHandlerProtocol,
-        DataBindingType.ModelType == ResultType,
-        DataBindingType.ParameterType == DataProviderType.ParameterType {
-            execute(parameters: parameters, loadingPresenter: delegate, errorAlertPresenter: delegate, dataBinding: delegate)
-    }
-    
-    
-    public func execute(parameters:DataProviderType.ParameterType? = nil,
-                        loadingPresenter: LoadingHandlerProtocol? = nil,
-                        errorAlertPresenter: ErrorHandlerProtocol? = nil,
-                        successHandler:((ResultType?) -> ())?) {
         execute(parameters: parameters, loadingHandler: {
             loadingPresenter?.presentLoadingView()
-        }, successHandler: { (data) in
-            successHandler?(data)
-        }, failureHandler: { (error) in
+        }, successHandler: { data in
+            dataBinding?.bindingData(parameters, data: data)
+        }, failureHandler: { error in
             errorAlertPresenter?.presentErrorAlert(error: error)
         }) {
             loadingPresenter?.dismissLoadingView()
         }
     }
-    
-}
 
+    public func execute<DataBindingType: DataBindingProtocol>(parameters: DataProviderType.ParameterType? = nil,
+                                                              delegate: DataBindingType?)
+        where DataBindingType: LoadingHandlerProtocol,
+        DataBindingType: ErrorHandlerProtocol,
+        DataBindingType.ModelType == ResultType,
+        DataBindingType.ParameterType == DataProviderType.ParameterType {
+        execute(parameters: parameters, loadingPresenter: delegate, errorAlertPresenter: delegate, dataBinding: delegate)
+    }
+
+    public func execute(parameters: DataProviderType.ParameterType? = nil,
+                        loadingPresenter: LoadingHandlerProtocol? = nil,
+                        errorAlertPresenter: ErrorHandlerProtocol? = nil,
+                        successHandler: ((ResultType?) -> Void)?) {
+        execute(parameters: parameters, loadingHandler: {
+            loadingPresenter?.presentLoadingView()
+        }, successHandler: { data in
+            successHandler?(data)
+        }, failureHandler: { error in
+            errorAlertPresenter?.presentErrorAlert(error: error)
+        }) {
+            loadingPresenter?.dismissLoadingView()
+        }
+    }
+}

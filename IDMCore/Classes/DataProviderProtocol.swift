@@ -8,12 +8,12 @@
 
 import Foundation
 
-public typealias CancelHandler = ()->Void
+public typealias CancelHandler = () -> Void
 
 public protocol DataProviderProtocol {
     associatedtype ParameterType
     associatedtype DataType
-    
+
     /// Implement this method for requesting/fetching/getting data from Internet/Database/Storage files, ...
     ///
     /// - Parameters:
@@ -21,5 +21,5 @@ public protocol DataProviderProtocol {
     ///   - completion: call completion to forward data to next processing (Integration)
     /// - Returns: a closure to handle cancelling action when the request is cancelled
     @discardableResult
-    func request(parameters: ParameterType?,  completion: @escaping (Bool, DataType?, Error?)->Void) -> CancelHandler?
+    func request(parameters: ParameterType?, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler?
 }

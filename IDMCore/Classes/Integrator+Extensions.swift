@@ -22,19 +22,19 @@ extension Integrator {
             object?.dismissLoadingView()
         }
     }
-    
+
     public func setErrorHandler<T: ErrorHandlerProtocol>(_ object: T) where T: AnyObject {
         onError { [weak object] err in
             object?.presentErrorAlert(error: err)
         }
     }
-    
+
     public func setSuccessHandler<T>(_ object: T) where T: SuccessHandlerProtocol, T: AnyObject {
         onSuccess { [weak object] data in
             object?.handleSuccess(data: data)
         }
     }
-    
+
     public func setDelegate<T>(_ object: T) where T: SuccessHandlerProtocol, T: LoadingHandlerProtocol, T: ErrorHandlerProtocol, T: AnyObject {
         setLoadingHandler(object)
         setErrorHandler(object)
