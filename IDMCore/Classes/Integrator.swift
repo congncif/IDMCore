@@ -45,6 +45,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
 
     open var dataProvider: DataProviderType
     open var executingType: IntegrationType
+    open var noValueError: Error?
 
     fileprivate var defaultCall: IntegrationCall<ResultType> = IntegrationCall<ResultType>()
     fileprivate var infoQueue: [CallInfo] = []
