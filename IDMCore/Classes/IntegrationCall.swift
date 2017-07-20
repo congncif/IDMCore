@@ -210,7 +210,7 @@ public class IntegrationCall<ModelType> {
     public func next<DataProvider: DataProviderProtocol, Model: ModelProtocol, Result>(
         state: NextState = .completion,
         integrator: Integrator<DataProvider,Model,Result>,
-        paramters: DataProvider.ParameterType? = nil,
+        parameters: DataProvider.ParameterType? = nil,
         configuration: @escaping(IntegrationCall<Result>)->() = {_ in}) -> Self {
         
         switch state {
@@ -218,7 +218,7 @@ public class IntegrationCall<ModelType> {
             let success = doSuccess
             doSuccess = { result in
                 success?(result)
-                let integrationCall = integrator.prepareCall(parameters: paramters)
+                let integrationCall = integrator.prepareCall(parameters: parameters)
                 configuration(integrationCall)
                 integrationCall.call()
             }
@@ -227,7 +227,7 @@ public class IntegrationCall<ModelType> {
             let block = doError
             doError = { error in
                 block?(error)
-                let integrationCall = integrator.prepareCall(parameters: paramters)
+                let integrationCall = integrator.prepareCall(parameters: parameters)
                 configuration(integrationCall)
                 integrationCall.call()
             }
@@ -236,7 +236,7 @@ public class IntegrationCall<ModelType> {
             let block = doCompletion
             doCompletion = {
                 block?()
-                let integrationCall = integrator.prepareCall(parameters: paramters)
+                let integrationCall = integrator.prepareCall(parameters: parameters)
                 configuration(integrationCall)
                 integrationCall.call()
             }
@@ -274,13 +274,13 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func nextSuccess<DataProvider: DataProviderProtocol, Model: ModelProtocol, Result>(integrator: Integrator<DataProvider,Model,Result>,
-                            paramters: DataProvider.ParameterType? = nil,
+                            parameters: DataProvider.ParameterType? = nil,
                             configuration: @escaping(IntegrationCall<Result>)->() = {_ in}) -> Self {
         
         let success = doSuccess
         doSuccess = { result in
             success?(result)
-            let next = integrator.prepareCall(parameters: paramters)
+            let next = integrator.prepareCall(parameters: parameters)
             configuration(next)
             next.call()
         }
@@ -303,13 +303,13 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func nextError<DataProvider: DataProviderProtocol, Model: ModelProtocol, Result>(integrator: Integrator<DataProvider,Model, Result>,
-                          paramters: DataProvider.ParameterType? = nil,
+                          parameters: DataProvider.ParameterType? = nil,
                           configuration: @escaping(IntegrationCall<Result>)->() = {_ in}) -> Self {
         let block = doError
         
         doError = { error in
             block?(error)
-            let next = integrator.prepareCall(parameters: paramters)
+            let next = integrator.prepareCall(parameters: parameters)
             configuration(next)
             next.call()
         }
@@ -333,11 +333,11 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func nextCompletion <DataProvider: DataProviderProtocol, Model: ModelProtocol, Result>(integrator: Integrator<DataProvider,Model, Result>,
-                                paramters: DataProvider.ParameterType? = nil, configuration: @escaping(IntegrationCall<Result>)->() = {_ in}) -> Self {
+                                parameters: DataProvider.ParameterType? = nil, configuration: @escaping(IntegrationCall<Result>)->() = {_ in}) -> Self {
         let block = doCompletion
         doCompletion = {
             block?()
-            let next = integrator.prepareCall(parameters: paramters)
+            let next = integrator.prepareCall(parameters: parameters)
             configuration(next)
             next.call()
         }
@@ -350,14 +350,14 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func thenRecall <DataProvider: DataProviderProtocol, Model: ModelProtocol>(with integrator: Integrator<DataProvider, Model, ModelType>,
-                            paramters: DataProvider.ParameterType? = nil) -> Self {
+                            parameters: DataProvider.ParameterType? = nil) -> Self {
         let beginBlock = doBeginning
         let successBlock = doSuccess
         let block = doCompletion
         
         doCompletion = {
             block?()
-            let next: IntegrationCall<ModelType> = integrator.prepareCall(parameters: paramters)
+            let next: IntegrationCall<ModelType> = integrator.prepareCall(parameters: parameters)
             next.doBeginning = beginBlock
             next.doCompletion = block
             next.doSuccess = successBlock

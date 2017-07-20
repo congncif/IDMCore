@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'IDMCore'
-  s.version          = '2.0.10'
+  s.version          = '2.0.11'
   s.summary          = 'Integrator - Data Provider - Model core architecture for data flow'
 
 # This description is used to generate tags and improve search results.
