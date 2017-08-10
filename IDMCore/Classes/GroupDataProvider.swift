@@ -100,11 +100,11 @@ public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvid
 
         let grouptasks: DispatchGroup = DispatchGroup()
 
-        requestSubItem(sub: firstProvider, grouptasks: grouptasks, parameter: parameters?.0, cancelBlocks: &cancelBlocks) { [unowned self] s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result1, error: &resultsError, s: s, d: d, e: e)
+        requestSubItem(sub: firstProvider, grouptasks: grouptasks, parameter: parameters?.0, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result1, error: &resultsError, s: s, d: d, e: e)
         }
-        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters?.1, cancelBlocks: &cancelBlocks) { s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
+        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters?.1, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
         }
 
         grouptasks.notify(queue: DispatchQueue.global(qos: .background)) {
@@ -152,15 +152,15 @@ public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
 
         let grouptasks: DispatchGroup = DispatchGroup()
 
-        requestSubItem(sub: firstProvider.firstProvider, grouptasks: grouptasks, parameter: parameters?.0, cancelBlocks: &cancelBlocks) { [unowned self] s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result1, error: &resultsError, s: s, d: d, e: e)
+        requestSubItem(sub: firstProvider.firstProvider, grouptasks: grouptasks, parameter: parameters?.0, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result1, error: &resultsError, s: s, d: d, e: e)
         }
-        requestSubItem(sub: firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.1, cancelBlocks: &cancelBlocks) { s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
+        requestSubItem(sub: firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.1, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
         }
 
-        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters?.2, cancelBlocks: &cancelBlocks) { s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result3, error: &resultsError, s: s, d: d, e: e)
+        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters?.2, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result3, error: &resultsError, s: s, d: d, e: e)
         }
 
         grouptasks.notify(queue: DispatchQueue.global(qos: .background)) {
@@ -207,19 +207,19 @@ public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
 
         let grouptasks: DispatchGroup = DispatchGroup()
 
-        requestSubItem(sub: firstProvider.firstProvider.firstProvider, grouptasks: grouptasks, parameter: parameters?.0, cancelBlocks: &cancelBlocks) { [unowned self] s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result1, error: &resultsError, s: s, d: d, e: e)
+        requestSubItem(sub: firstProvider.firstProvider.firstProvider, grouptasks: grouptasks, parameter: parameters?.0, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result1, error: &resultsError, s: s, d: d, e: e)
         }
-        requestSubItem(sub: firstProvider.firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.1, cancelBlocks: &cancelBlocks) { s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
-        }
-
-        requestSubItem(sub: firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.2, cancelBlocks: &cancelBlocks) { s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result3, error: &resultsError, s: s, d: d, e: e)
+        requestSubItem(sub: firstProvider.firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.1, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
         }
 
-        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters?.3, cancelBlocks: &cancelBlocks) { s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result4, error: &resultsError, s: s, d: d, e: e)
+        requestSubItem(sub: firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.2, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result3, error: &resultsError, s: s, d: d, e: e)
+        }
+
+        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters?.3, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result4, error: &resultsError, s: s, d: d, e: e)
         }
 
         grouptasks.notify(queue: DispatchQueue.global(qos: .background)) {
@@ -267,23 +267,23 @@ public class Group5DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
 
         let grouptasks: DispatchGroup = DispatchGroup()
 
-        requestSubItem(sub: firstProvider.firstProvider.firstProvider.firstProvider, grouptasks: grouptasks, parameter: parameters?.0, cancelBlocks: &cancelBlocks) { [unowned self] s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result1, error: &resultsError, s: s, d: d, e: e)
+        requestSubItem(sub: firstProvider.firstProvider.firstProvider.firstProvider, grouptasks: grouptasks, parameter: parameters?.0, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result1, error: &resultsError, s: s, d: d, e: e)
         }
-        requestSubItem(sub: firstProvider.firstProvider.firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.1, cancelBlocks: &cancelBlocks) { s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
-        }
-
-        requestSubItem(sub: firstProvider.firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.2, cancelBlocks: &cancelBlocks) { s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result3, error: &resultsError, s: s, d: d, e: e)
+        requestSubItem(sub: firstProvider.firstProvider.firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.1, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
         }
 
-        requestSubItem(sub: firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.3, cancelBlocks: &cancelBlocks) { s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result4, error: &resultsError, s: s, d: d, e: e)
+        requestSubItem(sub: firstProvider.firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.2, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result3, error: &resultsError, s: s, d: d, e: e)
         }
 
-        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters?.4, cancelBlocks: &cancelBlocks) { s, d, e in
-            self.processSubRequestDone(success: &resultsSuccess, result: &result5, error: &resultsError, s: s, d: d, e: e)
+        requestSubItem(sub: firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.3, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result4, error: &resultsError, s: s, d: d, e: e)
+        }
+
+        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters?.4, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+            self?.processSubRequestDone(success: &resultsSuccess, result: &result5, error: &resultsError, s: s, d: d, e: e)
         }
 
         grouptasks.notify(queue: DispatchQueue.global(qos: .background)) {
