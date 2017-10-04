@@ -11,7 +11,7 @@ import Foundation
 infix operator >>>>: AdditionPrecedence
 
 extension DataProviderProtocol {
-    public static func >>>> <SecondProvider: DataProviderProtocol>(left: Self, right: SecondProvider) -> SequenceDataProvider<Self, SecondProvider> where Self.DataType == SecondProvider.ParameterType {
+    public static func >>>> <SecondProvider: DataProviderProtocol>(left: Self, right: SecondProvider) -> SequenceDataProvider<Self, SecondProvider> {
         return SequenceDataProvider(left, right)
     }
 }

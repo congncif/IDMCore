@@ -16,15 +16,15 @@ public func >><< <A: DataProviderProtocol, B: DataProviderProtocol>(left: A, rig
     return GroupDataProvider(left, right)
 }
 
-public func >><< <A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol>(left: GroupDataProvider<A, B>, right: C) -> Group3DataProvider<A, B, C> {
+public func >><< <A, B, C: DataProviderProtocol>(left: GroupDataProvider<A, B>, right: C) -> Group3DataProvider<A, B, C> {
     return Group3DataProvider(left, right)
 }
 
-public func >><< <A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol, D: DataProviderProtocol>(left: Group3DataProvider<A, B, C>, right: D) -> Group4DataProvider<A, B, C, D> {
+public func >><< <A, B, C, D: DataProviderProtocol>(left: Group3DataProvider<A, B, C>, right: D) -> Group4DataProvider<A, B, C, D> {
     return Group4DataProvider(left, right)
 }
 
-public func >><< <A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol, D: DataProviderProtocol, E: DataProviderProtocol>(left: Group4DataProvider<A, B, C, D>, right: E) -> Group5DataProvider<A, B, C, D, E> {
+public func >><< <A, B, C, D, E: DataProviderProtocol>(left: Group4DataProvider<A, B, C, D>, right: E) -> Group5DataProvider<A, B, C, D, E> {
     return Group5DataProvider(left, right)
 }
 
