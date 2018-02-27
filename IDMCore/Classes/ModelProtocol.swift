@@ -13,8 +13,8 @@ public protocol ModelProtocol {
 
     init?(from data: DataType?)
     func getData<ReturnType>() -> ReturnType?
-    
-    var invalidDataError: Error? {get}
+
+    var invalidDataError: Error? { get }
 }
 
 public protocol SelfModelProtocol: ModelProtocol {}
@@ -37,7 +37,7 @@ extension ModelProtocol {
         }
         fatalError("Result Type only accept type \(Self.self)")
     }
-    
+
     public var invalidDataError: Error? {
         return nil
     }

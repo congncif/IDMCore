@@ -8,9 +8,9 @@
 
 import Foundation
 
-open class DefaultDataBinding<ParameterType, ModelType>: DataBindingProtocol {
-    open func bindingData(_: ParameterType?, data _: ModelType?) {
-        fatalError("Must overrided by subclass")
+open class DataProcessor<ParameterType, ModelType>: DataProcessingProtocol {
+    open func process(data: ModelType?) {
+        print("Need override function \(#function) to process data: \(String(describing: data))")
     }
 }
 
@@ -218,8 +218,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                          self?.defaultCall.onCompletion?()
                          completionHandler?()
                      }
-                 }
-        )
+        })
     }
 
     /*********************************************************************************/

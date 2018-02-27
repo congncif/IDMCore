@@ -28,14 +28,14 @@ class IntegrationCallManager {
     }
     
     func retryCount(for id: String) -> Int {
-        guard let value = calls[id] else{
+        guard let value = calls[id] else {
             return 0
         }
         return value
     }
     
     func retry(with id: String) {
-        guard let value = calls[id] else{
+        guard let value = calls[id] else {
             return
         }
         if value > 0 {
@@ -47,10 +47,10 @@ class IntegrationCallManager {
 
 public class IntegrationCall<ModelType> {
     
-    fileprivate var doBeginning: (()->())?
-    fileprivate var doSuccess: ((ModelType?)->())?
-    fileprivate var doError: ((Error?)->())?
-    fileprivate var doCompletion: (()->())?
+    fileprivate var doBeginning: (() -> ())?
+    fileprivate var doSuccess: ((ModelType?) -> ())?
+    fileprivate var doError: ((Error?) -> ())?
+    fileprivate var doCompletion: (() -> ())?
     fileprivate var doCall: ((IntegrationCall<ModelType>) -> ())?
     
     fileprivate var retryCount: Int = 0
@@ -69,7 +69,7 @@ public class IntegrationCall<ModelType> {
     }
     
     /*********************************************************************************/
-    //MARK: - Getters
+    // MARK: - Getters
     /*********************************************************************************/
     
     func handleError(error: Error?) {
@@ -97,51 +97,50 @@ public class IntegrationCall<ModelType> {
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + retryDelay, execute: call)
     }
     
-    var onError: ((Error?)->())? {
+    var onError: ((Error?) -> ())? {
         return doError
     }
     
-    var onBeginning: (()->())? {
+    var onBeginning: (() -> ())? {
         return doBeginning
     }
     
-    var onSuccess: ((ModelType?)->())? {
+    var onSuccess: ((ModelType?) -> ())? {
         return doSuccess
     }
     
-    var onCompletion: (()->())? {
+    var onCompletion: (() -> ())? {
         return doCompletion
     }
     
-    
     /*********************************************************************************/
-    //MARK: - Execute
+    // MARK: - Execute
     /*********************************************************************************/
     
-    func doCall(_ handler: ((IntegrationCall<ModelType>)->())?) {
-        self.doCall = handler
+    func doCall(_ handler: ((IntegrationCall<ModelType>) -> ())?) {
+        doCall = handler
     }
     
     @discardableResult
-    public func onBeginning(_ handler: (()->())?) -> Self {
+    public func onBeginning(_ handler: (() -> ())?) -> Self {
         doBeginning = handler
         return self
     }
     
     @discardableResult
-    public func onSuccess(_ handler: ((ModelType?)->())?) -> Self {
+    public func onSuccess(_ handler: ((ModelType?) -> ())?) -> Self {
         doSuccess = handler
         return self
     }
     
     @discardableResult
-    public func onError(_ handler: ((Error?)->())?) -> Self {
+    public func onError(_ handler: ((Error?) -> ())?) -> Self {
         doError = handler
         return self
     }
     
     @discardableResult
-    public func onCompletion(_ handler: (()->())?) -> Self {
+    public func onCompletion(_ handler: (() -> ())?) -> Self {
         doCompletion = handler
         return self
     }
@@ -154,17 +153,16 @@ public class IntegrationCall<ModelType> {
         requiredCall.next(state: state, integrationCall: self).call()
     }
     
-    
     /*********************************************************************************/
-    //MARK: - Retry
+    // MARK: - Retry
     /*********************************************************************************/
     
     @discardableResult
     public func retry(_ retryCount: Int, delay: TimeInterval = 0.3, silent: Bool = true) -> Self {
         //        IntegrationCallManager.shared.add(id: idenitifier, count: retryCount)
         self.retryCount = retryCount
-        self.silentRetry = silent
-        self.retryDelay = delay
+        silentRetry = silent
+        retryDelay = delay
         return self
     }
     
@@ -175,7 +173,7 @@ public class IntegrationCall<ModelType> {
     }
     
     /*********************************************************************************/
-    //MARK: - Advance Next
+    // MARK: - Advance Next
     /*********************************************************************************/
     
     @discardableResult
@@ -207,11 +205,10 @@ public class IntegrationCall<ModelType> {
     }
     
     @discardableResult
-    public func next<DataProvider, Model, Result>(
-        state: NextState = .completion,
-        integrator: Integrator<DataProvider, Model, Result>,
-        parameters: DataProvider.ParameterType? = nil,
-        configuration: @escaping(IntegrationCall<Result>)->() = {_ in}) -> Self {
+    public func next<DataProvider, Model, Result>(state: NextState = .completion,
+                                                  integrator: Integrator<DataProvider, Model, Result>,
+                                                  parameters: DataProvider.ParameterType? = nil,
+                                                  configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self {
         
         switch state {
         case .success:
@@ -267,15 +264,14 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    
     /*********************************************************************************/
-    //MARK: - Manually next
+    // MARK: - Manually next
     /*********************************************************************************/
     
     @discardableResult
-    public func nextSuccess<DataProvider, Model, Result>(integrator: Integrator<DataProvider,Model,Result>,
-                            parameters: DataProvider.ParameterType? = nil,
-                            configuration: @escaping(IntegrationCall<Result>)->() = {_ in}) -> Self {
+    public func nextSuccess<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
+                                                         parameters: DataProvider.ParameterType? = nil,
+                                                         configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self {
         
         let success = doSuccess
         doSuccess = { result in
@@ -290,7 +286,7 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func forwardSuccess<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
-                               configuration: @escaping(IntegrationCall<Result>)->() = {_ in}) -> Self where DataProvider.ParameterType == ModelType {
+                                                            configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self where DataProvider.ParameterType == ModelType {
         let success = doSuccess
         doSuccess = { result in
             success?(result)
@@ -303,8 +299,8 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func nextError<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
-                          parameters: DataProvider.ParameterType? = nil,
-                          configuration: @escaping(IntegrationCall<Result>)->() = {_ in}) -> Self {
+                                                       parameters: DataProvider.ParameterType? = nil,
+                                                       configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self {
         let block = doError
         
         doError = { error in
@@ -319,7 +315,7 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func fowardError<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
-                            configuration: @escaping(IntegrationCall<Result>)->() = {_ in}) -> Self where DataProvider.ParameterType == Error {
+                                                         configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self where DataProvider.ParameterType == Error {
         let block = doError
         doError = { error in
             block?(error)
@@ -332,8 +328,9 @@ public class IntegrationCall<ModelType> {
     }
     
     @discardableResult
-    public func nextCompletion <DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
-                                parameters: DataProvider.ParameterType? = nil, configuration: @escaping(IntegrationCall<Result>)->() = {_ in}) -> Self {
+    public func nextCompletion<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
+                                                            parameters: DataProvider.ParameterType? = nil,
+                                                            configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self {
         let block = doCompletion
         doCompletion = {
             block?()
@@ -345,12 +342,12 @@ public class IntegrationCall<ModelType> {
     }
     
     /*********************************************************************************/
-    //MARK: - ThenRecall
+    // MARK: - ThenRecall
     /*********************************************************************************/
     
     @discardableResult
-    public func thenRecall <DataProvider, Model>(with integrator: Integrator<DataProvider, Model, ModelType>,
-                            parameters: DataProvider.ParameterType? = nil) -> Self {
+    public func thenRecall<DataProvider, Model>(with integrator: Integrator<DataProvider, Model, ModelType>,
+                                                parameters: DataProvider.ParameterType? = nil) -> Self {
         let beginBlock = doBeginning
         let successBlock = doSuccess
         let block = doCompletion
@@ -365,6 +362,5 @@ public class IntegrationCall<ModelType> {
         }
         return self
     }
-    
     
 }
