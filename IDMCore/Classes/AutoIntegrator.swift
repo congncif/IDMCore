@@ -13,6 +13,10 @@ open class MagicalIntegrator<IntegrateProvider: DataProviderProtocol, IntegrateM
     public override init(dataProvider: IntegrateProvider, modelType: IntegrateModel.Type, executingType: IntegrationType = .default) {
         super.init(dataProvider: dataProvider, modelType: modelType, executingType: executingType)
     }
+    
+    public convenience init(dataProvider: DataProviderType) {
+        self.init(dataProvider: dataProvider, modelType: IntegrateModel.self)
+    }
 }
 
 open class AmazingIntegrator<IntegrateProvider: DataProviderProtocol>: Integrator<IntegrateProvider, AutoWrapModel<IntegrateProvider.DataType>, IntegrateProvider.DataType> {
