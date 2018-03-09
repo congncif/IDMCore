@@ -1,3 +1,25 @@
+/**
+ Copyright (c) 2016 Nguyen Chi Cong
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 //
 //  IntegrationCall.swift
 //  IDMCore
@@ -46,7 +68,6 @@ class IntegrationCallManager {
 }
 
 public class IntegrationCall<ModelType> {
-    
     fileprivate var doBeginning: (() -> ())?
     fileprivate var doSuccess: ((ModelType?) -> ())?
     fileprivate var doError: ((Error?) -> ())?
@@ -69,7 +90,9 @@ public class IntegrationCall<ModelType> {
     }
     
     /*********************************************************************************/
+    
     // MARK: - Getters
+    
     /*********************************************************************************/
     
     func handleError(error: Error?) {
@@ -114,7 +137,9 @@ public class IntegrationCall<ModelType> {
     }
     
     /*********************************************************************************/
+    
     // MARK: - Execute
+    
     /*********************************************************************************/
     
     func doCall(_ handler: ((IntegrationCall<ModelType>) -> ())?) {
@@ -154,7 +179,9 @@ public class IntegrationCall<ModelType> {
     }
     
     /*********************************************************************************/
+    
     // MARK: - Retry
+    
     /*********************************************************************************/
     
     @discardableResult
@@ -173,7 +200,9 @@ public class IntegrationCall<ModelType> {
     }
     
     /*********************************************************************************/
+    
     // MARK: - Advance Next
+    
     /*********************************************************************************/
     
     @discardableResult
@@ -209,7 +238,6 @@ public class IntegrationCall<ModelType> {
                                                   integrator: Integrator<DataProvider, Model, Result>,
                                                   parameters: DataProvider.ParameterType? = nil,
                                                   configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self {
-        
         switch state {
         case .success:
             let success = doSuccess
@@ -240,7 +268,6 @@ public class IntegrationCall<ModelType> {
         }
         
         return self
-        
     }
     
     public func forwardSuccess<Result>(callBuilder: @escaping (ModelType?) -> IntegrationCall<Result>) -> Self {
@@ -265,14 +292,15 @@ public class IntegrationCall<ModelType> {
     }
     
     /*********************************************************************************/
+    
     // MARK: - Manually next
+    
     /*********************************************************************************/
     
     @discardableResult
     public func nextSuccess<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
                                                          parameters: DataProvider.ParameterType? = nil,
                                                          configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self {
-        
         let success = doSuccess
         doSuccess = { result in
             success?(result)
@@ -342,7 +370,9 @@ public class IntegrationCall<ModelType> {
     }
     
     /*********************************************************************************/
+    
     // MARK: - ThenRecall
+    
     /*********************************************************************************/
     
     @discardableResult
@@ -362,5 +392,4 @@ public class IntegrationCall<ModelType> {
         }
         return self
     }
-    
 }

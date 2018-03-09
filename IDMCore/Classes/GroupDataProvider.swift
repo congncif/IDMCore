@@ -1,3 +1,25 @@
+/**
+ Copyright (c) 2016 Nguyen Chi Cong
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 //
 //  GroupDataProvider.swift
 //  IDMCore
@@ -36,7 +58,6 @@ extension DataProviderProtocol {
                                                  parameter: S.ParameterType?,
                                                  cancelBlocks: inout [(() -> Void)],
                                                  done: @escaping (Bool, S.DataType?, Error?) -> Void) {
-
         var resultLocal: S.DataType?
         var successLocal = true
         var errorLocal: Error?
@@ -75,7 +96,6 @@ extension DataProviderProtocol {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvider: DataProviderProtocol>: DataProviderProtocol {
-
     public typealias ParameterType = (FirstProvider.ParameterType?, SecondProvider.ParameterType?)
     public typealias DataType = (FirstProvider.DataType?, SecondProvider.DataType?)
 
@@ -89,7 +109,6 @@ public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvid
 
     @discardableResult
     public func request(parameters: ParameterType?, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
-
         var cancelBlocks: [(() -> Void)] = []
 
         var resultsSuccess = true
@@ -124,7 +143,6 @@ public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvid
 }
 
 public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol>: DataProviderProtocol {
-
     public typealias G2 = GroupDataProvider<A, B>
 
     public typealias ParameterType = (A.ParameterType?, B.ParameterType?, C.ParameterType?)
@@ -140,7 +158,6 @@ public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
 
     @discardableResult
     public func request(parameters: ParameterType?, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
-
         var cancelBlocks: [(() -> Void)] = []
 
         var resultsSuccess = true
@@ -194,7 +211,6 @@ public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
     }
 
     public func request(parameters: ParameterType?, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
-
         var cancelBlocks: [(() -> Void)] = []
 
         var resultsSuccess = true
@@ -253,7 +269,6 @@ public class Group5DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
     }
 
     public func request(parameters: ParameterType?, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
-
         var cancelBlocks: [(() -> Void)] = []
 
         var resultsSuccess = true

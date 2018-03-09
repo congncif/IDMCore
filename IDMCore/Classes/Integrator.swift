@@ -1,4 +1,26 @@
 //
+/**
+ Copyright (c) 2016 Nguyen Chi Cong
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 //  Integrator.swift
 //  IDMCore
 //
@@ -8,7 +30,7 @@
 
 import Foundation
 
-open class DataProcessor<ParameterType, ModelType>: DataProcessingProtocol {
+open class DataProcessor<ModelType>: DataProcessingProtocol {
     open func process(data: ModelType?) {
         print("Need override function \(#function) to process data: \(String(describing: data))")
     }
@@ -36,7 +58,6 @@ public enum IntegrationType {
 }
 
 open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: ModelProtocol, IntegrateResult>: IntegrationProtocol where IntegrateProvider.DataType == IntegrateModel.DataType {
-
     typealias CallInfo = IntegrationInfo<ResultType, DataProviderType.ParameterType>
 
     public typealias DataProviderType = IntegrateProvider
@@ -174,7 +195,9 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     }
 
     /*********************************************************************************/
+
     // MARK: - Execute
+
     /*********************************************************************************/
 
     open func execute(parameters: DataProviderType.ParameterType? = nil, completion: ((Bool, ResultType?, Error?) -> Void)? = nil) {
@@ -200,7 +223,6 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                       successHandler: ((ResultType?) -> Void)?,
                       failureHandler: ((Error?) -> Void)? = nil,
                       completionHandler: (() -> Void)?) {
-
         schedule(parameters: parameters,
                  loading: { [weak self] in
                      self?.defaultCall.onBeginning?()
@@ -222,7 +244,9 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     }
 
     /*********************************************************************************/
+
     // MARK: - Default handlers
+
     /*********************************************************************************/
 
     @discardableResult
@@ -250,7 +274,9 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     }
 
     /*********************************************************************************/
+
     // MARK: - Integration Call
+
     /*********************************************************************************/
 
     public func prepareCall(parameters: DataProviderType.ParameterType? = nil) -> IntegrationCall<ResultType> {
