@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'IDMCore'
-  s.version          = '2.2.2'
+  s.version          = '2.3.0'
   s.summary          = 'Integrator - Data Provider - Model core architecture for data flow'
 
 # This description is used to generate tags and improve search results.
@@ -39,5 +39,5 @@ s.source_files = 'IDMCore/Classes/*.swift'
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
 s.frameworks = 'Foundation'
-#s.dependency 'SwiftTask'
+#s.dependency 'Result'
 end

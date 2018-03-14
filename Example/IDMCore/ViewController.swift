@@ -32,20 +32,39 @@ class DataProvider2: DataProviderProtocol {
 
 class ViewController: UIViewController {
 
-    let integrator = AmazingIntegrator(dataProvider: DataProvider2() >>>> DataProvider1())
+    let service = AmazingIntegrator(dataProvider: DataProvider1())
+//    let integrator = AmazingIntegrator(dataProvider: DataProvider2() >>>> DataProvider1())
 
-    let integrator2 = AmazingIntegrator(dataProvider: DataProvider1() >><< DataProvider2())
+//    let integrator2 = AmazingIntegrator(dataProvider: DataProvider1() >><< DataProvider2())
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        integrator.prepareCall().onSuccess { result in
-            print(result ?? "x")
-        }.call()
+//        integrator.prepareCall().onSuccess { result in
+//            print(result ?? "x")
+//        }.call()
+//
+//        integrator2.prepareCall().onSuccess { results in
+//            print(results ?? "x")
+//        }.call()
+        
+        let calls = ["", "", ""].map { p in
+            service.prepareCall().onSuccess({ (text) in
+                print("Success: \(text)")
+            })
+        }
 
-        integrator2.prepareCall().onSuccess { results in
-            print(results ?? "x")
-        }.call()
+        IntegrationBatchCall.chant(calls: calls) { (result) in
+            print(result)
+        }
+        
+//        service.prepareCall().onSuccess({ (text) in
+//            print("Success: \(text)")
+//        })
+//            .next(state: .success) { (result) in
+//             print(result)
+//        }
+//            .call()
     }
 
     override func didReceiveMemoryWarning() {

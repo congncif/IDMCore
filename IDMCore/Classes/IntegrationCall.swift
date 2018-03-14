@@ -36,6 +36,11 @@ public enum NextState {
     case completion
 }
 
+public enum Result<Value> {
+    case success(Value?)
+    case failure(Error?)
+}
+
 class IntegrationCallManager {
     static let shared = IntegrationCallManager()
     
@@ -82,11 +87,15 @@ public class IntegrationCall<ModelType> {
     
     init() {
         idenitifier = ProcessInfo.processInfo.globallyUniqueString
-        //        print("Created integration call: \(idenitifier)")
+        #if DEBUG
+            print("Created integration call: \(idenitifier)")
+        #endif
     }
     
     deinit {
-        //        print("Released integration call \(idenitifier)")
+        #if DEBUG
+            print("Released integration call \(idenitifier)")
+        #endif
     }
     
     /*********************************************************************************/
@@ -227,6 +236,34 @@ public class IntegrationCall<ModelType> {
             doCompletion = {
                 block?()
                 integrationCall.call()
+            }
+        }
+        
+        return self
+    }
+    
+    @discardableResult
+    public func next(state: NextState = .completion, nextBlock: ((Result<ModelType>?) -> ())? = nil) -> Self {
+        switch state {
+        case .success:
+            let success = doSuccess
+            doSuccess = { result in
+                success?(result)
+                nextBlock?(Result.success(result))
+            }
+            
+        case .error:
+            let block = doError
+            doError = { error in
+                block?(error)
+                nextBlock?(Result.failure(error))
+            }
+            
+        case .completion:
+            let block = doCompletion
+            doCompletion = {
+                block?()
+                nextBlock?(nil)
             }
         }
         
