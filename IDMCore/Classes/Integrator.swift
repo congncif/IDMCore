@@ -237,8 +237,17 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                          failureHandler?(error)
                      }
                      defer {
-                         self?.defaultCall.onCompletion?()
-                         completionHandler?()
+                        if let delayObject = model as? DelayingCompletionProtocol {
+                            if delayObject.isDelaying {
+//                                print("Delaying completion: \(String(describing: delayObject)) ...")
+                            } else {
+                                self?.defaultCall.onCompletion?()
+                                completionHandler?()
+                            }
+                        } else {
+                            self?.defaultCall.onCompletion?()
+                            completionHandler?()
+                        }
                      }
         })
     }

@@ -44,6 +44,10 @@ public protocol DataProcessingProtocol {
     func process(data: ModelType?)
 }
 
+public protocol DelayingCompletionProtocol {
+    var isDelaying: Bool { get }
+}
+
 public protocol IntegrationProtocol {
     associatedtype DataProviderType: DataProviderProtocol
     associatedtype ModelType: ModelProtocol

@@ -87,15 +87,15 @@ public class IntegrationCall<ModelType> {
     
     init() {
         idenitifier = ProcessInfo.processInfo.globallyUniqueString
-        #if DEBUG
-            print("Created integration call: \(idenitifier)")
-        #endif
+//        #if DEBUG
+//            print("Created integration call: \(idenitifier)")
+//        #endif
     }
     
     deinit {
-        #if DEBUG
-            print("Released integration call \(idenitifier)")
-        #endif
+//        #if DEBUG
+//            print("Released integration call \(idenitifier)")
+//        #endif
     }
     
     /*********************************************************************************/

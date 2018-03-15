@@ -31,9 +31,9 @@ import Foundation
 
 public class IntegrationBatchCall {
     public init() {
-        #if DEBUG
-            print("Created a batch call")
-        #endif
+//        #if DEBUG
+//            print("Created a batch call")
+//        #endif
     }
     
     public func chant<M>(calls: [IntegrationCall<M>], completion: (([Result<M>]) -> Void)?) {
@@ -68,8 +68,8 @@ public class IntegrationBatchCall {
     }
     
     deinit {
-        #if DEBUG
-            print("Batch call is released")
-        #endif
+//        #if DEBUG
+//            print("Batch call is released")
+//        #endif
     }
 }
