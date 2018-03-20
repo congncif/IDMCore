@@ -82,6 +82,7 @@ public class IntegrationCall<ModelType> {
     fileprivate var retryCount: Int = 0
     fileprivate var retryDelay: TimeInterval = 0
     fileprivate var silentRetry: Bool = true
+    fileprivate var callQueue: DispatchQueue = DispatchQueue.main
     fileprivate var ignoreUnknownError: Bool = true
     fileprivate var idenitifier: String
     
@@ -112,21 +113,23 @@ public class IntegrationCall<ModelType> {
         }
         
         let internalError = onError
-        //        let retryCount = IntegrationCallManager.shared.retryCount(for: id)
-        
+        /**
+            let retryCount = IntegrationCallManager.shared.retryCount(for: id)
+         */
         guard retryCount > 0 else {
             internalError?(error)
             return
         }
-        //        IntegrationCallManager.shared.retry(with: id)
-        
+        /**
+         IntegrationCallManager.shared.retry(with: id)
+         */
         if !silentRetry {
             internalError?(error)
         }
         retryCount -= 1
         //        print("Retry integration call \(idenitifier): -> \(retryCount)")
         
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + retryDelay, execute: call)
+        call(queue: callQueue, delay: retryDelay)
     }
     
     var onError: ((Error?) -> ())? {
@@ -179,8 +182,11 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    public func call() {
-        doCall?(self)
+    public func call(queue: DispatchQueue = DispatchQueue.global(), delay: Double = 0) {
+        callQueue = queue
+        queue.asyncAfter(deadline: .now() + delay) {
+            self.doCall?(self)
+        }
     }
     
     public func call<Result>(dependOn requiredCall: IntegrationCall<Result>, with state: NextState = .completion) {
@@ -195,7 +201,9 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func retry(_ retryCount: Int, delay: TimeInterval = 0.3, silent: Bool = true) -> Self {
-        //        IntegrationCallManager.shared.add(id: idenitifier, count: retryCount)
+        /**
+            IntegrationCallManager.shared.add(id: idenitifier, count: retryCount)
+        */
         self.retryCount = retryCount
         silentRetry = silent
         retryDelay = delay
