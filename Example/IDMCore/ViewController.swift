@@ -1,4 +1,5 @@
 //
+import IDMCore
 //  ViewController.swift
 //  IDMCore
 //
@@ -7,7 +8,6 @@
 //
 
 import UIKit
-import IDMCore
 
 struct TestDelay: DelayingCompletionProtocol {
     var isDelaying: Bool
@@ -15,14 +15,13 @@ struct TestDelay: DelayingCompletionProtocol {
 }
 
 class DataProvider1: DataProviderProtocol {
-
     func request(parameters _: String?, completion: @escaping ((Bool, String?, Error?) -> Void)) -> (() -> Void)? {
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(3)) {
             completion(true, "result 1", nil)
-            completion(true, "result 2", nil)
-            completion(true, "result 3", nil)
-            completion(true, "result 4", nil)
-            completion(true, "result 5", nil)
+//            completion(true, "result 2", nil)
+//            completion(true, "result 3", nil)
+//            completion(true, "result 4", nil)
+//            completion(true, "result 5", nil)
         }
 
         return {}
@@ -32,27 +31,27 @@ class DataProvider1: DataProviderProtocol {
 class DataProvider2: DataProviderProtocol {
     func request(parameters _: Int?, completion: @escaping ((Bool, TestDelay?, Error?) -> Void)) -> (() -> Void)? {
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(2)) {
-            completion(true, TestDelay(isDelaying: true, text: "result 2"), nil)
+            completion(false, TestDelay(isDelaying: true, text: "result 2"), nil)
         }
-        
-        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(3)) {
-            completion(true, TestDelay(isDelaying: true, text: "result 3"), nil)
-        }
-        
-        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(4)) {
-            completion(true, TestDelay(isDelaying: true, text: "result 4"), nil)
-        }
-        
-        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(5)) {
-            completion(true, TestDelay(isDelaying: false, text: "result 5"), nil)
-        }
+
+//        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(3)) {
+//            completion(true, TestDelay(isDelaying: true, text: "result 3"), nil)
+//        }
+//
+//        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(4)) {
+//            completion(true, TestDelay(isDelaying: true, text: "result 4"), nil)
+//        }
+//
+//        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(5)) {
+//            completion(true, TestDelay(isDelaying: false, text: "result 5"), nil)
+//        }
 
         return {}
     }
 }
 
 class ViewController: UIViewController {
-
+    let retryService = AmazingIntegrator(dataProvider: DataProvider1())
     let service = AmazingIntegrator(dataProvider: DataProvider2())
 //    let integrator = AmazingIntegrator(dataProvider: DataProvider2() >>>> DataProvider1())
 
@@ -68,7 +67,7 @@ class ViewController: UIViewController {
 //        integrator2.prepareCall().onSuccess { results in
 //            print(results ?? "x")
 //        }.call()
-        
+
 //        let calls = ["", "", ""].map { p in
 //            service.prepareCall().onSuccess({ (text) in
 //                print("Success: \(text)")
@@ -78,12 +77,31 @@ class ViewController: UIViewController {
 //        IntegrationBatchCall.chant(calls: calls) { (result) in
 //            print(result)
 //        }
-        
-        service.prepareCall().onSuccess({ (text) in
-            print("Success: \(text)")
-        }).onCompletion({
-            print("Completed")
-        })
+
+        let call = retryService.prepareCall()
+            .onSuccess { res in
+                print("Retry success: \(res)")
+            }.onCompletion {
+                print("Retry done")
+            }
+
+        service.prepareCall()
+            .onBeginning({
+                print("Start.....")
+            })
+            .onSuccess({ text in
+                print("Success: \(text)")
+            })
+            .onCompletion({
+                print("Completed")
+            })
+            .onError({ err in
+                print(err)
+            })
+            .ignoreUnknownError(false)
+            .retry(2)
+            .retryCall(call)
+//            .call(dependOn: call)
             .call()
     }
 
