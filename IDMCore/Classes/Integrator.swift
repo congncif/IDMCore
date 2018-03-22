@@ -302,7 +302,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     }
 
     @discardableResult
-    public func tryRecall<D, M, R>(_ integrator: Integrator<D, M, R>, state: NextState = .completion, configuration: ((IntegrationCall<R>) -> Void)? = nil) -> Self {
+    public func retryCall<D, M, R>(_ integrator: Integrator<D, M, R>, state: NextState = .completion, configuration: ((IntegrationCall<R>) -> Void)? = nil) -> Self {
         retrySetBlock = nil
         retrySetBlock = { call in
             let queue = call.callQueue
@@ -318,7 +318,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     }
 
     @discardableResult
-    public func tryRecall<D, M, R>(_ integrator: Integrator<D, M, R>, state: NextState = .completion, configuration: ((IntegrationCall<R>) -> Void)? = nil) -> Self where D.ParameterType: Error {
+    public func retryCall<D, M, R>(_ integrator: Integrator<D, M, R>, state: NextState = .completion, configuration: ((IntegrationCall<R>) -> Void)? = nil) -> Self where D.ParameterType: Error {
         retrySetBlock = nil
         retrySetBlock = { call in
             call.retryIntegrator(integrator, state: state, configuration: configuration)

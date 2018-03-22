@@ -105,9 +105,9 @@ public class IntegrationCall<ModelType> {
         retryErrorBlock = nil
         retryBlock = nil
         
-        #if DEBUG
-            print("Released integration call \(idenitifier)")
-        #endif
+//        #if DEBUG
+//            print("\(self): Released integration call \(idenitifier)")
+//        #endif
     }
     
     /*********************************************************************************/
@@ -264,7 +264,19 @@ public class IntegrationCall<ModelType> {
     @discardableResult
     public func retryCall<Result>(_ integrationCall: IntegrationCall<Result>, state: NextState = .completion) -> Self {
         retryBlock = nil
+        
         let newCall = integrationCall.next(state: state, integrationCall: self)
+        
+        switch state {
+        case .error, .success:
+            newCall.next(state: .completion, nextBlock: { [weak self] _ in
+                self?.retryErrorBlock = nil
+                self?.retryBlock = nil
+            })
+        default:
+            break
+        }
+        
         let queue = callQueue
         let delay = callDelay
         retryBlock = {
@@ -280,11 +292,24 @@ public class IntegrationCall<ModelType> {
         retryErrorBlock = nil
         let queue = callQueue
         let delay = callDelay
-        retryErrorBlock = { err in
+        
+        retryErrorBlock = { [weak self] err in
+            guard let this = self else { return }
             let param = err as? D.ParameterType
             let newCall = integrator.prepareCall(parameters: param)
             configuration?(newCall)
-            newCall.next(state: state, integrationCall: self)
+            
+            switch state {
+            case .error, .success:
+                newCall.next(state: .completion, nextBlock: { [weak self] _ in
+                    self?.retryErrorBlock = nil
+                    self?.retryBlock = nil
+                })
+            default:
+                break
+            }
+            
+            newCall.next(state: state, integrationCall: this)
             newCall.call(queue: queue, delay: delay)
         }
         return self

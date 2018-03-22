@@ -1,16 +1,16 @@
 /**
  Copyright (c) 2016 Nguyen Chi Cong
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -38,15 +38,7 @@ extension DataProviderProtocol {
     }
 }
 
-open class DataProvider<ParameterType, DataType>: DataProviderProtocol {
-    @discardableResult
-    open func request(parameters _: ParameterType?, completion _: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
-        fatalError("Please override \(#function) to get data")
-    }
-}
-
 public class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondProvider: DataProviderProtocol>: DataProviderProtocol where FirstProvider.DataType == SecondProvider.ParameterType {
-
     public typealias ParameterType = FirstProvider.ParameterType
     public typealias DataType = SecondProvider.DataType
 
@@ -60,7 +52,6 @@ public class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondPro
 
     @discardableResult
     public func request(parameters: FirstProvider.ParameterType?, completion: @escaping (Bool, SecondProvider.DataType?, Error?) -> Void) -> CancelHandler? {
-
         var cancelBlock: (() -> Void)?
 
         let param1: FirstProvider.ParameterType? = parameters
