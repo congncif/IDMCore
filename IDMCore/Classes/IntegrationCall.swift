@@ -88,6 +88,7 @@ public class IntegrationCall<ModelType> {
     fileprivate(set) var silentRetry: Bool = true
     fileprivate(set) var retryCondition: ((Error?) -> Bool)?
     
+    internal var retryErrorBlock: ((Error?) -> ())? //retryErrorBlock is higher priority than retryBlock
     internal var retryBlock: (() -> ())?
     
     fileprivate(set) var callQueue: DispatchQueue = DispatchQueue.global()
@@ -101,6 +102,9 @@ public class IntegrationCall<ModelType> {
     }
     
     deinit {
+        retryErrorBlock = nil
+        retryBlock = nil
+        
         #if DEBUG
             print("Released integration call \(idenitifier)")
         #endif
@@ -115,6 +119,8 @@ public class IntegrationCall<ModelType> {
     func handleError(error: Error?) {
         if ignoreUnknownError {
             if error == nil {
+                retryErrorBlock = nil
+                retryBlock = nil
                 print("*** an error nil was ignored ***")
                 return
             }
@@ -125,11 +131,15 @@ public class IntegrationCall<ModelType> {
             let retryCount = IntegrationCallManager.shared.retryCount(for: id)
          */
         if let condition = retryCondition, condition(error) == false {
+            retryErrorBlock = nil
+            retryBlock = nil
             internalError?(error)
             return
         }
         
         guard retryCount > 0 else {
+            retryErrorBlock = nil
+            retryBlock = nil
             internalError?(error)
             return
         }
@@ -142,7 +152,12 @@ public class IntegrationCall<ModelType> {
         retryCount -= 1
         //        print("Retry integration call \(idenitifier): -> \(retryCount)")
         
-        if let block = retryBlock {
+        if let block = retryErrorBlock {
+            if retryCount == 0 {
+                retryErrorBlock = nil
+            }
+            block(error)
+        } else if let block = retryBlock {
             if retryCount == 0 {
                 retryBlock = nil
             }
@@ -186,7 +201,11 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func onSuccess(_ handler: ((ModelType?) -> ())?) -> Self {
-        doSuccess = handler
+        doSuccess = { [unowned self] result in
+            self.retryErrorBlock = nil
+            self.retryBlock = nil
+            handler?(result)
+        }
         return self
     }
     
@@ -244,10 +263,28 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func retryCall<Result>(_ integrationCall: IntegrationCall<Result>, state: NextState = .completion) -> Self {
+        retryBlock = nil
         let newCall = integrationCall.next(state: state, integrationCall: self)
         let queue = callQueue
         let delay = callDelay
         retryBlock = {
+            newCall.call(queue: queue, delay: delay)
+        }
+        return self
+    }
+    
+    @discardableResult
+    public func retryIntegrator<D, M, R>(_ integrator: Integrator<D, M, R>,
+                                         state: NextState = .completion,
+                                         configuration: ((IntegrationCall<R>) -> ())? = nil) -> Self where D.ParameterType: Error {
+        retryErrorBlock = nil
+        let queue = callQueue
+        let delay = callDelay
+        retryErrorBlock = { err in
+            let param = err as? D.ParameterType
+            let newCall = integrator.prepareCall(parameters: param)
+            configuration?(newCall)
+            newCall.next(state: state, integrationCall: self)
             newCall.call(queue: queue, delay: delay)
         }
         return self

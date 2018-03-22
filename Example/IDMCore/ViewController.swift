@@ -15,9 +15,9 @@ struct TestDelay: DelayingCompletionProtocol {
 }
 
 class DataProvider1: DataProviderProtocol {
-    func request(parameters _: String?, completion: @escaping ((Bool, String?, Error?) -> Void)) -> (() -> Void)? {
+    func request(parameters: NSError?, completion: @escaping ((Bool, String?, Error?) -> Void)) -> (() -> Void)? {
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(3)) {
-            completion(true, "result 1", nil)
+            completion(true, "result 1 input error: \(parameters)", nil)
             //            completion(true, "result 2", nil)
             //            completion(true, "result 3", nil)
             //            completion(true, "result 4", nil)
@@ -31,7 +31,7 @@ class DataProvider1: DataProviderProtocol {
 class DataProvider2: DataProviderProtocol {
     func request(parameters _: Int?, completion: @escaping ((Bool, TestDelay?, Error?) -> Void)) -> (() -> Void)? {
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(2)) {
-            completion(false, TestDelay(isDelaying: true, text: "result 2"), nil)
+            completion(false, TestDelay(isDelaying: true, text: "result 2"), NSError(domain: "xxx", code: 1, userInfo: nil))
         }
 
         //        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(3)) {
@@ -78,20 +78,41 @@ class ViewController: UIViewController {
         //            print(result)
         //        }
 
-        let call = retryService.prepareCall()
-            .onSuccess { res in
-                print("Retry success: \(res)")
-            }.onCompletion {
-                print("Retry done")
-            }
+//        let call = retryService.prepareCall()
+//            .onSuccess { res in
+//                print("Retry success: \(res)")
+//            }.onCompletion {
+//                print("Retry done")
+//            }
 
+        retryService.onSuccess { (res) in
+            print("Retry success: \(res)")
+        }
+        
         service
             .ignoreUnknownError(false)
-            .retry(5) {
+            .retry(2) {
                 $0 == nil
             }
-            .retryCall(call)
-
+            .tryRecall(retryService)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadData()
+    }
+    
+    @IBAction func tap() {
+        loadData()
+    }
+    
+    func loadData() {
+//        let call = retryService.prepareCall()
+//            .onSuccess { res in
+//                print("Retry success: \(res)")
+//            }.onCompletion {
+//                print("Retry done")
+//        }
         service.prepareCall()
             .onBeginning({
                 print("Start.....")
@@ -105,6 +126,8 @@ class ViewController: UIViewController {
             .onError({ err in
                 print(err)
             })
+//            .retryIntegrator(retryService)
+//            .retryCall(call)
             .call()
     }
 

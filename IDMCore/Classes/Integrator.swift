@@ -90,6 +90,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     }
 
     deinit {
+        retrySetBlock = nil
         infoQueue.removeAll()
         cancelCurrentTask()
     }
@@ -301,16 +302,33 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     }
 
     @discardableResult
-    public func retryCall<R>(_ integrationCall: IntegrationCall<R>, state: NextState = .completion) -> Self {
-        retrySetBlock = { [weak integrationCall] call in
+    public func tryRecall<D, M, R>(_ integrator: Integrator<D, M, R>, state: NextState = .completion, configuration: ((IntegrationCall<R>) -> Void)? = nil) -> Self {
+        retrySetBlock = nil
+        retrySetBlock = { call in
             let queue = call.callQueue
             let delay = call.callDelay
-            let newCall = integrationCall?.next(state: state, integrationCall: call)
+            let retryCall = integrator.prepareCall()
+            configuration?(retryCall)
+            let newCall = retryCall.next(state: state, integrationCall: call)
             call.retryBlock = {
-                newCall?.call(queue: queue, delay: delay)
+                newCall.call(queue: queue, delay: delay)
             }
         }
         return self
+    }
+
+    @discardableResult
+    public func tryRecall<D, M, R>(_ integrator: Integrator<D, M, R>, state: NextState = .completion, configuration: ((IntegrationCall<R>) -> Void)? = nil) -> Self where D.ParameterType: Error {
+        retrySetBlock = nil
+        retrySetBlock = { call in
+            call.retryIntegrator(integrator, state: state, configuration: configuration)
+        }
+        return self
+    }
+
+    public func resetRetryCall() {
+        retryCall = IntegrationCall<ResultType>()
+        retrySetBlock = nil
     }
 
     /*********************************************************************************/
@@ -323,9 +341,9 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         let call = IntegrationCall<ResultType>()
 
         call.ignoreUnknownError(defaultCall.ignoreUnknownError)
-        
+
         call.retry(retryCall.retryCount, delay: retryCall.retryDelay, silent: retryCall.silentRetry, condition: retryCall.retryCondition)
-        
+
         if let block = retrySetBlock {
             block(call)
         }

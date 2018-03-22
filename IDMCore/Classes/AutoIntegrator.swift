@@ -36,8 +36,8 @@ open class MagicalIntegrator<IntegrateProvider: DataProviderProtocol, IntegrateM
         super.init(dataProvider: dataProvider, modelType: modelType, executingType: executingType)
     }
     
-    public convenience init(dataProvider: DataProviderType) {
-        self.init(dataProvider: dataProvider, modelType: IntegrateModel.self)
+    public convenience init(dataProvider: DataProviderType, executingType: IntegrationType = .default) {
+        self.init(dataProvider: dataProvider, modelType: IntegrateModel.self, executingType: executingType)
     }
 }
 
