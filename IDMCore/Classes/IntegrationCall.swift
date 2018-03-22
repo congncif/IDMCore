@@ -85,21 +85,22 @@ public class IntegrationCall<ModelType> {
     fileprivate var silentRetry: Bool = true
     fileprivate var ignoreUnknownError: Bool = true
     fileprivate var retryBlock: (() -> ())?
+    fileprivate var retryCondition: ((Error?) -> Bool)?
     
     fileprivate var callQueue: DispatchQueue = DispatchQueue.global()
     fileprivate var callDelay: Double = 0
     
     init() {
         idenitifier = ProcessInfo.processInfo.globallyUniqueString
-//        #if DEBUG
-//            print("Created integration call: \(idenitifier)")
-//        #endif
+        //        #if DEBUG
+        //            print("Created integration call: \(idenitifier)")
+        //        #endif
     }
     
     deinit {
-//        #if DEBUG
-//            print("Released integration call \(idenitifier)")
-//        #endif
+//                #if DEBUG
+//                    print("Released integration call \(idenitifier)")
+//                #endif
     }
     
     /*********************************************************************************/
@@ -120,6 +121,11 @@ public class IntegrationCall<ModelType> {
         /**
             let retryCount = IntegrationCallManager.shared.retryCount(for: id)
          */
+        if let condition = retryCondition, condition(error) == false {
+            internalError?(error)
+            return
+        }
+        
         guard retryCount > 0 else {
             internalError?(error)
             return
@@ -219,13 +225,17 @@ public class IntegrationCall<ModelType> {
      * silent = false: show error message when retry is performing
      */
     @discardableResult
-    public func retry(_ retryCount: Int, delay: TimeInterval = 0.3, silent: Bool = true) -> Self {
+    public func retry(_ retryCount: Int,
+                      delay: TimeInterval = 0.3,
+                      silent: Bool = true,
+                      condition: ((Error?) -> Bool)? = nil) -> Self {
         /**
             IntegrationCallManager.shared.add(id: idenitifier, count: retryCount)
         */
         self.retryCount = retryCount
         silentRetry = silent
         retryDelay = delay
+        retryCondition = condition
         return self
     }
     

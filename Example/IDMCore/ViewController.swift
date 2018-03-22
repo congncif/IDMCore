@@ -99,7 +99,9 @@ class ViewController: UIViewController {
                 print(err)
             })
             .ignoreUnknownError(false)
-            .retry(2)
+            .retry(2, condition: {
+                $0 == nil
+            })
             .retryCall(call)
 //            .call(dependOn: call)
             .call()
