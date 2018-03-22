@@ -79,16 +79,19 @@ public class IntegrationCall<ModelType> {
     fileprivate var doCompletion: (() -> ())?
     fileprivate var doCall: ((IntegrationCall<ModelType>) -> ())?
     
-    fileprivate var idenitifier: String
-    fileprivate var retryCount: Int = 0
-    fileprivate var retryDelay: TimeInterval = 0
-    fileprivate var silentRetry: Bool = true
-    fileprivate var ignoreUnknownError: Bool = true
-    fileprivate var retryBlock: (() -> ())?
-    fileprivate var retryCondition: ((Error?) -> Bool)?
+    public fileprivate(set) var idenitifier: String
     
-    fileprivate var callQueue: DispatchQueue = DispatchQueue.global()
-    fileprivate var callDelay: Double = 0
+    fileprivate(set) var ignoreUnknownError: Bool = true
+    
+    fileprivate(set) var retryCount: Int = 0
+    fileprivate(set) var retryDelay: TimeInterval = 0
+    fileprivate(set) var silentRetry: Bool = true
+    fileprivate(set) var retryCondition: ((Error?) -> Bool)?
+    
+    internal var retryBlock: (() -> ())?
+    
+    fileprivate(set) var callQueue: DispatchQueue = DispatchQueue.global()
+    fileprivate(set) var callDelay: Double = 0
     
     init() {
         idenitifier = ProcessInfo.processInfo.globallyUniqueString
@@ -98,9 +101,9 @@ public class IntegrationCall<ModelType> {
     }
     
     deinit {
-//                #if DEBUG
-//                    print("Released integration call \(idenitifier)")
-//                #endif
+        #if DEBUG
+            print("Released integration call \(idenitifier)")
+        #endif
     }
     
     /*********************************************************************************/
@@ -225,14 +228,14 @@ public class IntegrationCall<ModelType> {
      * silent = false: show error message when retry is performing
      */
     @discardableResult
-    public func retry(_ retryCount: Int,
+    public func retry(_ count: Int,
                       delay: TimeInterval = 0.3,
                       silent: Bool = true,
                       condition: ((Error?) -> Bool)? = nil) -> Self {
         /**
             IntegrationCallManager.shared.add(id: idenitifier, count: retryCount)
         */
-        self.retryCount = retryCount
+        retryCount = count
         silentRetry = silent
         retryDelay = delay
         retryCondition = condition

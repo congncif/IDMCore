@@ -1,17 +1,17 @@
 //
 /**
  Copyright (c) 2016 Nguyen Chi Cong
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -69,6 +69,9 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     open var noValueError: Error?
 
     fileprivate var defaultCall: IntegrationCall<ResultType> = IntegrationCall<ResultType>()
+    fileprivate var retryCall: IntegrationCall<ResultType> = IntegrationCall<ResultType>()
+    fileprivate var retrySetBlock: ((IntegrationCall<ResultType>) -> Void)?
+
     fileprivate var infoQueue: [CallInfo] = []
     //    fileprivate var syncQueue = DispatchQueue(label: "com.if.sync-queue")
     fileprivate var mainTask: CallInfo?
@@ -237,17 +240,17 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                          failureHandler?(error)
                      }
                      defer {
-                        if let delayObject = model as? DelayingCompletionProtocol {
-                            if delayObject.isDelaying {
-//                                print("Delaying completion: \(String(describing: delayObject)) ...")
-                            } else {
-                                self?.defaultCall.onCompletion?()
-                                completionHandler?()
-                            }
-                        } else {
-                            self?.defaultCall.onCompletion?()
-                            completionHandler?()
-                        }
+                         if let delayObject = model as? DelayingCompletionProtocol {
+                             if delayObject.isDelaying {
+                                 //                                print("Delaying completion: \(String(describing: delayObject)) ...")
+                             } else {
+                                 self?.defaultCall.onCompletion?()
+                                 completionHandler?()
+                             }
+                         } else {
+                             self?.defaultCall.onCompletion?()
+                             completionHandler?()
+                         }
                      }
         })
     }
@@ -282,6 +285,34 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         return self
     }
 
+    @discardableResult
+    public func ignoreUnknownError(_ ignoreUnknownError: Bool = true) -> Self {
+        _ = defaultCall.ignoreUnknownError(ignoreUnknownError)
+        return self
+    }
+
+    @discardableResult
+    public func retry(_ count: Int,
+                      delay: TimeInterval = 0.3,
+                      silent: Bool = true,
+                      condition: ((Error?) -> Bool)? = nil) -> Self {
+        _ = retryCall.retry(count, delay: delay, silent: silent, condition: condition)
+        return self
+    }
+
+    @discardableResult
+    public func retryCall<R>(_ integrationCall: IntegrationCall<R>, state: NextState = .completion) -> Self {
+        retrySetBlock = { [weak integrationCall] call in
+            let queue = call.callQueue
+            let delay = call.callDelay
+            let newCall = integrationCall?.next(state: state, integrationCall: call)
+            call.retryBlock = {
+                newCall?.call(queue: queue, delay: delay)
+            }
+        }
+        return self
+    }
+
     /*********************************************************************************/
 
     // MARK: - Integration Call
@@ -290,6 +321,15 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
 
     public func prepareCall(parameters: DataProviderType.ParameterType? = nil) -> IntegrationCall<ResultType> {
         let call = IntegrationCall<ResultType>()
+
+        call.ignoreUnknownError(defaultCall.ignoreUnknownError)
+        
+        call.retry(retryCall.retryCount, delay: retryCall.retryDelay, silent: retryCall.silentRetry, condition: retryCall.retryCondition)
+        
+        if let block = retrySetBlock {
+            block(call)
+        }
+
         call.doCall { [weak self] inCall in
             self?.execute(parameters: parameters, loadingHandler: inCall.onBeginning, successHandler: inCall.onSuccess, failureHandler: {
                 error in
