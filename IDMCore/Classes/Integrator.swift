@@ -68,6 +68,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     open var executingType: IntegrationType
     open var noValueError: Error?
 
+    fileprivate var debouncedFunction: Debouncer? // only valid for latest executing
     fileprivate var defaultCall: IntegrationCall<ResultType> = IntegrationCall<ResultType>()
     fileprivate var retryCall: IntegrationCall<ResultType> = IntegrationCall<ResultType>()
     fileprivate var retrySetBlock: ((IntegrationCall<ResultType>) -> Void)?
@@ -87,9 +88,17 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     public init(dataProvider: DataProviderType, modelType _: ModelType.Type, executingType: IntegrationType = .default) {
         self.dataProvider = dataProvider
         self.executingType = executingType
+        
+        switch executingType {
+        case .latest:
+            throttle()
+        default:
+            break
+        }
     }
 
     deinit {
+        debouncedFunction?.cancel()
         retrySetBlock = nil
         infoQueue.removeAll()
         cancelCurrentTask()
@@ -133,6 +142,12 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
             infoQueue.removeAll()
             let info = IntegrationInfo(parameters: parameters, loading: loading, completion: completion)
             infoQueue.append(info)
+            if let executer = debouncedFunction {
+                DispatchQueue.main.async(execute: executer.call)
+            } else {
+                prepareExecute()
+            }
+            return
         case .only:
             guard !running else {
                 return
@@ -261,6 +276,24 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     // MARK: - Default handlers
 
     /*********************************************************************************/
+    @discardableResult
+    public func throttle(delay: Double = 0.5) -> Self {
+        switch executingType {
+        case .latest:
+            debouncedFunction?.cancel()
+            debouncedFunction = nil
+
+            if delay > 0 {
+                debouncedFunction = Debouncer(delay: delay) { [weak self] in
+                    self?.prepareExecute()
+                }
+            }
+        default:
+            print("\(#function) is only valid with .latest executingType")
+            break
+        }
+        return self
+    }
 
     @discardableResult
     public func onBeginning(_ handler: (() -> Void)?) -> Self {

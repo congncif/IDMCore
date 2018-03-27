@@ -52,7 +52,7 @@ class DataProvider2: DataProviderProtocol {
 
 class ViewController: UIViewController {
     let retryService = AmazingIntegrator(dataProvider: DataProvider1())
-    let service = AmazingIntegrator(dataProvider: DataProvider2())
+    let service = AmazingIntegrator(dataProvider: DataProvider2(), executingType: .latest)
     //    let integrator = AmazingIntegrator(dataProvider: DataProvider2() >>>> DataProvider1())
 
     //    let integrator2 = AmazingIntegrator(dataProvider: DataProvider1() >><< DataProvider2())
@@ -113,7 +113,7 @@ class ViewController: UIViewController {
             }.onCompletion {
                 print("Retry done")
         }
-        service.prepareCall()
+        service.throttle(delay: 3).prepareCall()
             .onBeginning({
                 print("Start.....")
             })
@@ -127,7 +127,7 @@ class ViewController: UIViewController {
                 print(err)
             })
 //            .retryIntegrator(retryService)
-            .retryCall(call, state: .success)
+            .retryCall(call)
             .call()
     }
 
