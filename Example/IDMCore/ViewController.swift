@@ -34,17 +34,17 @@ class DataProvider2: DataProviderProtocol {
             completion(false, TestDelay(isDelaying: true, text: "result 2"), NSError(domain: "xxx", code: 1, userInfo: nil))
         }
 
-        //        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(3)) {
-        //            completion(true, TestDelay(isDelaying: true, text: "result 3"), nil)
-        //        }
-        //
-        //        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(4)) {
-        //            completion(true, TestDelay(isDelaying: true, text: "result 4"), nil)
-        //        }
-        //
-        //        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(5)) {
-        //            completion(true, TestDelay(isDelaying: false, text: "result 5"), nil)
-        //        }
+//        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(3)) {
+//            completion(true, TestDelay(isDelaying: true, text: "result 3"), nil)
+//        }
+//
+//        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(4)) {
+//            completion(true, TestDelay(isDelaying: true, text: "result 4"), nil)
+//        }
+//
+//        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(5)) {
+//            completion(true, TestDelay(isDelaying: false, text: "result 5"), nil)
+//        }
 
         return {}
     }
@@ -85,34 +85,60 @@ class ViewController: UIViewController {
 //                print("Retry done")
 //            }
 
-        retryService.onSuccess { (res) in
-            print("Retry success: \(res)")
-        }
-        
-        service
-            .ignoreUnknownError(false)
-            .retry(2) {
-                $0 != nil
-            }
+//        retryService.onSuccess { res in
+//            print("Retry success: \(res)")
+//        }
+//
+//        service
+//            .ignoreUnknownError(false)
+//            .retry(2) {
+//                $0 != nil
+//            }
 //            .retryCall(AmazingIntegrator(dataProvider: DataProvider1()), state: .success)
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        loadData()
+//        loadData()
+
+//        service.prepareCall().onSuccess { res in
+//            print("Success: \(res)")
+//        }
+//        .onCompletion({
+//            print("Completeeeeeed")
+//        }).call()
+        
+        let call1 = service.prepareCall().onCompletion {
+            print("Call 1 done")
+        }
+        
+        let call2 = retryService.prepareCall().onCompletion {
+            print("Call 2 done")
+        }
+        
+        let call3 = retryService.prepareCall().onCompletion {
+            print("Call 3 done")
+            }.onError { (err) in
+                print("Call 3 error")
+        }
+        
+        let x = (call1 --> call2 ->> call3)
+        x.call()
+        
+        [call2, call3].call()
     }
-    
+
     @IBAction func tap() {
-        loadData()
+//        loadData()
     }
-    
+
     func loadData() {
         let call = retryService.prepareCall()
             .onSuccess { res in
                 print("Retry success: \(res)")
             }.onCompletion {
                 print("Retry done")
-        }
+            }
         service.throttle(delay: 3).prepareCall()
             .onBeginning({
                 print("Start.....")

@@ -36,7 +36,7 @@ public class IntegrationBatchCall {
 //        #endif
     }
     
-    public func chant<M>(calls: [IntegrationCall<M>], completion: (([Result<M>]) -> Void)?) {
+    public func call<M>(_ calls: [IntegrationCall<M>], queue: DispatchQueue = DispatchQueue.global(), delay: Double = 0, completion: (([Result<M>]) -> Void)? = nil) {
         let numberCalls = calls.count
         var results: [Result<M>] = [] {
             didSet {
@@ -59,17 +59,23 @@ public class IntegrationBatchCall {
                         results.append(data)
                     }
                 })
-                .call()
+                .call(queue: queue, delay: delay)
         }
     }
     
-    public class func chant<M>(calls: [IntegrationCall<M>], completion: (([Result<M>]) -> Void)?) {
-        IntegrationBatchCall().chant(calls: calls, completion: completion)
+    public class func call<M>(_ calls: [IntegrationCall<M>], queue: DispatchQueue = DispatchQueue.global(), delay: Double = 0, completion: (([Result<M>]) -> Void)? = nil) {
+        IntegrationBatchCall().call(calls, queue: queue, delay: delay, completion: completion)
     }
     
     deinit {
 //        #if DEBUG
 //            print("Batch call is released")
 //        #endif
+    }
+}
+
+extension Array {
+    public func call<M>(queue: DispatchQueue = DispatchQueue.global(), delay: Double = 0, completion: (([Result<M>]) -> Void)? = nil) where Element == IntegrationCall<M> {
+        IntegrationBatchCall.call(self, queue: queue, delay: delay, completion: completion)
     }
 }

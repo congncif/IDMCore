@@ -121,7 +121,7 @@ public class IntegrationCall<ModelType> {
             if error == nil {
                 retryErrorBlock = nil
                 retryBlock = nil
-                print("*** an error nil was ignored ***")
+//                print("*** an error nil was ignored ***")
                 return
             }
         }
@@ -571,5 +571,23 @@ public class IntegrationCall<ModelType> {
             next.call(queue: queue, delay: delay)
         }
         return self
+    }
+}
+
+infix operator -->: AdditionPrecedence
+infix operator ->>: AdditionPrecedence
+infix operator !->: AdditionPrecedence
+
+extension IntegrationCall {
+    public static func --> <R>(left: IntegrationCall, right: IntegrationCall<R>) -> IntegrationCall {
+        return left.next(state: .completion, integrationCall: right)
+    }
+    
+    public static func ->> <R>(left: IntegrationCall, right: IntegrationCall<R>) -> IntegrationCall {
+        return left.next(state: .success, integrationCall: right)
+    }
+    
+    public static func !-> <R>(left: IntegrationCall, right: IntegrationCall<R>) -> IntegrationCall {
+        return left.next(state: .error, integrationCall: right)
     }
 }

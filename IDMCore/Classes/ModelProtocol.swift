@@ -42,8 +42,6 @@ public protocol ModelProtocol {
 public protocol SelfModelProtocol: ModelProtocol {}
 
 extension SelfModelProtocol {
-    public typealias DataType = Self
-
     public init?(from data: Self?) {
         guard let data = data else {
             return nil
