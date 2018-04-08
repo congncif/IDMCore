@@ -48,7 +48,7 @@ public protocol DelayingCompletionProtocol {
     var isDelaying: Bool { get }
 }
 
-public protocol IntegrationProtocol {
+public protocol IntegrationProtocol: class {
     associatedtype DataProviderType: DataProviderProtocol
     associatedtype ModelType: ModelProtocol
     associatedtype ResultType

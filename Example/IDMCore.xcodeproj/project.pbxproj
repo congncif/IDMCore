@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		202DD3A9207A22710075D189 /* CHANGELOG.md in Resources */ = {isa = PBXBuildFile; fileRef = 202DD3A8207A22710075D189 /* CHANGELOG.md */; };
 		24A56718D9756CE823A8FADE /* Pods_IDMCore_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC6E38FC4D729163D8FBD8F4 /* Pods_IDMCore_Example.framework */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
@@ -16,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		202DD3A8207A22710075D189 /* CHANGELOG.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; name = CHANGELOG.md; path = ../CHANGELOG.md; sourceTree = "<group>"; };
 		3356CB7F075120825C11FF74 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		454DAD02FCA8141BB25E1901 /* Pods-IDMCore_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IDMCore_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-IDMCore_Example/Pods-IDMCore_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		55D949DCC7B94FF5EB666CC4 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
@@ -91,6 +93,7 @@
 			isa = PBXGroup;
 			children = (
 				619802F63E47062608B862E6 /* IDMCore.podspec */,
+				202DD3A8207A22710075D189 /* CHANGELOG.md */,
 				55D949DCC7B94FF5EB666CC4 /* README.md */,
 				3356CB7F075120825C11FF74 /* LICENSE */,
 			);
@@ -180,6 +183,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */,
+				202DD3A9207A22710075D189 /* CHANGELOG.md in Resources */,
 				607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */,
 				607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */,
 			);

@@ -57,7 +57,7 @@ public enum IntegrationType {
     case latest // The integration will cancel all integration call before & only execute latest integration call
 }
 
-open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: ModelProtocol, IntegrateResult>: IntegrationProtocol where IntegrateProvider.DataType == IntegrateModel.DataType {
+open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: ModelProtocol, IntegrateResult>: NSObject, IntegrationProtocol where IntegrateProvider.DataType == IntegrateModel.DataType {
     typealias CallInfo = IntegrationInfo<ResultType, DataProviderType.ParameterType>
 
     public typealias DataProviderType = IntegrateProvider
@@ -88,7 +88,9 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     public init(dataProvider: DataProviderType, modelType _: ModelType.Type, executingType: IntegrationType = .default) {
         self.dataProvider = dataProvider
         self.executingType = executingType
-        
+
+        super.init()
+
         switch executingType {
         case .latest:
             throttle()
@@ -387,6 +389,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                 inCall.handleError(error: error)
             }, completionHandler: inCall.onCompletion)
         }
+        call.integrator = self
         return call
     }
 }

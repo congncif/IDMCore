@@ -28,6 +28,10 @@
 //  Copyright © 2016 NGUYEN CHI CONG. All rights reserved.
 //
 
+/**
+ * IMPORTANT NOTE: Sequence IntegrationCall and IntegrationBatchCall only work perfectly if they are created from different Intergrators.
+ */
+
 import Foundation
 
 public enum NextState {
@@ -93,6 +97,8 @@ public class IntegrationCall<ModelType> {
     
     fileprivate(set) var callQueue: DispatchQueue = DispatchQueue.global()
     fileprivate(set) var callDelay: Double = 0
+    
+    public internal(set) weak var integrator: AnyObject?
     
     init() {
         idenitifier = ProcessInfo.processInfo.globallyUniqueString
@@ -578,16 +584,23 @@ infix operator -->: AdditionPrecedence
 infix operator ->>: AdditionPrecedence
 infix operator !->: AdditionPrecedence
 
+public func --> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> IntegrationCall<R1> {
+    return left.next(state: .completion, integrationCall: right)
+}
+
+public func ->> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> IntegrationCall<R1> {
+    return left.next(state: .success, integrationCall: right)
+}
+
+public func !-> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> IntegrationCall<R1> {
+    return left.next(state: .error, integrationCall: right)
+}
+
 extension IntegrationCall {
-    public static func --> <R>(left: IntegrationCall, right: IntegrationCall<R>) -> IntegrationCall {
-        return left.next(state: .completion, integrationCall: right)
-    }
-    
-    public static func ->> <R>(left: IntegrationCall, right: IntegrationCall<R>) -> IntegrationCall {
-        return left.next(state: .success, integrationCall: right)
-    }
-    
-    public static func !-> <R>(left: IntegrationCall, right: IntegrationCall<R>) -> IntegrationCall {
-        return left.next(state: .error, integrationCall: right)
+    public func isSameIntegrator<R>(with other: IntegrationCall<R>) -> Bool {
+        if let checked = integrator?.isEqual(other.integrator) {
+            return checked
+        }
+        return false
     }
 }

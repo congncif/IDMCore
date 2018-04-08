@@ -28,6 +28,12 @@ class DataProvider1: DataProviderProtocol {
     }
 }
 
+class Service: AmazingIntegrator<DataProvider1> {
+    convenience init() {
+        self.init(dataProvider: DataProvider1())
+    }
+}
+
 class DataProvider2: DataProviderProtocol {
     func request(parameters _: Int?, completion: @escaping ((Bool, TestDelay?, Error?) -> Void)) -> (() -> Void)? {
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(2)) {
@@ -52,7 +58,9 @@ class DataProvider2: DataProviderProtocol {
 
 class ViewController: UIViewController {
     let retryService = AmazingIntegrator(dataProvider: DataProvider1())
-    let service = AmazingIntegrator(dataProvider: DataProvider2(), executingType: .latest)
+    let service = AmazingIntegrator(dataProvider: DataProvider2())
+    let service2 = AmazingIntegrator(dataProvider: DataProvider2())
+    let service3 = AmazingIntegrator(dataProvider: DataProvider2())
     //    let integrator = AmazingIntegrator(dataProvider: DataProvider2() >>>> DataProvider1())
 
     //    let integrator2 = AmazingIntegrator(dataProvider: DataProvider1() >><< DataProvider2())
@@ -107,25 +115,43 @@ class ViewController: UIViewController {
 //        .onCompletion({
 //            print("Completeeeeeed")
 //        }).call()
-        
+        let call0 = service.prepareCall().onCompletion {
+            print("Call 0 done")
+        }
+
         let call1 = service.prepareCall().onCompletion {
             print("Call 1 done")
         }
-        
-        let call2 = retryService.prepareCall().onCompletion {
+
+        let call2 = service2.prepareCall().onCompletion {
             print("Call 2 done")
         }
-        
-        let call3 = retryService.prepareCall().onCompletion {
+
+        let call3 = service3.prepareCall().onCompletion {
             print("Call 3 done")
-            }.onError { (err) in
-                print("Call 3 error")
         }
+
+        let call4 = retryService.prepareCall().onCompletion {
+            print("Call 4 done")
+        }
+
+//        let x = (call1 --> call2 ->> call3)
+//        x.call()
+//
+//        [call2, call1, call4, call5].call() {
+//            _ in
+//            print("XXXX")
+//        }
         
-        let x = (call1 --> call2 ->> call3)
-        x.call()
-        
-        [call2, call3].call()
+//        [call1, call2, call3].call() {
+//            _ in
+//            print("XXX")
+//        }
+
+        (call1 >><< call2 >><< call3 >><< call4).call() {
+            _ in
+            print("XLGD")
+        }
     }
 
     @IBAction func tap() {
@@ -133,28 +159,28 @@ class ViewController: UIViewController {
     }
 
     func loadData() {
-        let call = retryService.prepareCall()
-            .onSuccess { res in
-                print("Retry success: \(res)")
-            }.onCompletion {
-                print("Retry done")
-            }
-        service.throttle(delay: 3).prepareCall()
-            .onBeginning({
-                print("Start.....")
-            })
-            .onSuccess({ text in
-                print("Success: \(text)")
-            })
-            .onCompletion({
-                print("Completed")
-            })
-            .onError({ err in
-                print(err)
-            })
-//            .retryIntegrator(retryService)
-            .retryCall(call)
-            .call()
+//        let call = retryService.prepareCall()
+//            .onSuccess { res in
+//                print("Retry success: \(res)")
+//            }.onCompletion {
+//                print("Retry done")
+//            }
+//        service.throttle(delay: 3).prepareCall()
+//            .onBeginning({
+//                print("Start.....")
+//            })
+//            .onSuccess({ text in
+//                print("Success: \(text)")
+//            })
+//            .onCompletion({
+//                print("Completed")
+//            })
+//            .onError({ err in
+//                print(err)
+//            })
+        ////            .retryIntegrator(retryService)
+//            .retryCall(call)
+//            .call()
     }
 
     override func didReceiveMemoryWarning() {
