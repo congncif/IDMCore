@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 - `2.5.x` Releases  - [2.5.0](#250)
 
 ---
+## [2.6.1](https://github.com/congncif/IDMFoundation/releases/tag/2.6.1)
+Released on 2018-4-11
+
+#### Updated
+- IntegrationCall: Add onProgress to tracking
+
 ## [2.6.0](https://github.com/congncif/IDMFoundation/releases/tag/2.6.0)
 Released on 2018-4-8
 
@@ -22,7 +28,7 @@ Released on 2018-4-3
 - Updated IntegrationBatchCall
 
 
-## [1.0.0]
+## [1.0.0](https://github.com/congncif/IDMFoundation/releases/tag/1.0.0)
 
 #### Added
 - Initial release of IDMCore.

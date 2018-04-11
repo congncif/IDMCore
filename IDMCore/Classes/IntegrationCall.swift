@@ -45,40 +45,10 @@ public enum Result<Value> {
     case failure(Error?)
 }
 
-class IntegrationCallManager {
-    static let shared = IntegrationCallManager()
-    
-    var calls: [String: Int] = [:]
-    
-    func add(id: String, count: Int) {
-        calls[id] = count
-    }
-    
-    func remove(id: String) {
-        calls.removeValue(forKey: id)
-    }
-    
-    func retryCount(for id: String) -> Int {
-        guard let value = calls[id] else {
-            return 0
-        }
-        return value
-    }
-    
-    func retry(with id: String) {
-        guard let value = calls[id] else {
-            return
-        }
-        if value > 0 {
-            let newValue = value - 1
-            calls[id] = newValue
-        }
-    }
-}
-
 public class IntegrationCall<ModelType> {
     fileprivate var doBeginning: (() -> ())?
     fileprivate var doSuccess: ((ModelType?) -> ())?
+    fileprivate var doProgress: ((ModelType?) -> ())?
     fileprivate var doError: ((Error?) -> ())?
     fileprivate var doCompletion: (() -> ())?
     fileprivate var doCall: ((IntegrationCall<ModelType>) -> ())?
@@ -92,7 +62,7 @@ public class IntegrationCall<ModelType> {
     fileprivate(set) var silentRetry: Bool = true
     fileprivate(set) var retryCondition: ((Error?) -> Bool)?
     
-    internal var retryErrorBlock: ((Error?) -> ())? //retryErrorBlock is higher priority than retryBlock
+    internal var retryErrorBlock: ((Error?) -> ())? // retryErrorBlock is higher priority than retryBlock
     internal var retryBlock: (() -> ())?
     
     fileprivate(set) var callQueue: DispatchQueue = DispatchQueue.global()
@@ -133,9 +103,6 @@ public class IntegrationCall<ModelType> {
         }
         
         let internalError = onError
-        /**
-            let retryCount = IntegrationCallManager.shared.retryCount(for: id)
-         */
         if let condition = retryCondition, condition(error) == false {
             retryErrorBlock = nil
             retryBlock = nil
@@ -149,9 +116,6 @@ public class IntegrationCall<ModelType> {
             internalError?(error)
             return
         }
-        /**
-         IntegrationCallManager.shared.retry(with: id)
-         */
         if !silentRetry {
             internalError?(error)
         }
@@ -170,6 +134,22 @@ public class IntegrationCall<ModelType> {
             block()
         } else {
             call(queue: callQueue, delay: retryDelay)
+        }
+    }
+    
+    func handleSuccess(model: ModelType?) {
+        if let delayObject = model as? DelayingCompletionProtocol {
+            if delayObject.isDelaying {
+                if let process = doProgress {
+                    process(model)
+                } else {
+                    print("You should set onProcess for IntegrationCall to monitor processing such as display progress and so on")
+                }
+            } else {
+                doSuccess?(model)
+            }
+        } else {
+            doSuccess?(model)
         }
     }
     
@@ -257,9 +237,6 @@ public class IntegrationCall<ModelType> {
                       delay: TimeInterval = 0.3,
                       silent: Bool = true,
                       condition: ((Error?) -> Bool)? = nil) -> Self {
-        /**
-            IntegrationCallManager.shared.add(id: idenitifier, count: retryCount)
-        */
         retryCount = count
         silentRetry = silent
         retryDelay = delay
@@ -575,6 +552,22 @@ public class IntegrationCall<ModelType> {
             next.doCompletion = block
             next.doSuccess = successBlock
             next.call(queue: queue, delay: delay)
+        }
+        return self
+    }
+}
+
+extension IntegrationCall where ModelType: DelayingCompletionProtocol {
+    @discardableResult
+    public func onProgress(_ handler: ((ModelType?) -> ())?) -> Self {
+        doProgress = handler
+        return self
+    }
+    
+    @discardableResult
+    public func progress<T: ProgressTrackingProtocol>(tracker: T) -> Self where T: AnyObject, T.ModelType == ModelType {
+        onProgress { [weak tracker] model in
+            tracker?.progressDidUpdate(data: model)
         }
         return self
     }

@@ -384,10 +384,15 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         }
 
         call.doCall { [weak self] inCall in
-            self?.execute(parameters: parameters, loadingHandler: inCall.onBeginning, successHandler: inCall.onSuccess, failureHandler: {
-                error in
-                inCall.handleError(error: error)
-            }, completionHandler: inCall.onCompletion)
+            self?.execute(parameters: parameters,
+                          loadingHandler: inCall.onBeginning,
+                          successHandler: { result in
+                              inCall.handleSuccess(model: result)
+                          },
+                          failureHandler: { error in
+                              inCall.handleError(error: error)
+                          },
+                          completionHandler: inCall.onCompletion)
         }
         call.integrator = self
         return call
