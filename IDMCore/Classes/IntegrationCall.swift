@@ -373,10 +373,10 @@ public class IntegrationCall<ModelType> {
     }
     
     @discardableResult
-    public func next<DataProvider, Model, Result>(state: NextState = .completion,
-                                                  integrator: Integrator<DataProvider, Model, Result>,
-                                                  parameters: DataProvider.ParameterType? = nil,
-                                                  configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self {
+    public func next<DataProvider, Model, ResultType>(state: NextState = .completion,
+                                                      integrator: Integrator<DataProvider, Model, ResultType>,
+                                                      parametersBuilder: ((Result<ModelType>?) -> DataProvider.ParameterType?)? = nil,
+                                                      configuration: @escaping (IntegrationCall<ResultType>) -> () = { _ in }) -> Self {
         let queue = callQueue
         let delay = callDelay
         switch state {
@@ -384,6 +384,8 @@ public class IntegrationCall<ModelType> {
             let success = doSuccess
             doSuccess = { result in
                 success?(result)
+                let wrapped = Result<ModelType>.success(result)
+                let parameters = parametersBuilder?(wrapped)
                 let integrationCall = integrator.prepareCall(parameters: parameters)
                 configuration(integrationCall)
                 integrationCall.call(queue: queue, delay: delay)
@@ -393,6 +395,8 @@ public class IntegrationCall<ModelType> {
             let block = doError
             doError = { error in
                 block?(error)
+                let wrapped = Result<ModelType>.failure(error)
+                let parameters = parametersBuilder?(wrapped)
                 let integrationCall = integrator.prepareCall(parameters: parameters)
                 configuration(integrationCall)
                 integrationCall.call(queue: queue, delay: delay)
@@ -402,6 +406,7 @@ public class IntegrationCall<ModelType> {
             let block = doCompletion
             doCompletion = {
                 block?()
+                let parameters = parametersBuilder?(nil)
                 let integrationCall = integrator.prepareCall(parameters: parameters)
                 configuration(integrationCall)
                 integrationCall.call(queue: queue, delay: delay)
@@ -446,7 +451,7 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func nextSuccess<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
-                                                         parameters: DataProvider.ParameterType? = nil,
+                                                         parametersBuilder: ((ModelType?) -> DataProvider.ParameterType?)? = nil,
                                                          configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self {
         let success = doSuccess
         let queue = callQueue
@@ -454,6 +459,7 @@ public class IntegrationCall<ModelType> {
         
         doSuccess = { result in
             success?(result)
+            let parameters = parametersBuilder?(result)
             let next = integrator.prepareCall(parameters: parameters)
             configuration(next)
             next.call(queue: queue, delay: delay)
@@ -480,7 +486,7 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func nextError<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
-                                                       parameters: DataProvider.ParameterType? = nil,
+                                                       parametersBuilder: ((Error?) -> DataProvider.ParameterType?)? = nil,
                                                        configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self {
         let block = doError
         let queue = callQueue
@@ -488,6 +494,7 @@ public class IntegrationCall<ModelType> {
         
         doError = { error in
             block?(error)
+            let parameters = parametersBuilder?(error)
             let next = integrator.prepareCall(parameters: parameters)
             configuration(next)
             next.call(queue: queue, delay: delay)
