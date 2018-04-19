@@ -678,6 +678,16 @@ extension IntegrationCall where ModelType: DelayingCompletionProtocol {
     }
 }
 
+extension IntegrationCall where ModelType: ProgressModelProtocol {
+    @discardableResult
+    public func progress<T: ProgressLoadingProtocol>(tracker: T) -> Self where T: AnyObject {
+        onProgress { [weak tracker] model in
+            tracker?.loadingDidUpdateProgress(model?.progress)
+        }
+        return self
+    }
+}
+
 infix operator -->: AdditionPrecedence
 infix operator ->>: AdditionPrecedence
 infix operator !->: AdditionPrecedence

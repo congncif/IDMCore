@@ -2,10 +2,16 @@
 All notable changes to this project will be documented in this file.
 
 #### 1.x Releases
-- `2.6.x` Releases  - [2.6.0](#260) | [2.6.1](#261) | [2.6.2](#262) | [2.6.2](#262)
+- `2.6.x` Releases  - [2.6.0](#260) | [2.6.1](#261) | [2.6.2](#262) | [2.6.3](#263)  | [2.6.4](#264)
 - `2.5.x` Releases  - [2.5.0](#250)
 
 ---
+## [2.6.4](https://github.com/congncif/IDMFoundation/releases/tag/2.6.4)
+Released on 2018-4-19
+
+#### Updated
+- Progress protocol
+
 ## [2.6.3](https://github.com/congncif/IDMFoundation/releases/tag/2.6.3)
 Released on 2018-4-19
 

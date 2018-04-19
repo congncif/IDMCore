@@ -35,6 +35,10 @@ public protocol LoadingProtocol {
     func finishLoading()
 }
 
+public protocol ProgressLoadingProtocol {
+    func loadingDidUpdateProgress(_ progress: Progress?)
+}
+
 public protocol ErrorHandlingProtocol {
     func handle(error: Error?)
 }
@@ -51,6 +55,10 @@ public protocol ProgressTrackingProtocol {
 
 public protocol DelayingCompletionProtocol {
     var isDelaying: Bool { get }
+}
+
+public protocol ProgressModelProtocol: DelayingCompletionProtocol {
+    var progress: Progress? { get }
 }
 
 public protocol IntegrationProtocol: class {
