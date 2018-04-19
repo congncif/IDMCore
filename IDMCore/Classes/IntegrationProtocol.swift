@@ -35,8 +35,10 @@ public protocol LoadingProtocol {
     func finishLoading()
 }
 
-public protocol ProgressLoadingProtocol: LoadingProtocol {
+public protocol ProgressLoadingProtocol {
+    func beginProgressLoading()
     func loadingDidUpdateProgress(_ progress: Progress?)
+    func finishProgressLoading()
 }
 
 public protocol ErrorHandlingProtocol {
