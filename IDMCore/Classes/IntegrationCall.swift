@@ -345,6 +345,36 @@ public class IntegrationCall<ModelType> {
     }
     
     @discardableResult
+    public func transformNext<Result>(state: NextState = .completion, integrationCall: IntegrationCall<Result>) -> IntegrationCall<Result> {
+        let queue = callQueue
+        let delay = callDelay
+        switch state {
+        case .success:
+            let success = doSuccess
+            doSuccess = { result in
+                success?(result)
+                integrationCall.call(queue: queue, delay: delay)
+            }
+            
+        case .error:
+            let block = doError
+            doError = { error in
+                block?(error)
+                integrationCall.call(queue: queue, delay: delay)
+            }
+            
+        case .completion:
+            let block = doCompletion
+            doCompletion = {
+                block?()
+                integrationCall.call(queue: queue, delay: delay)
+            }
+        }
+        
+        return integrationCall
+    }
+    
+    @discardableResult
     public func next(state: NextState = .completion, nextBlock: ((Result<ModelType>?) -> ())? = nil) -> Self {
         switch state {
         case .success:
@@ -376,7 +406,7 @@ public class IntegrationCall<ModelType> {
     public func next<DataProvider, Model, ResultType>(state: NextState = .completion,
                                                       integrator: Integrator<DataProvider, Model, ResultType>,
                                                       parametersBuilder: ((Result<ModelType>?) -> DataProvider.ParameterType?)? = nil,
-                                                      configuration: @escaping (IntegrationCall<ResultType>) -> () = { _ in }) -> Self {
+                                                      configuration: ((IntegrationCall<ResultType>, Result<ModelType>?) -> ())? = nil) -> Self {
         let queue = callQueue
         let delay = callDelay
         switch state {
@@ -387,7 +417,7 @@ public class IntegrationCall<ModelType> {
                 let wrapped = Result<ModelType>.success(result)
                 let parameters = parametersBuilder?(wrapped)
                 let integrationCall = integrator.prepareCall(parameters: parameters)
-                configuration(integrationCall)
+                configuration?(integrationCall, Result.success(result))
                 integrationCall.call(queue: queue, delay: delay)
             }
             
@@ -398,7 +428,7 @@ public class IntegrationCall<ModelType> {
                 let wrapped = Result<ModelType>.failure(error)
                 let parameters = parametersBuilder?(wrapped)
                 let integrationCall = integrator.prepareCall(parameters: parameters)
-                configuration(integrationCall)
+                configuration?(integrationCall, Result.failure(error))
                 integrationCall.call(queue: queue, delay: delay)
             }
             
@@ -408,12 +438,80 @@ public class IntegrationCall<ModelType> {
                 block?()
                 let parameters = parametersBuilder?(nil)
                 let integrationCall = integrator.prepareCall(parameters: parameters)
-                configuration(integrationCall)
+                configuration?(integrationCall, nil)
                 integrationCall.call(queue: queue, delay: delay)
             }
         }
         
         return self
+    }
+    
+    @discardableResult
+    public func transformNext<DataProvider, Model, ResultType>(state: NextState = .completion,
+                                                               integrator: Integrator<DataProvider, Model, ResultType>,
+                                                               parametersBuilder: ((Result<ModelType>?) -> DataProvider.ParameterType?)? = nil) -> IntegrationCall<ResultType> {
+        let queue = callQueue
+        let delay = callDelay
+        switch state {
+        case .success:
+            let success = doSuccess
+            var fireCall = integrator.prepareCall()
+            doSuccess = { result in
+                success?(result)
+                let wrapped = Result<ModelType>.success(result)
+                let parameters = parametersBuilder?(wrapped)
+                let newCall = integrator.prepareCall(parameters: parameters)
+                
+                newCall.doBeginning = fireCall.onBeginning
+                newCall.doSuccess = fireCall.onSuccess
+                newCall.doError = fireCall.onError
+                newCall.doCompletion = fireCall.onCompletion
+                
+                fireCall = newCall
+                
+                fireCall.call(queue: queue, delay: delay)
+            }
+            return fireCall
+            
+        case .error:
+            let block = doError
+            var fireCall = integrator.prepareCall()
+            doError = { error in
+                block?(error)
+                let wrapped = Result<ModelType>.failure(error)
+                let parameters = parametersBuilder?(wrapped)
+                let newCall = integrator.prepareCall(parameters: parameters)
+                
+                newCall.doBeginning = fireCall.onBeginning
+                newCall.doSuccess = fireCall.onSuccess
+                newCall.doError = fireCall.onError
+                newCall.doCompletion = fireCall.onCompletion
+                
+                fireCall = newCall
+                
+                fireCall.call(queue: queue, delay: delay)
+            }
+            return fireCall
+            
+        case .completion:
+            let block = doCompletion
+            var fireCall = integrator.prepareCall()
+            doCompletion = {
+                block?()
+                let parameters = parametersBuilder?(nil)
+                let newCall = integrator.prepareCall(parameters: parameters)
+                
+                newCall.doBeginning = fireCall.onBeginning
+                newCall.doSuccess = fireCall.onSuccess
+                newCall.doError = fireCall.onError
+                newCall.doCompletion = fireCall.onCompletion
+                
+                fireCall = newCall
+                
+                fireCall.call(queue: queue, delay: delay)
+            }
+            return fireCall
+        }
     }
     
     public func forwardSuccess<Result>(callBuilder: @escaping (ModelType?) -> IntegrationCall<Result>) -> Self {
@@ -452,7 +550,7 @@ public class IntegrationCall<ModelType> {
     @discardableResult
     public func nextSuccess<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
                                                          parametersBuilder: ((ModelType?) -> DataProvider.ParameterType?)? = nil,
-                                                         configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self {
+                                                         configuration: ((IntegrationCall<Result>, ModelType?) -> ())? = nil) -> Self {
         let success = doSuccess
         let queue = callQueue
         let delay = callDelay
@@ -461,7 +559,7 @@ public class IntegrationCall<ModelType> {
             success?(result)
             let parameters = parametersBuilder?(result)
             let next = integrator.prepareCall(parameters: parameters)
-            configuration(next)
+            configuration?(next, result)
             next.call(queue: queue, delay: delay)
         }
         
@@ -470,7 +568,7 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func forwardSuccess<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
-                                                            configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self where DataProvider.ParameterType == ModelType {
+                                                            configuration: ((IntegrationCall<Result>, ModelType?) -> ())? = nil) -> Self where DataProvider.ParameterType == ModelType {
         let success = doSuccess
         let queue = callQueue
         let delay = callDelay
@@ -478,7 +576,7 @@ public class IntegrationCall<ModelType> {
         doSuccess = { result in
             success?(result)
             let next = integrator.prepareCall(parameters: result)
-            configuration(next)
+            configuration?(next, result)
             next.call(queue: queue, delay: delay)
         }
         return self
@@ -487,7 +585,7 @@ public class IntegrationCall<ModelType> {
     @discardableResult
     public func nextError<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
                                                        parametersBuilder: ((Error?) -> DataProvider.ParameterType?)? = nil,
-                                                       configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self {
+                                                       configuration: ((IntegrationCall<Result>, Error?) -> ())? = nil) -> Self {
         let block = doError
         let queue = callQueue
         let delay = callDelay
@@ -496,7 +594,7 @@ public class IntegrationCall<ModelType> {
             block?(error)
             let parameters = parametersBuilder?(error)
             let next = integrator.prepareCall(parameters: parameters)
-            configuration(next)
+            configuration?(next, error)
             next.call(queue: queue, delay: delay)
         }
         
@@ -505,7 +603,7 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func fowardError<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
-                                                         configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self where DataProvider.ParameterType == Error {
+                                                         configuration: ((IntegrationCall<Result>, Error?) -> ())? = nil) -> Self where DataProvider.ParameterType == Error {
         let block = doError
         let queue = callQueue
         let delay = callDelay
@@ -513,7 +611,7 @@ public class IntegrationCall<ModelType> {
         doError = { error in
             block?(error)
             let next = integrator.prepareCall(parameters: error)
-            configuration(next)
+            configuration?(next, error)
             next.call(queue: queue, delay: delay)
         }
         
@@ -523,7 +621,7 @@ public class IntegrationCall<ModelType> {
     @discardableResult
     public func nextCompletion<DataProvider, Model, Result>(integrator: Integrator<DataProvider, Model, Result>,
                                                             parameters: DataProvider.ParameterType? = nil,
-                                                            configuration: @escaping (IntegrationCall<Result>) -> () = { _ in }) -> Self {
+                                                            configuration: ((IntegrationCall<Result>) -> ())? = nil) -> Self {
         let block = doCompletion
         let queue = callQueue
         let delay = callDelay
@@ -531,7 +629,7 @@ public class IntegrationCall<ModelType> {
         doCompletion = {
             block?()
             let next = integrator.prepareCall(parameters: parameters)
-            configuration(next)
+            configuration?(next)
             next.call(queue: queue, delay: delay)
         }
         return self
