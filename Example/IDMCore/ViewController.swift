@@ -148,7 +148,7 @@ class ViewController: UIViewController {
 //            print("XXX")
 //        }
 
-        (call1 >><< call2 >><< call3 >><< call4).call() {
+        (call1 >-< call2 >-< call3 >-< call4).call() {
             _ in
             print("XLGD")
         }

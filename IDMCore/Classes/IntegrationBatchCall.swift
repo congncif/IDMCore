@@ -518,20 +518,20 @@ extension Array {
     }
 }
 
-infix operator >><<: AdditionPrecedence
+infix operator >-<: AdditionPrecedence
 
-public func >><< <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> GroupIntegrationCall<R1, R2> {
+public func >-< <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> GroupIntegrationCall<R1, R2> {
     return GroupIntegrationCall(left, right)
 }
 
-public func >><< <R1, R2, R3>(left: GroupIntegrationCall<R1, R2>, right: IntegrationCall<R3>) -> Group3IntegrationCall<R1, R2, R3> {
+public func >-< <R1, R2, R3>(left: GroupIntegrationCall<R1, R2>, right: IntegrationCall<R3>) -> Group3IntegrationCall<R1, R2, R3> {
     return Group3IntegrationCall(left.call1, left.call2, right)
 }
 
-public func >><< <R1, R2, R3, R4>(left: Group3IntegrationCall<R1, R2, R3>, right: IntegrationCall<R4>) -> Group4IntegrationCall<R1, R2, R3, R4> {
+public func >-< <R1, R2, R3, R4>(left: Group3IntegrationCall<R1, R2, R3>, right: IntegrationCall<R4>) -> Group4IntegrationCall<R1, R2, R3, R4> {
     return Group4IntegrationCall(left.call1, left.call2, left.call3, right)
 }
 
-public func >><< <R1, R2, R3, R4, R5>(left: Group4IntegrationCall<R1, R2, R3, R4>, right: IntegrationCall<R5>) -> Group5IntegrationCall<R1, R2, R3, R4, R5> {
+public func >-< <R1, R2, R3, R4, R5>(left: Group4IntegrationCall<R1, R2, R3, R4>, right: IntegrationCall<R5>) -> Group5IntegrationCall<R1, R2, R3, R4, R5> {
     return Group5IntegrationCall(left.call1, left.call2, left.call3, left.call4, right)
 }

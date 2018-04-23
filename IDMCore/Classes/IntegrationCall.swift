@@ -698,7 +698,11 @@ extension IntegrationCall where ModelType: ProgressModelProtocol {
 
 infix operator -->: AdditionPrecedence
 infix operator ->>: AdditionPrecedence
-infix operator !->: AdditionPrecedence
+infix operator -*>: AdditionPrecedence
+
+infix operator ~->: AdditionPrecedence
+infix operator ~>>: AdditionPrecedence
+infix operator ~*>: AdditionPrecedence
 
 public func --> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> IntegrationCall<R1> {
     return left.next(state: .completion, integrationCall: right)
@@ -708,8 +712,24 @@ public func ->> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) 
     return left.next(state: .success, integrationCall: right)
 }
 
-public func !-> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> IntegrationCall<R1> {
+public func -*> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> IntegrationCall<R1> {
     return left.next(state: .error, integrationCall: right)
+}
+
+public func ~-> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> IntegrationCall<R2> {
+    return left.transformNext(state: .completion, integrationCall: right)
+}
+
+public func ~>> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> IntegrationCall<R2> {
+    return left.transformNext(state: .success, integrationCall: right)
+}
+
+public func ~*> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> IntegrationCall<R2> {
+    return left.transformNext(state: .error, integrationCall: right)
+}
+
+public func == <R>(lhs: IntegrationCall<R>, rhs: IntegrationCall<R>) -> Bool {
+    return lhs.idenitifier == rhs.idenitifier
 }
 
 extension IntegrationCall {
