@@ -74,8 +74,24 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     fileprivate var retrySetBlock: ((IntegrationCall<ResultType>) -> Void)?
 
     fileprivate var infoQueue: [CallInfo] = []
-    //    fileprivate var syncQueue = DispatchQueue(label: "com.if.sync-queue")
+    fileprivate var executingQueue = DispatchQueue.global(qos: DispatchQoS.QoSClass.background)
     fileprivate var mainTask: CallInfo?
+
+    fileprivate var queueRunning: Bool {
+        set {
+            executingQueue.async(group: nil, qos: DispatchQoS.background, flags: .barrier) { [weak self] in
+                self?.running = newValue
+            }
+        }
+
+        get {
+            var value: Bool = running
+            executingQueue.sync {
+                value = running
+            }
+            return value
+        }
+    }
 
     fileprivate var running: Bool = false {
         didSet {
@@ -113,7 +129,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                 task.completion?(false, nil, nil)
             }
             mainTask = nil
-            running = false
+            queueRunning = false
         }
     }
 
@@ -131,7 +147,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                     task.completion?(s, d, e)
                 }
                 this?.mainTask = nil
-                this?.running = false
+                this?.queueRunning = false
             })
         }
         task.cancel = cancel
@@ -151,10 +167,11 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
             }
             return
         case .only:
-            guard !running else {
+            guard !queueRunning else {
                 return
             }
-            fallthrough
+            let info = IntegrationInfo(parameters: parameters, loading: loading, completion: completion)
+            infoQueue = [info]
         default:
             let info = IntegrationInfo(parameters: parameters, loading: loading, completion: completion)
             infoQueue.append(info)
@@ -189,7 +206,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         lock.lock()
         defer { lock.unlock() }
 
-        guard !running else {
+        guard !queueRunning else {
             return
         }
         var info: CallInfo?
@@ -211,7 +228,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         guard let taskInfo = info else {
             return
         }
-        running = true
+        queueRunning = true
         resumeCurrentTask(task: taskInfo)
     }
 

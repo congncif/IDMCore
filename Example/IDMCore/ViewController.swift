@@ -17,7 +17,7 @@ struct TestDelay: DelayingCompletionProtocol {
 class DataProvider1: DataProviderProtocol {
     func request(parameters: NSError?, completion: @escaping ((Bool, String?, Error?) -> Void)) -> (() -> Void)? {
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(3)) {
-            completion(false, "result 1 input error: \(parameters)", NSError(domain: "retry error", code: 112, userInfo: nil))
+            completion(true, "result 1 input error: \(parameters)", NSError(domain: "retry error", code: 112, userInfo: nil))
             //            completion(true, "result 2", nil)
             //            completion(true, "result 3", nil)
             //            completion(true, "result 4", nil)
@@ -57,7 +57,7 @@ class DataProvider2: DataProviderProtocol {
 }
 
 class ViewController: UIViewController {
-    let retryService = AmazingIntegrator(dataProvider: DataProvider1())
+    let retryService = AmazingIntegrator(dataProvider: DataProvider1(), executingType: .only)
     let service = AmazingIntegrator(dataProvider: DataProvider2())
     let service2 = AmazingIntegrator(dataProvider: DataProvider2())
     let service3 = AmazingIntegrator(dataProvider: DataProvider2())
@@ -67,6 +67,22 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        retryService.prepareCall().onSuccess { (text) in
+            print("Text: \(text)")
+        }
+        .call()
+        
+        retryService.prepareCall().onSuccess { (text) in
+            print("Text: \(text)")
+            }
+            .call()
+        
+        retryService.prepareCall().onSuccess { (text) in
+            print("Text: \(text)")
+            }
+            .call()
+        
         // Do any additional setup after loading the view, typically from a nib.
         //        integrator.prepareCall().onSuccess { result in
         //            print(result ?? "x")
@@ -115,25 +131,25 @@ class ViewController: UIViewController {
 //        .onCompletion({
 //            print("Completeeeeeed")
 //        }).call()
-        let call0 = service.prepareCall().onCompletion {
-            print("Call 0 done")
-        }
-
-        let call1 = service.prepareCall().onCompletion {
-            print("Call 1 done")
-        }
-
-        let call2 = service2.prepareCall().onCompletion {
-            print("Call 2 done")
-        }
-
-        let call3 = service3.prepareCall().onCompletion {
-            print("Call 3 done")
-        }
-
-        let call4 = retryService.prepareCall().onCompletion {
-            print("Call 4 done")
-        }
+//        let call0 = service.prepareCall().onCompletion {
+//            print("Call 0 done")
+//        }
+//
+//        let call1 = service.prepareCall().onCompletion {
+//            print("Call 1 done")
+//        }
+//
+//        let call2 = service2.prepareCall().onCompletion {
+//            print("Call 2 done")
+//        }
+//
+//        let call3 = service3.prepareCall().onCompletion {
+//            print("Call 3 done")
+//        }
+//
+//        let call4 = retryService.prepareCall().onCompletion {
+//            print("Call 4 done")
+//        }
 
 //        let x = (call1 --> call2 ->> call3)
 //        x.call()
@@ -148,10 +164,10 @@ class ViewController: UIViewController {
 //            print("XXX")
 //        }
 
-        (call1 >-< call2 >-< call3 >-< call4).call() {
-            _ in
-            print("XLGD")
-        }
+//        (call1 >-< call2 >-< call3 >-< call4).call() {
+//            _ in
+//            print("XLGD")
+//        }
     }
 
     @IBAction func tap() {

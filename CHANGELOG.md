@@ -2,10 +2,16 @@
 All notable changes to this project will be documented in this file.
 
 #### 1.x Releases
-- `2.6.x` Releases  - [2.6.0](#260) | [2.6.1](#261) | [2.6.2](#262) | [2.6.3](#263)  | [2.6.4](#264) | [2.6.5](#265) | [2.6.6](#266)
+- `2.6.x` Releases  - [2.6.0](#260) | [2.6.1](#261) | [2.6.2](#262) | [2.6.3](#263)  | [2.6.4](#264) | [2.6.5](#265) | [2.6.6](#266) | [2.6.7](#267)
 - `2.5.x` Releases  - [2.5.0](#250)
 
 ---
+## [2.6.7](https://github.com/congncif/IDMFoundation/releases/tag/2.6.7)
+Released on 2018-5-5
+
+#### Fixed
+-  `Integration` cannot run with type `.only`
+
 ## [2.6.6](https://github.com/congncif/IDMFoundation/releases/tag/2.6.6)
 Released on 2018-4-23
 
