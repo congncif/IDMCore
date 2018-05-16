@@ -129,7 +129,6 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                 task.completion?(false, nil, nil)
             }
             mainTask = nil
-            queueRunning = false
         }
     }
 
