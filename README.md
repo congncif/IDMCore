@@ -18,7 +18,7 @@ Writing code follows **IDMFoundation** and *IDM Template* is a great way to quic
 
 - **Unidirectional data flow**: The data flow will always go in one direction from the Data Provider to the Integrator to the controller. It makes it easy to control errors when they are occurs, readable and understandable.
 
-- **- Manage and ramification task**: Handling interdependent tasks, asynchronously tasks easily through Provider and IntegrationCall.
+- **Manage and ramification task**: Handling interdependent tasks, asynchronously tasks easily through Provider and IntegrationCall.
 
 ## How IDMCore?
 
