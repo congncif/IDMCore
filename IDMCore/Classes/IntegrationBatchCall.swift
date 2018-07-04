@@ -171,8 +171,8 @@ public class IntegrationBatchCall {
     public func call<M>(_ calls: [IntegrationCall<M>], queue: DispatchQueue = DispatchQueue.global(), delay: Double = 0, completion: (([Result<M>]) -> Void)? = nil) {
         let internalCalls = calls
         
-        for (index, call) in internalCalls.enumerated() {
-            for i in index..<internalCalls.count {
+        for (index, call) in internalCalls.enumerated() where index + 1 < internalCalls.count {
+            for i in index + 1..<internalCalls.count {
                 let other = internalCalls[i]
                 if let checked = call.integrator?.isEqual(other.integrator), checked {
                     fatalError("IntegrationBatchCall only work perfectly if all of calls are created from different Intergrators")
