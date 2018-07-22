@@ -34,10 +34,11 @@ IDMCore is available through CocoaPods. To install it, simply add the following 
 - For common iOS applications: using **IDMFoundation** which can find here: https://github.com/congncif/IDMFoundation
 
 ```ruby
-  pod 'IDMFoundation'
+  pod 'IDMFoundation/Core'
+  pod 'IDMFoundation/RequestParameter'
+  pod 'IDMFoundation/Alamofire'
+  pod 'IDMFoundation/ObjectMapper'
   pod 'IDMFoundation/MBProgressHUD'
-  pod 'IDMFoundation/Reachability'
-  pod 'IDMFoundation/CameraAsset'
 ```
 
 ### Requirements
