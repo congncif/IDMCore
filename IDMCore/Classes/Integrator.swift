@@ -30,7 +30,7 @@
 
 import Foundation
 
-open class DataProcessor<ModelType>: DataProcessingProtocol {
+open class DataProcessor<ModelType>: NSObject, DataProcessingProtocol {
     open func process(data: ModelType?) {
         print("Need override function \(#function) to process data: \(String(describing: data))")
     }
@@ -140,14 +140,14 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
             guard let this = self else {
                 return
             }
-            self?.finish(success: success, data: data, error: error, completion: { [weak this] s, d, e in
+            self?.finish(success: success, data: data, error: error) { [weak this] s, d, e in
                 // forward results
                 DispatchQueue.main.async {
                     task.completion?(s, d, e)
                 }
                 this?.mainTask = nil
                 this?.queueRunning = false
-            })
+            }
         }
         task.cancel = cancel
         mainTask = task
