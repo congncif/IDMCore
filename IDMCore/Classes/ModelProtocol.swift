@@ -30,11 +30,21 @@
 
 import Foundation
 
+public struct IDMError: Error {
+    public static let modelCannotInitialize = IDMError(message: "Model cannot initialize")
+
+    public var message: String
+
+    public var localizedDescription: String {
+        return message
+    }
+}
+
 public protocol ModelProtocol {
     associatedtype DataType
 
-    init?(from data: DataType?)
-    func getData<ReturnType>() -> ReturnType?
+    init?(from data: DataType?) throws
+    func getData<ReturnType>() throws -> ReturnType?
 
     var invalidDataError: Error? { get }
 }
@@ -42,7 +52,7 @@ public protocol ModelProtocol {
 public protocol SelfModelProtocol: ModelProtocol {}
 
 extension SelfModelProtocol {
-    public init?(from data: Self?) {
+    public init?(from data: Self?) throws {
         guard let data = data else {
             return nil
         }
@@ -51,11 +61,11 @@ extension SelfModelProtocol {
 }
 
 extension ModelProtocol {
-    public func getData<ReturnType>() -> ReturnType? {
+    public func getData<ReturnType>() throws -> ReturnType? {
         if ReturnType.self == Self.self {
             return self as? ReturnType
         }
-        fatalError("Result Type only accept type \(Self.self)")
+        throw IDMError(message: "Result Type only accept type \(Self.self)")
     }
 
     public var invalidDataError: Error? {
@@ -69,13 +79,13 @@ public struct AutoWrapModel<Type>: ModelProtocol {
         self.data = data
     }
 
-    public func getData<ReturnType>() -> ReturnType? {
+    public func getData<ReturnType>() throws -> ReturnType? {
         if ReturnType.self == Type.self {
             return data as? ReturnType
         }
         if ReturnType.self == AutoWrapModel<Type>.self {
             return self as? ReturnType
         }
-        fatalError("Result Type only accept type \(Type.self) or \(AutoWrapModel<Type>.self)")
+        throw IDMError(message: "Result Type only accept type \(Type.self) or \(AutoWrapModel<Type>.self)")
     }
 }

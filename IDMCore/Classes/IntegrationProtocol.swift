@@ -103,28 +103,35 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                 completion: ((Bool, ResultType?, Error?) -> Void)?) {
         let noValueError = self.noValueError
         if success {
-            DispatchQueue.global(qos: .background).async(execute: {
+            DispatchQueue.global(qos: .background).async {
                 var newError = error
                 var newSuccess = success
                 var results: ResultType?
-                if let model = ModelType(from: data) {
-                    if let err = model.invalidDataError {
-                        newSuccess = false
-                        newError = err
+                do {
+                    let parseModel = try ModelType(from: data)
+                    if let model = parseModel {
+                        if let err = model.invalidDataError {
+                            newSuccess = false
+                            newError = err
+                        } else {
+                            let resultData: ResultType? = try model.getData()
+                            results = resultData
+                        }
                     } else {
-                        results = model.getData()
+                        if let err = noValueError {
+                            newSuccess = false
+                            newError = err
+                        }
                     }
-                } else {
-                    if let err = noValueError {
-                        newSuccess = false
-                        newError = err
-                    }
+                } catch let ex {
+                    newSuccess = false
+                    newError = ex
                 }
 
                 DispatchQueue.main.async {
                     completion?(newSuccess, results, newError)
                 }
-            })
+            }
         } else {
             DispatchQueue.main.async {
                 completion?(success, nil, error)
@@ -144,9 +151,9 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                         successHandler: ((ResultType?) -> Void)?,
                         failureHandler: ((Error?) -> Void)? = nil,
                         completionHandler: (() -> Void)?) {
-        DispatchQueue.main.async(execute: {
+        DispatchQueue.main.async {
             loadingHandler?()
-        })
+        }
         execute(parameters: parameters) { success, model, error in
             if success {
                 successHandler?(model)
@@ -164,15 +171,19 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                                                                  errorAlertPresenter: ErrorHandlingProtocol? = nil,
                                                                  dataBinding: DataBindingType?)
         where DataBindingType.ModelType == ResultType {
-        execute(parameters: parameters, loadingHandler: {
-            loadingPresenter?.beginLoading()
-        }, successHandler: { data in
-            dataBinding?.process(data: data)
-        }, failureHandler: { error in
-            errorAlertPresenter?.handle(error: error)
-        }) {
-            loadingPresenter?.finishLoading()
-        }
+        execute(parameters: parameters,
+                loadingHandler: {
+                    loadingPresenter?.beginLoading()
+                },
+                successHandler: { data in
+                    dataBinding?.process(data: data)
+                },
+                failureHandler: { error in
+                    errorAlertPresenter?.handle(error: error)
+                },
+                completionHandler: {
+                    loadingPresenter?.finishLoading()
+        })
     }
 
     public func execute<DataBindingType: DataProcessingProtocol>(parameters: DataProviderType.ParameterType? = nil,
@@ -187,14 +198,18 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                         loadingPresenter: LoadingProtocol? = nil,
                         errorAlertPresenter: ErrorHandlingProtocol? = nil,
                         successHandler: ((ResultType?) -> Void)?) {
-        execute(parameters: parameters, loadingHandler: {
-            loadingPresenter?.beginLoading()
-        }, successHandler: { data in
-            successHandler?(data)
-        }, failureHandler: { error in
-            errorAlertPresenter?.handle(error: error)
-        }) {
-            loadingPresenter?.finishLoading()
-        }
+        execute(parameters: parameters,
+                loadingHandler: {
+                    loadingPresenter?.beginLoading()
+                },
+                successHandler: { data in
+                    successHandler?(data)
+                },
+                failureHandler: { error in
+                    errorAlertPresenter?.handle(error: error)
+                },
+                completionHandler: {
+                    loadingPresenter?.finishLoading()
+        })
     }
 }

@@ -2,10 +2,17 @@
 All notable changes to this project will be documented in this file.
 
 #### 1.x Releases
+- `2.7.x` Releases  - [2.7.0](#270)
 - `2.6.x` Releases  - [2.6.0](#260) | [2.6.1](#261) | [2.6.2](#262) | [2.6.3](#263)  | [2.6.4](#264) | [2.6.5](#265) | [2.6.6](#266) | [2.6.7](#267)
 - `2.5.x` Releases  - [2.5.0](#250)
 
 ---
+## [2.7.0](https://github.com/congncif/IDMFoundation/releases/tag/2.7.0)
+Released on 2018-11-18
+
+#### Updated
+- Added  `throws` to `ModelProtocol` for better error handling
+
 ## [2.6.7](https://github.com/congncif/IDMFoundation/releases/tag/2.6.7)
 Released on 2018-5-5
 
