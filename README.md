@@ -8,7 +8,7 @@
 
 **IDM** which represents for Integrator, Data Provider and Model is core of Interactor layer which makes your app independently with Database and external agency via Data Provider; build an unidirectional data flow by merging Data Provider; manage async tasks by Integrator queue. This pattern will help you to build a better architecture and provide a set of utilities to handle complex business logic of your app.
 
-![alt text](https://i.imgur.com/2GJ2Jix.jpg "IDMCore")
+![alt text](https://i.imgur.com/PlSib1L.jpg)
 
 ## Why IDMCore?
 
