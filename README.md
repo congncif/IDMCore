@@ -14,9 +14,9 @@
 
 - **Make a clean structure**: Apply the principles of design, **IDMCore** makes your application become *easily to change*, *flexibly to scale*. It also enhances unit test capability, optimizes reuse of the parts of source code. It is especially compatible with most of today's popular application architectures from **MVC**, **MVP** to **VIPER**.
 
-  * With **MVC** and **MVP**, the framework helps to eliminate the problems of *massive view controllers* which MVC often encounters, standardizes display loading and error warnings that many programmers feel uncomfortable. And many other utilities.
+  * With **MVC**, the framework helps to eliminate the problems of *massive view controllers* which MVC often encounters, standardizes display loading and error warnings that many programmers feel uncomfortable.
 
-  * With **VIPER**, the framework helps to eliminate repeatable delegate methods between presenter and view whose sole purpose is forward a signal, such as *startLoading*, *successHandling* or *errorHandling*.
+  * With **MVP** and **VIPER**, the framework helps to eliminate repeatable delegate methods between presenter and view whose sole purpose is forward a signal, such as *startLoading*, *successHandling* or *errorHandling*.
 
   *Writing code follows **IDMFoundation** and IDMCore Template is a great way to quickly create a flow (from requesting to handling response data).*
 
