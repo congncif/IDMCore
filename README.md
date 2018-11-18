@@ -53,7 +53,7 @@ IDMCore is available through CocoaPods. To install it, simply add the following 
 
 ### Getting started
 
-Please look into examples of **IDMFoundation** to see the power of this pattern. More great features waiting to be explored.
+**IDMFoundation**🐴 together with **ViewStateCore**🐥 and **ModuleX**🐶 will make your application to ***absolute control***. 💪💪💪
 
 ### Thank you for reading!
 
