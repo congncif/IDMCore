@@ -43,7 +43,7 @@ public struct IDMError: Error {
 public protocol ModelProtocol {
     associatedtype DataType
 
-    init?(from data: DataType?) throws
+    init?(fromData data: DataType?) throws
     func getData<ReturnType>() throws -> ReturnType?
 
     var invalidDataError: Error? { get }
@@ -52,7 +52,7 @@ public protocol ModelProtocol {
 public protocol SelfModelProtocol: ModelProtocol {}
 
 extension SelfModelProtocol {
-    public init?(from data: Self?) throws {
+    public init?(fromData data: Self?) throws {
         guard let data = data else {
             return nil
         }
@@ -75,7 +75,7 @@ extension ModelProtocol {
 
 public struct AutoWrapModel<Type>: ModelProtocol {
     public fileprivate(set) var data: Type?
-    public init?(from data: Type?) {
+    public init?(fromData data: Type?) throws{
         self.data = data
     }
 

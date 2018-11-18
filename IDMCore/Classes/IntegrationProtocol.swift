@@ -108,7 +108,7 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                 var newSuccess = success
                 var results: ResultType?
                 do {
-                    let parseModel = try ModelType(from: data)
+                    let parseModel = try ModelType(fromData: data)
                     if let model = parseModel {
                         if let err = model.invalidDataError {
                             newSuccess = false
