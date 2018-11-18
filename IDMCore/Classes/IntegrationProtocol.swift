@@ -1,16 +1,16 @@
 /**
  Copyright (c) 2016 Nguyen Chi Cong
-
+ 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
+ 
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
-
+ 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -67,9 +67,9 @@ public protocol IntegrationProtocol: class {
     associatedtype DataProviderType: DataProviderProtocol
     associatedtype ModelType: ModelProtocol
     associatedtype ResultType
-
+    
     var dataProvider: DataProviderType { get }
-
+    
     func execute(parameters: DataProviderType.ParameterType?,
                  completion: ((Bool, ResultType?, Error?) -> Void)?)
     func execute(parameters: DataProviderType.ParameterType?,
@@ -77,10 +77,10 @@ public protocol IntegrationProtocol: class {
                  successHandler: ((ResultType?) -> Void)?,
                  failureHandler: ((Error?) -> Void)?,
                  completionHandler: (() -> Void)?)
-
+    
     // Add this method to handle universal call
     func prepareCall(parameters: DataProviderType.ParameterType?) -> IntegrationCall<ResultType>
-
+    
     var noValueError: Error? { get }
 }
 
@@ -89,7 +89,7 @@ extension IntegrationProtocol {
     func prepareCall(parameters _: DataProviderType.ParameterType?) -> IntegrationCall<ResultType> {
         return IntegrationCall<ResultType>()
     }
-
+    
     public var noValueError: Error? {
         return nil
     }
@@ -108,26 +108,25 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                 var newSuccess = success
                 var results: ResultType?
                 do {
-                    let parseModel = try ModelType(fromData: data)
-                    if let model = parseModel {
-                        if let err = model.invalidDataError {
-                            newSuccess = false
-                            newError = err
-                        } else {
-                            let resultData: ResultType? = try model.getData()
-                            results = resultData
-                        }
+                    let model = try ModelType(fromData: data)
+                    if let err = model.invalidDataError {
+                        newSuccess = false
+                        newError = err
                     } else {
-                        if let err = noValueError {
-                            newSuccess = false
-                            newError = err
-                        }
+                        let resultData: ResultType = try model.getData()
+                        results = resultData
                     }
+                    
                 } catch let ex {
-                    newSuccess = false
-                    newError = ex
+                    if let err = noValueError {
+                        newSuccess = false
+                        newError = err
+                    } else {
+                        newSuccess = false
+                        newError = ex
+                    }
                 }
-
+                
                 DispatchQueue.main.async {
                     completion?(newSuccess, results, newError)
                 }
@@ -138,14 +137,14 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
             }
         }
     }
-
+    
     public func execute(parameters: DataProviderType.ParameterType? = nil,
                         completion: ((Bool, ResultType?, Error?) -> Void)? = nil) {
         _ = dataProvider.request(parameters: parameters) { success, data, error in
             self.finish(success: success, data: data, error: error, completion: completion)
         }
     }
-
+    
     public func execute(parameters: DataProviderType.ParameterType? = nil,
                         loadingHandler: (() -> Void)?,
                         successHandler: ((ResultType?) -> Void)?,
@@ -165,35 +164,35 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
             }
         }
     }
-
+    
     public func execute<DataBindingType: DataProcessingProtocol>(parameters: DataProviderType.ParameterType? = nil,
                                                                  loadingPresenter: LoadingProtocol? = nil,
                                                                  errorAlertPresenter: ErrorHandlingProtocol? = nil,
                                                                  dataBinding: DataBindingType?)
         where DataBindingType.ModelType == ResultType {
-        execute(parameters: parameters,
-                loadingHandler: {
-                    loadingPresenter?.beginLoading()
-                },
-                successHandler: { data in
-                    dataBinding?.process(data: data)
-                },
-                failureHandler: { error in
-                    errorAlertPresenter?.handle(error: error)
-                },
-                completionHandler: {
-                    loadingPresenter?.finishLoading()
-        })
+            execute(parameters: parameters,
+                    loadingHandler: {
+                        loadingPresenter?.beginLoading()
+            },
+                    successHandler: { data in
+                        dataBinding?.process(data: data)
+            },
+                    failureHandler: { error in
+                        errorAlertPresenter?.handle(error: error)
+            },
+                    completionHandler: {
+                        loadingPresenter?.finishLoading()
+            })
     }
-
+    
     public func execute<DataBindingType: DataProcessingProtocol>(parameters: DataProviderType.ParameterType? = nil,
                                                                  delegate: DataBindingType?)
         where DataBindingType: LoadingProtocol,
         DataBindingType: ErrorHandlingProtocol,
         DataBindingType.ModelType == ResultType {
-        execute(parameters: parameters, loadingPresenter: delegate, errorAlertPresenter: delegate, dataBinding: delegate)
+            execute(parameters: parameters, loadingPresenter: delegate, errorAlertPresenter: delegate, dataBinding: delegate)
     }
-
+    
     public func execute(parameters: DataProviderType.ParameterType? = nil,
                         loadingPresenter: LoadingProtocol? = nil,
                         errorAlertPresenter: ErrorHandlingProtocol? = nil,
@@ -201,13 +200,13 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
         execute(parameters: parameters,
                 loadingHandler: {
                     loadingPresenter?.beginLoading()
-                },
+        },
                 successHandler: { data in
                     successHandler?(data)
-                },
+        },
                 failureHandler: { error in
                     errorAlertPresenter?.handle(error: error)
-                },
+        },
                 completionHandler: {
                     loadingPresenter?.finishLoading()
         })
