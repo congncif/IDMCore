@@ -7,10 +7,6 @@
 
 import Foundation
 
-extension DispatchQueue {
-    public static let idmRunQueue: DispatchQueue = DispatchQueue(label: "com.if.idmcore", attributes: .concurrent)
-}
-
 /// A thread-safe array.
 public class SynchronizedArray<Element> {
     fileprivate var queue = DispatchQueue.idmRunQueue

@@ -170,19 +170,19 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                                                                  errorAlertPresenter: ErrorHandlingProtocol? = nil,
                                                                  dataBinding: DataBindingType?)
         where DataBindingType.ModelType == ResultType {
-            execute(parameters: parameters,
-                    loadingHandler: {
-                        loadingPresenter?.beginLoading()
-            },
-                    successHandler: { data in
-                        dataBinding?.process(data: data)
-            },
-                    failureHandler: { error in
-                        errorAlertPresenter?.handle(error: error)
-            },
-                    completionHandler: {
-                        loadingPresenter?.finishLoading()
-            })
+        execute(parameters: parameters,
+                loadingHandler: {
+                    loadingPresenter?.beginLoading()
+                },
+                successHandler: { data in
+                    dataBinding?.process(data: data)
+                },
+                failureHandler: { error in
+                    errorAlertPresenter?.handle(error: error)
+                },
+                completionHandler: {
+                    loadingPresenter?.finishLoading()
+        })
     }
     
     public func execute<DataBindingType: DataProcessingProtocol>(parameters: DataProviderType.ParameterType? = nil,
@@ -190,7 +190,7 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
         where DataBindingType: LoadingProtocol,
         DataBindingType: ErrorHandlingProtocol,
         DataBindingType.ModelType == ResultType {
-            execute(parameters: parameters, loadingPresenter: delegate, errorAlertPresenter: delegate, dataBinding: delegate)
+        execute(parameters: parameters, loadingPresenter: delegate, errorAlertPresenter: delegate, dataBinding: delegate)
     }
     
     public func execute(parameters: DataProviderType.ParameterType? = nil,
@@ -200,13 +200,13 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
         execute(parameters: parameters,
                 loadingHandler: {
                     loadingPresenter?.beginLoading()
-        },
+                },
                 successHandler: { data in
                     successHandler?(data)
-        },
+                },
                 failureHandler: { error in
                     errorAlertPresenter?.handle(error: error)
-        },
+                },
                 completionHandler: {
                     loadingPresenter?.finishLoading()
         })

@@ -215,7 +215,10 @@ public class IntegrationCall<ModelType> {
         }
     }
     
-    public func call<Result>(dependOn requiredCall: IntegrationCall<Result>, with state: NextState = .completion, queue: DispatchQueue = DispatchQueue.main, delay: Double = 0) {
+    public func call<Result>(dependOn requiredCall: IntegrationCall<Result>,
+                             with state: NextState = .completion,
+                             queue: DispatchQueue = DispatchQueue.main,
+                             delay: Double = 0) {
         callQueue = queue
         callDelay = delay
         requiredCall.next(state: state, integrationCall: self).call(queue: queue, delay: delay)

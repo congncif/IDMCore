@@ -64,7 +64,7 @@ extension DataProviderProtocol {
 
         grouptasks.enter()
 
-        let cancel = sub.request(parameters: parameter, completion: { success, data, error in
+        let cancel = sub.request(parameters: parameter) { success, data, error in
 
             defer {
                 done(successLocal, resultLocal, errorLocal)
@@ -77,7 +77,7 @@ extension DataProviderProtocol {
             } else {
                 resultLocal = data
             }
-        })
+        }
         if cancel != nil {
             cancelBlocks.append(cancel!)
         }
@@ -128,9 +128,9 @@ public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvid
 
         grouptasks.notify(queue: DispatchQueue.global(qos: .background)) {
             let results: DataType = (result1, result2)
-            DispatchQueue.main.async(execute: {
+            DispatchQueue.main.async {
                 completion(resultsSuccess, results, resultsError)
-            })
+            }
             cancelBlocks.removeAll()
         }
 
@@ -182,9 +182,9 @@ public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
 
         grouptasks.notify(queue: DispatchQueue.global(qos: .background)) {
             let results: DataType = (result1, result2, result3)
-            DispatchQueue.main.async(execute: {
+            DispatchQueue.main.async {
                 completion(resultsSuccess, results, resultsError)
-            })
+            }
             cancelBlocks.removeAll()
         }
 
@@ -240,9 +240,9 @@ public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
 
         grouptasks.notify(queue: DispatchQueue.global(qos: .background)) {
             let results: DataType = (result1, result2, result3, result4)
-            DispatchQueue.main.async(execute: {
+            DispatchQueue.main.async {
                 completion(resultsSuccess, results, resultsError)
-            })
+            }
             cancelBlocks.removeAll()
         }
 
@@ -303,9 +303,9 @@ public class Group5DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
 
         grouptasks.notify(queue: DispatchQueue.global(qos: .background)) {
             let results: DataType = (result1, result2, result3, result4, result5)
-            DispatchQueue.main.async(execute: {
+            DispatchQueue.main.async {
                 completion(resultsSuccess, results, resultsError)
-            })
+            }
             cancelBlocks.removeAll()
         }
 

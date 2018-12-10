@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2032B5EA21BE1E3C008AC2FD /* SynchronizedArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2032B5E921BE1E3C008AC2FD /* SynchronizedArray.swift */; };
 		2032B5EC21BE220F008AC2FD /* AtomicBool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2032B5EB21BE220F008AC2FD /* AtomicBool.swift */; };
+		2032B5EE21BE581A008AC2FD /* DispatchQueue+IDM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2032B5ED21BE581A008AC2FD /* DispatchQueue+IDM.swift */; };
 		20A02760205909E900967497 /* IntegrationBatchCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20A0275F205909E900967497 /* IntegrationBatchCall.swift */; };
 		20F8C264206A06EE00A53994 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20F8C263206A06EE00A53994 /* Debouncer.swift */; };
 		242FDAA578147E26E128CC6FA2C32BB7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
@@ -44,6 +45,7 @@
 		0DD60DC238CFBD7AD19FE5E49E50F023 /* IDMCore.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = IDMCore.xcconfig; sourceTree = "<group>"; };
 		2032B5E921BE1E3C008AC2FD /* SynchronizedArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizedArray.swift; sourceTree = "<group>"; };
 		2032B5EB21BE220F008AC2FD /* AtomicBool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicBool.swift; sourceTree = "<group>"; };
+		2032B5ED21BE581A008AC2FD /* DispatchQueue+IDM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+IDM.swift"; sourceTree = "<group>"; };
 		20A0275F205909E900967497 /* IntegrationBatchCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntegrationBatchCall.swift; sourceTree = "<group>"; };
 		20F8C263206A06EE00A53994 /* Debouncer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
 		23DAC4F4B19D67B072D6BE50CAAC89D8 /* IDMCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IDMCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -163,6 +165,7 @@
 				D0748D4C96A02C1A2DA55E364FA7ED4E /* ModelProtocol.swift */,
 				2032B5E921BE1E3C008AC2FD /* SynchronizedArray.swift */,
 				2032B5EB21BE220F008AC2FD /* AtomicBool.swift */,
+				2032B5ED21BE581A008AC2FD /* DispatchQueue+IDM.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -333,6 +336,7 @@
 				20A02760205909E900967497 /* IntegrationBatchCall.swift in Sources */,
 				9F98A8612045233A00C2FB2E /* IntegrationCall+Delegation.swift in Sources */,
 				EB920D5B64BC9A3874FD903CA8993069 /* Integrator.swift in Sources */,
+				2032B5EE21BE581A008AC2FD /* DispatchQueue+IDM.swift in Sources */,
 				20F8C264206A06EE00A53994 /* Debouncer.swift in Sources */,
 				9FF02D911EC2EBC7001D45A2 /* Integrator+Delegation.swift in Sources */,
 				3226DB0A8AA2686816E5F0B5463E223C /* ModelProtocol.swift in Sources */,

@@ -63,21 +63,20 @@ public class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondPro
 
         let semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
 
-        DispatchQueue.global(qos: .background).async(execute: { [weak self] in
-
+        DispatchQueue.global(qos: .background).async { [weak self] in
             defer {
-                DispatchQueue.main.async(execute: {
+                DispatchQueue.main.async {
                     cancelBlock = nil
                     completion(resultsSuccess, results, resultsError)
-                })
+                }
             }
 
-            let cancel = self?.firstProvider.request(parameters: param1, completion: { success, data, error in
+            let cancel = self?.firstProvider.request(parameters: param1) { success, data, error in
                 param2 = data
                 resultsSuccess = success
                 resultsError = error
                 semaphore.signal()
-            })
+            }
 
             cancelBlock = cancel
             _ = semaphore.wait(timeout: .distantFuture)
@@ -86,12 +85,12 @@ public class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondPro
                 return
             }
 
-            let cancel2 = self?.secondProvider.request(parameters: param2, completion: { success, data, error in
+            let cancel2 = self?.secondProvider.request(parameters: param2) { success, data, error in
                 results = data
                 resultsSuccess = success
                 resultsError = error
                 semaphore.signal()
-            })
+            }
 
             cancelBlock = cancel2
             _ = semaphore.wait(timeout: .distantFuture)
@@ -99,7 +98,7 @@ public class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondPro
             if !resultsSuccess {
                 return
             }
-        })
+        }
 
         return cancelBlock
     }
