@@ -73,38 +73,27 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     fileprivate var retryCall: IntegrationCall<ResultType> = IntegrationCall<ResultType>()
     fileprivate var retrySetBlock: ((IntegrationCall<ResultType>) -> Void)?
 
-    fileprivate var infoQueue: [CallInfo] = []
-    fileprivate var executingQueue = DispatchQueue.global(qos: DispatchQoS.QoSClass.background)
+    fileprivate var executingQueue = DispatchQueue.idmRunQueue
     fileprivate var mainTask: CallInfo?
 
-    fileprivate var queueRunning: Bool {
-        set {
-            executingQueue.async(group: nil, qos: DispatchQoS.background, flags: .barrier) { [weak self] in
-                self?.running = newValue
-            }
-        }
+    fileprivate var queueRunning: AtomicBool
+    fileprivate var callInfosQueue: SynchronizedArray<CallInfo>
 
-        get {
-            var value: Bool = running
-            executingQueue.sync {
-                value = running
-            }
-            return value
-        }
-    }
+//    fileprivate var running: Bool = false {
+//        didSet {
+//            if running == false {
+//                executeTask()
+//            }
+//        }
+//    }
 
-    fileprivate var running: Bool = false {
-        didSet {
-            if running == false {
-                executeTask()
-            }
-        }
-    }
-
-    public init(dataProvider: DataProviderType, modelType _: ModelType.Type, executingType: IntegrationType = .default) {
+    public init(dataProvider: DataProviderType,
+                modelType _: ModelType.Type,
+                executingType: IntegrationType = .default) {
         self.dataProvider = dataProvider
         self.executingType = executingType
-
+        queueRunning = AtomicBool(queue: executingQueue)
+        callInfosQueue = SynchronizedArray<CallInfo>(queue: executingQueue, elements: [])
         super.init()
 
         switch executingType {
@@ -118,7 +107,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     deinit {
         debouncedFunction?.cancel()
         retrySetBlock = nil
-        infoQueue.removeAll()
+        callInfosQueue.removeAll()
         cancelCurrentTask()
     }
 
@@ -146,7 +135,8 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                     task.completion?(s, d, e)
                 }
                 this?.mainTask = nil
-                this?.queueRunning = false
+                this?.queueRunning.value = false
+                this?.executeTask()
             }
         }
         task.cancel = cancel
@@ -156,30 +146,34 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     func schedule(parameters: DataProviderType.ParameterType?, loading: (() -> Void)? = nil, completion: ((Bool, ResultType?, Error?) -> Void)?) {
         switch executingType {
         case .latest:
-            infoQueue.removeAll()
             let info = IntegrationInfo(parameters: parameters, loading: loading, completion: completion)
-            infoQueue.append(info)
-            if let executer = debouncedFunction {
-                DispatchQueue.main.async(execute: executer.call)
-            } else {
-                prepareExecute()
+            callInfosQueue.removeAll { [unowned self] _ in
+                self.callInfosQueue.append(info)
+                if let executer = self.debouncedFunction {
+                    DispatchQueue.main.async(execute: executer.call)
+                } else {
+                    self.prepareExecute()
+                }
             }
             return
         case .only:
-            guard !queueRunning else {
+            guard !queueRunning.value else {
                 return
             }
             let info = IntegrationInfo(parameters: parameters, loading: loading, completion: completion)
-            infoQueue = [info]
+            callInfosQueue.removeAll { [unowned self] _ in
+                self.callInfosQueue.append(info)
+                self.prepareExecute()
+            }
         default:
             let info = IntegrationInfo(parameters: parameters, loading: loading, completion: completion)
-            infoQueue.append(info)
+            callInfosQueue.append(info)
+            prepareExecute()
         }
-        prepareExecute()
     }
 
     func prepareExecute() {
-        guard !infoQueue.isEmpty else {
+        guard !callInfosQueue.isEmpty else {
             return
         }
         switch executingType {
@@ -190,44 +184,46 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                 executeTask()
             }
         case .default:
-            for info in infoQueue {
+            for info in callInfosQueue.compactMap({ $0 }) {
                 resumeCurrentTask(task: info)
             }
-            infoQueue.removeAll()
+            callInfosQueue.removeAll()
         default:
             executeTask()
             break
         }
     }
 
-    private var lock = NSLock()
+    private var lock = NSRecursiveLock()
     func executeTask() {
         lock.lock()
         defer { lock.unlock() }
 
-        guard !queueRunning else {
+        guard !queueRunning.value else {
             return
         }
         var info: CallInfo?
         switch executingType {
         case .latest:
-            guard let _info = infoQueue.last else {
+            guard let _info = callInfosQueue.last else {
                 return
             }
             info = _info
-            infoQueue.removeAll()
+            callInfosQueue.removeAll()
 
         default:
-            guard let _info = infoQueue.first else {
+            guard let _info = callInfosQueue.first else {
                 return
             }
             info = _info
-            infoQueue.removeFirst()
+            if callInfosQueue.count > 0 {
+                callInfosQueue.remove(at: 0)
+            }
         }
         guard let taskInfo = info else {
             return
         }
-        queueRunning = true
+        queueRunning.value = true
         resumeCurrentTask(task: taskInfo)
     }
 

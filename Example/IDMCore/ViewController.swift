@@ -57,7 +57,7 @@ class DataProvider2: DataProviderProtocol {
 }
 
 class ViewController: UIViewController {
-    let retryService = AmazingIntegrator(dataProvider: DataProvider1(), executingType: .only)
+    let retryService = AmazingIntegrator(dataProvider: DataProvider1(), executingType: .default)
     let service = AmazingIntegrator(dataProvider: DataProvider2())
     let service2 = AmazingIntegrator(dataProvider: DataProvider2())
     let service3 = AmazingIntegrator(dataProvider: DataProvider2())
@@ -69,17 +69,17 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         retryService.prepareCall().onSuccess { (text) in
-            print("Text: \(text)")
+            print("Text: \(text) 1")
         }
         .call()
         
         retryService.prepareCall().onSuccess { (text) in
-            print("Text: \(text)")
+            print("Text: \(text) 2")
             }
             .call()
         
         retryService.prepareCall().onSuccess { (text) in
-            print("Text: \(text)")
+            print("Text: \(text) 3")
             }
             .call()
         
