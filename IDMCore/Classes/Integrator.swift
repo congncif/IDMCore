@@ -74,26 +74,20 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     fileprivate var retrySetBlock: ((IntegrationCall<ResultType>) -> Void)?
 
     fileprivate var executingQueue = DispatchQueue.idmRunQueue
-    fileprivate var mainTask: CallInfo?
-
-    fileprivate var queueRunning: AtomicBool
+    fileprivate var preparingQueue = DispatchQueue.idmPrepareQueue
+    fileprivate var runningCallsQueue: SynchronizedArray<CallInfo>
+    fileprivate var queueRunning: AtomicBool // useful for type = .queue or .only
     fileprivate var callInfosQueue: SynchronizedArray<CallInfo>
-
-//    fileprivate var running: Bool = false {
-//        didSet {
-//            if running == false {
-//                executeTask()
-//            }
-//        }
-//    }
 
     public init(dataProvider: DataProviderType,
                 modelType _: ModelType.Type,
                 executingType: IntegrationType = .default) {
         self.dataProvider = dataProvider
         self.executingType = executingType
-        queueRunning = AtomicBool(queue: executingQueue)
-        callInfosQueue = SynchronizedArray<CallInfo>(queue: executingQueue, elements: [])
+        queueRunning = AtomicBool(queue: DispatchQueue.idmQueue)
+        callInfosQueue = SynchronizedArray<CallInfo>(queue: preparingQueue, elements: [])
+        runningCallsQueue = SynchronizedArray<CallInfo>(queue: executingQueue, elements: [])
+
         super.init()
 
         switch executingType {
@@ -105,23 +99,21 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     }
 
     deinit {
-        debouncedFunction?.cancel()
         retrySetBlock = nil
-        callInfosQueue.removeAll()
-        cancelCurrentTask()
+        cancelRunning()
     }
 
-    func cancelCurrentTask() {
-        if let task = self.mainTask {
+    fileprivate func cancelCurrentTasks() {
+        for task in runningCallsQueue.compactMap({ $0 }) {
             task.cancel?()
             DispatchQueue.main.async {
                 task.completion?(false, nil, nil)
             }
-            mainTask = nil
         }
+        runningCallsQueue.removeAll()
     }
 
-    func resumeCurrentTask(task: CallInfo) {
+    fileprivate func resumeCurrentTask(_ task: CallInfo) {
         DispatchQueue.main.async {
             task.loading?()
         }
@@ -134,13 +126,24 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                 DispatchQueue.main.async {
                     task.completion?(s, d, e)
                 }
-                this?.mainTask = nil
-                this?.queueRunning.value = false
-                this?.executeTask()
+                this?.dequeueTask(task)
             }
         }
         task.cancel = cancel
-        mainTask = task
+        enqueueTask(task)
+    }
+
+    fileprivate func enqueueTask(_ task: CallInfo) {
+        runningCallsQueue.append(task)
+    }
+
+    fileprivate func dequeueTask(_ task: CallInfo) {
+        runningCallsQueue.remove(where: { (current) -> Bool in
+            task.isEqual(current)
+        }, completion: { [weak self] _ in
+            self?.queueRunning.value = false
+            self?.executeTask()
+        })
     }
 
     func schedule(parameters: DataProviderType.ParameterType?, loading: (() -> Void)? = nil, completion: ((Bool, ResultType?, Error?) -> Void)?) {
@@ -156,46 +159,46 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                 }
             }
             return
-        case .only:
+        case .only: // call immediately then block integrator, use queueRunning to control only call at the same time
             guard !queueRunning.value else {
                 return
             }
             let info = IntegrationInfo(parameters: parameters, loading: loading, completion: completion)
-            callInfosQueue.removeAll { [unowned self] _ in
-                self.callInfosQueue.append(info)
-                self.prepareExecute()
-            }
-        default:
+            queueRunning.value = true
+            resumeCurrentTask(info)
+            callInfosQueue.removeAll() // ignore this queue with type .only
+        default: // .default & .queue -> append calls queue
             let info = IntegrationInfo(parameters: parameters, loading: loading, completion: completion)
             callInfosQueue.append(info)
             prepareExecute()
         }
     }
 
-    func prepareExecute() {
+    // call or extend queue calls
+    fileprivate func prepareExecute() {
         guard !callInfosQueue.isEmpty else {
             return
         }
         switch executingType {
         case .latest:
-            if let _ = mainTask {
-                cancelCurrentTask()
-            } else {
-                executeTask()
+            if runningCallsQueue.count > 0 {
+                cancelCurrentTasks()
             }
-        case .default:
+            executeTask()
+
+        case .default: // call calls immediately
             for info in callInfosQueue.compactMap({ $0 }) {
-                resumeCurrentTask(task: info)
+                resumeCurrentTask(info)
             }
             callInfosQueue.removeAll()
-        default:
+        default: // .queue: execute tasks by queue using queueRunning to control only call at the same time
             executeTask()
             break
         }
     }
 
-    private var lock = NSRecursiveLock()
-    func executeTask() {
+    private var lock = NSRecursiveLock() // because executingType = .queue using recursive func to call tasks so this lock used to prevent deadlock
+    fileprivate func executeTask() {
         lock.lock()
         defer { lock.unlock() }
 
@@ -224,7 +227,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
             return
         }
         queueRunning.value = true
-        resumeCurrentTask(task: taskInfo)
+        resumeCurrentTask(taskInfo)
     }
 
     /*********************************************************************************/
@@ -376,6 +379,14 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     public func resetRetryCall() {
         retryCall = IntegrationCall<ResultType>()
         retrySetBlock = nil
+    }
+
+    public func cancelRunning() {
+        debouncedFunction?.cancel()
+        callInfosQueue.removeAll()
+        cancelCurrentTasks()
+
+        queueRunning.value = false
     }
 
     /*********************************************************************************/

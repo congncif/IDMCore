@@ -57,7 +57,7 @@ class DataProvider2: DataProviderProtocol {
 }
 
 class ViewController: UIViewController {
-    let retryService = AmazingIntegrator(dataProvider: DataProvider1(), executingType: .default)
+    let retryService = AmazingIntegrator(dataProvider: DataProvider1(), executingType: .only)
     let service = AmazingIntegrator(dataProvider: DataProvider2())
     let service2 = AmazingIntegrator(dataProvider: DataProvider2())
     let service3 = AmazingIntegrator(dataProvider: DataProvider2())
@@ -67,22 +67,14 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        retryService.prepareCall().onSuccess { (text) in
-            print("Text: \(text) 1")
+
+        for i in 1...5 {
+            retryService.prepareCall().onSuccess { text in
+                print("Tak at: \(text) \(i)")
+            }
+            .call(delay: Double(i))
         }
-        .call()
-        
-        retryService.prepareCall().onSuccess { (text) in
-            print("Text: \(text) 2")
-            }
-            .call()
-        
-        retryService.prepareCall().onSuccess { (text) in
-            print("Text: \(text) 3")
-            }
-            .call()
-        
+
         // Do any additional setup after loading the view, typically from a nib.
         //        integrator.prepareCall().onSuccess { result in
         //            print(result ?? "x")
@@ -158,7 +150,7 @@ class ViewController: UIViewController {
 //            _ in
 //            print("XXXX")
 //        }
-        
+
 //        [call1, call2, call3].call() {
 //            _ in
 //            print("XXX")
@@ -202,5 +194,9 @@ class ViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+
+    deinit {
+        print("Deinit --> // >")
     }
 }
