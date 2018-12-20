@@ -103,7 +103,7 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                 completion: ((Bool, ResultType?, Error?) -> Void)?) {
         let noValueError = self.noValueError
         if success {
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue.global(qos: .userInteractive).async {
                 var newError = error
                 var newSuccess = success
                 var results: ResultType?
