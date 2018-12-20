@@ -187,7 +187,10 @@ public class IntegrationCall<ModelType> {
     
     @discardableResult
     public func onSuccess(_ handler: ((ModelType?) -> ())?) -> Self {
-        doSuccess = { [unowned self] result in
+        doSuccess = { [weak self] result in
+            guard let self = self else {
+                return
+            }
             self.retryErrorBlock = nil
             self.retryBlock = nil
             handler?(result)

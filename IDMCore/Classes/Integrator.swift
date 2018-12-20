@@ -150,7 +150,8 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         switch executingType {
         case .latest:
             let info = IntegrationInfo(parameters: parameters, loading: loading, completion: completion)
-            callInfosQueue.removeAll { [unowned self] _ in
+            callInfosQueue.removeAll { [weak self] _ in
+                guard let self = self else { return }
                 self.callInfosQueue.append(info)
                 if let executer = self.debouncedFunction {
                     DispatchQueue.main.async(execute: executer.call)
