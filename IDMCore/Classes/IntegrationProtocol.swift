@@ -30,66 +30,39 @@
 
 import Foundation
 
-public protocol LoadingProtocol {
-    func beginLoading()
-    func finishLoading()
-}
-
-public protocol ProgressLoadingProtocol {
-    func beginProgressLoading()
-    func loadingDidUpdateProgress(_ progress: Progress?)
-    func finishProgressLoading()
-}
-
-public protocol ErrorHandlingProtocol {
-    func handle(error: Error?)
-}
-
-public protocol DataProcessingProtocol {
-    associatedtype ModelType
-    func process(data: ModelType?)
-}
-
-public protocol ProgressTrackingProtocol {
-    associatedtype ModelType
-    func progressDidUpdate(data: ModelType?)
-}
-
-public protocol DelayingCompletionProtocol {
-    var isDelaying: Bool { get }
-}
-
-public protocol ProgressModelProtocol: DelayingCompletionProtocol {
-    var progress: Progress? { get }
-}
-
-public protocol IntegrationProtocol: class {
+public protocol IntegrationProtocol: IntegratorProtocol where Self.ParameterType == GParameterType, Self.ResultType == GResultType {
     associatedtype DataProviderType: DataProviderProtocol
     associatedtype ModelType: ModelProtocol
     associatedtype ResultType
     
+    typealias ParameterType = DataProviderType.ParameterType
+    
     var dataProvider: DataProviderType { get }
     
-    func execute(parameters: DataProviderType.ParameterType?,
+    func execute(parameters: ParameterType?,
                  completion: ((Bool, ResultType?, Error?) -> Void)?)
-    func execute(parameters: DataProviderType.ParameterType?,
+    func execute(parameters: ParameterType?,
                  loadingHandler: (() -> Void)?,
                  successHandler: ((ResultType?) -> Void)?,
                  failureHandler: ((Error?) -> Void)?,
                  completionHandler: (() -> Void)?)
-    
-    // Add this method to handle universal call
-    func prepareCall(parameters: DataProviderType.ParameterType?) -> IntegrationCall<ResultType>
-    
     var noValueError: Error? { get }
 }
 
-extension IntegrationProtocol {
-    // Default method for prepare call
-    func prepareCall(parameters _: DataProviderType.ParameterType?) -> IntegrationCall<ResultType> {
-        return IntegrationCall<ResultType>()
-    }
+public protocol IntegratorProtocol: class {
+    associatedtype GParameterType
+    associatedtype GResultType
     
+    func prepareCall(parameters: GParameterType?) -> IntegrationCall<GResultType>
+}
+
+// extension IntegratorProtocol {
+//    public func prepareCall(parameters _: GParameterType?) -> IntegrationCall<GResultType> {
+//        return IntegrationCall<GResultType>()
+//    }
+// }
+
+extension IntegrationProtocol {
     public var noValueError: Error? {
         return nil
     }
@@ -118,12 +91,18 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                     }
                     
                 } catch let ex {
-                    if let err = noValueError {
+                    if let err = noValueError { // custom noValue error
                         newSuccess = false
                         newError = err
                     } else {
                         newSuccess = false
                         newError = ex
+                    }
+                    
+                    // Ignore noValue error, accept any results includes nil
+                    if let _ = newError as? IgnoreError {
+                        newSuccess = true
+                        newError = nil
                     }
                 }
                 
@@ -138,14 +117,14 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
         }
     }
     
-    public func execute(parameters: DataProviderType.ParameterType? = nil,
+    public func execute(parameters: ParameterType? = nil,
                         completion: ((Bool, ResultType?, Error?) -> Void)? = nil) {
         _ = dataProvider.request(parameters: parameters) { success, data, error in
             self.finish(success: success, data: data, error: error, completion: completion)
         }
     }
     
-    public func execute(parameters: DataProviderType.ParameterType? = nil,
+    public func execute(parameters: ParameterType? = nil,
                         loadingHandler: (() -> Void)?,
                         successHandler: ((ResultType?) -> Void)?,
                         failureHandler: ((Error?) -> Void)? = nil,
@@ -165,7 +144,7 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
         }
     }
     
-    public func execute<DataBindingType: DataProcessingProtocol>(parameters: DataProviderType.ParameterType? = nil,
+    public func execute<DataBindingType: DataProcessingProtocol>(parameters: ParameterType? = nil,
                                                                  loadingPresenter: LoadingProtocol? = nil,
                                                                  errorAlertPresenter: ErrorHandlingProtocol? = nil,
                                                                  dataBinding: DataBindingType?)
@@ -185,7 +164,7 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
         })
     }
     
-    public func execute<DataBindingType: DataProcessingProtocol>(parameters: DataProviderType.ParameterType? = nil,
+    public func execute<DataBindingType: DataProcessingProtocol>(parameters: ParameterType? = nil,
                                                                  delegate: DataBindingType?)
         where DataBindingType: LoadingProtocol,
         DataBindingType: ErrorHandlingProtocol,
@@ -193,7 +172,7 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
         execute(parameters: parameters, loadingPresenter: delegate, errorAlertPresenter: delegate, dataBinding: delegate)
     }
     
-    public func execute(parameters: DataProviderType.ParameterType? = nil,
+    public func execute(parameters: ParameterType? = nil,
                         loadingPresenter: LoadingProtocol? = nil,
                         errorAlertPresenter: ErrorHandlingProtocol? = nil,
                         successHandler: ((ResultType?) -> Void)?) {

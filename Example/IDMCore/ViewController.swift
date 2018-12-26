@@ -17,7 +17,7 @@ struct TestDelay: DelayingCompletionProtocol {
 class DataProvider1: DataProviderProtocol {
     func request(parameters: NSError?, completion: @escaping ((Bool, String?, Error?) -> Void)) -> (() -> Void)? {
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(3)) {
-            completion(true, "result 1 input error: \(parameters)", NSError(domain: "retry error", code: 112, userInfo: nil))
+            completion(true, "result 1 input error: \(String(describing: parameters))", NSError(domain: "retry error", code: 112, userInfo: nil))
             //            completion(true, "result 2", nil)
             //            completion(true, "result 3", nil)
             //            completion(true, "result 4", nil)
@@ -61,6 +61,7 @@ class ViewController: UIViewController {
     let service = AmazingIntegrator(dataProvider: DataProvider2())
     let service2 = AmazingIntegrator(dataProvider: DataProvider2())
     let service3 = AmazingIntegrator(dataProvider: DataProvider2())
+    
     //    let integrator = AmazingIntegrator(dataProvider: DataProvider2() >>>> DataProvider1())
 
     //    let integrator2 = AmazingIntegrator(dataProvider: DataProvider1() >><< DataProvider2())
@@ -70,10 +71,12 @@ class ViewController: UIViewController {
 
         for i in 1...5 {
             retryService.prepareCall().onSuccess { text in
-                print("Tak at: \(text) \(i)")
+                print("Tak at: \(String(describing: text)) \(i)")
             }
             .call(delay: Double(i))
         }
+        
+        
 
         // Do any additional setup after loading the view, typically from a nib.
         //        integrator.prepareCall().onSuccess { result in

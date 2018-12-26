@@ -30,12 +30,6 @@
 
 import Foundation
 
-open class DataProcessor<ModelType>: NSObject, DataProcessingProtocol {
-    open func process(data: ModelType?) {
-        print("Need override function \(#function) to process data: \(String(describing: data))")
-    }
-}
-
 //////////////////////////////////////////////////////////////////////////////////////
 class IntegrationInfo<ModelType, ParameterType>: NSObject {
     var parameters: ParameterType?
@@ -58,11 +52,13 @@ public enum IntegrationType {
 }
 
 open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: ModelProtocol, IntegrateResult>: NSObject, IntegrationProtocol where IntegrateProvider.DataType == IntegrateModel.DataType {
-    typealias CallInfo = IntegrationInfo<ResultType, DataProviderType.ParameterType>
-
+    public typealias GParameterType = IntegrateProvider.ParameterType
+    public typealias GResultType = IntegrateResult
     public typealias DataProviderType = IntegrateProvider
     public typealias ModelType = IntegrateModel
     public typealias ResultType = IntegrateResult
+
+    typealias CallInfo = IntegrationInfo<ResultType, ParameterType>
 
     open var dataProvider: DataProviderType
     open var executingType: IntegrationType
@@ -72,7 +68,6 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     fileprivate var defaultCall: IntegrationCall<ResultType> = IntegrationCall<ResultType>()
     fileprivate var retryCall: IntegrationCall<ResultType> = IntegrationCall<ResultType>()
     fileprivate var retrySetBlock: ((IntegrationCall<ResultType>) -> Void)?
-
     fileprivate var executingQueue = DispatchQueue.idmRunQueue
     fileprivate var preparingQueue = DispatchQueue.idmPrepareQueue
     fileprivate var runningCallsQueue: SynchronizedArray<CallInfo>
@@ -146,7 +141,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         })
     }
 
-    func schedule(parameters: DataProviderType.ParameterType?, loading: (() -> Void)? = nil, completion: ((Bool, ResultType?, Error?) -> Void)?) {
+    fileprivate func schedule(parameters: ParameterType?, loading: (() -> Void)? = nil, completion: ((Bool, ResultType?, Error?) -> Void)?) {
         switch executingType {
         case .latest:
             let info = IntegrationInfo(parameters: parameters, loading: loading, completion: completion)
@@ -237,7 +232,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
 
     /*********************************************************************************/
 
-    open func execute(parameters: DataProviderType.ParameterType? = nil, completion: ((Bool, ResultType?, Error?) -> Void)? = nil) {
+    open func execute(parameters: ParameterType? = nil, completion: ((Bool, ResultType?, Error?) -> Void)? = nil) {
         schedule(parameters: parameters,
                  loading: { [weak self] in
                      self?.defaultCall.onBeginning?()
@@ -255,7 +250,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         })
     }
 
-    open func execute(parameters: DataProviderType.ParameterType? = nil,
+    open func execute(parameters: ParameterType? = nil,
                       loadingHandler: (() -> Void)?,
                       successHandler: ((ResultType?) -> Void)?,
                       failureHandler: ((Error?) -> Void)? = nil,
@@ -396,7 +391,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
 
     /*********************************************************************************/
 
-    public func prepareCall(parameters: DataProviderType.ParameterType? = nil) -> IntegrationCall<ResultType> {
+    public func prepareCall(parameters: ParameterType? = nil) -> IntegrationCall<ResultType> {
         let call = IntegrationCall<ResultType>()
 
         call.ignoreUnknownError(defaultCall.ignoreUnknownError)
