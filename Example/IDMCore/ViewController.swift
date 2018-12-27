@@ -57,6 +57,8 @@ class DataProvider2: DataProviderProtocol {
 }
 
 class ViewController: UIViewController {
+    var exSer: AbstractIntegrator<Int, TestDelay>!
+    
     let retryService = AmazingIntegrator(dataProvider: DataProvider1(), executingType: .only)
     let service = AmazingIntegrator(dataProvider: DataProvider2())
     let service2 = AmazingIntegrator(dataProvider: DataProvider2())
@@ -76,6 +78,11 @@ class ViewController: UIViewController {
             .call(delay: Double(i))
         }
         
+        exSer = service
+        
+        exSer.prepareCall(parameters: 1).onError { (err) in
+            print(String(describing: err))
+        }.call()
         
 
         // Do any additional setup after loading the view, typically from a nib.

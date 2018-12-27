@@ -68,7 +68,7 @@ public class IntegrationCall<ModelType> {
     fileprivate(set) var callQueue: DispatchQueue = DispatchQueue.main
     fileprivate(set) var callDelay: Double = 0
     
-    public internal(set) weak var integrator: AnyObject?
+    public internal(set) var integratorIndentifier: String = String()
     
     init() {
         idenitifier = ProcessInfo.processInfo.globallyUniqueString
@@ -740,9 +740,6 @@ public func == <R>(lhs: IntegrationCall<R>, rhs: IntegrationCall<R>) -> Bool {
 
 extension IntegrationCall {
     public func isSameIntegrator<R>(with other: IntegrationCall<R>) -> Bool {
-        if let checked = integrator?.isEqual(other.integrator) {
-            return checked
-        }
-        return false
+        return integratorIndentifier == other.integratorIndentifier
     }
 }

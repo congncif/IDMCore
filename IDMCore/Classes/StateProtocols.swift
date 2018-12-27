@@ -42,6 +42,6 @@ public protocol ProgressModelProtocol: DelayingCompletionProtocol {
 
 open class DataProcessor<ModelType>: NSObject, DataProcessingProtocol {
     open func process(data: ModelType?) {
-        print("Need override function \(#function) to process data: \(String(describing: data))")
+        assertionFailure("Need override function \(#function) to process data: \(String(describing: data))")
     }
 }

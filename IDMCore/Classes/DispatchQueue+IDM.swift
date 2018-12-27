@@ -8,7 +8,8 @@
 import Foundation
 
 extension DispatchQueue {
-    public static let idmRunQueue: DispatchQueue = DispatchQueue(label: "com.if.idmcore.run", attributes: .concurrent)
-    public static let idmPrepareQueue: DispatchQueue = DispatchQueue(label: "com.if.idmcore.prepare", attributes: .concurrent)
-    public static let idmQueue: DispatchQueue = DispatchQueue(label: "com.if.idmcore", attributes: .concurrent)
+    public static let running = DispatchQueue(label: "com.if.idmcore.running", attributes: .concurrent)
+    public static let momentum = DispatchQueue(label: "com.if.idmcore.momentum", attributes: .concurrent)
+    public static let idmConcurrent = DispatchQueue(label: "com.if.idmcore.concurrent", attributes: .concurrent)
+    public static let idmSerial = DispatchQueue(label: "com.if.idmcore.serial")
 }

@@ -9,10 +9,10 @@ import Foundation
 
 /// A thread-safe array.
 public class SynchronizedArray<Element> {
-    fileprivate var queue = DispatchQueue.idmRunQueue
+    fileprivate var queue: DispatchQueue
     fileprivate var array = [Element]()
     
-    public init(queue: DispatchQueue = DispatchQueue.idmRunQueue,
+    public init(queue: DispatchQueue = DispatchQueue.idmConcurrent,
                 elements: [Element] = []) {
         self.queue = queue
         self.array = elements

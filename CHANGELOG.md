@@ -1,17 +1,26 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-#### 1.x Releases
+#### 2.x Releases
+- `2.8.x` Releases  - [2.8.0](#280)
 - `2.7.x` Releases  - [2.7.0](#270) | [2.7.1](#271) | [2.7.2](#272) | [2.7.3](#273) |  | [2.7.8](#278)
 - `2.6.x` Releases  - [2.6.0](#260) | [2.6.1](#261) | [2.6.2](#262) | [2.6.3](#263)  | [2.6.4](#264) | [2.6.5](#265) | [2.6.6](#266) | [2.6.7](#267)
 - `2.5.x` Releases  - [2.5.0](#250)
 
 ---
+## [2.8.0](https://github.com/congncif/IDMFoundation/releases/tag/2.8.0)
+Released on 2018-12-27
+
+#### Updated
+- Added `AbstractIntegrator` for generic declaring.
+- Made `Integrator` to be subclass of ` AbstractIntegrator`
+- Changed mechanism to identify `Integrator`
+
 ## [2.7.8](https://github.com/congncif/IDMFoundation/releases/tag/2.7.8)
 Released on 2018-12-26
 
 #### Updated
-- Changed `IntegrationProtocol` which now is sub protocol of `IntegratorProtocol `
+- Changed `IntegrationProtocol` which now is sub protocol of `IntegratorProtocol`
 
 ## [2.7.3](https://github.com/congncif/IDMFoundation/releases/tag/2.7.3)
 Released on 2018-12-10

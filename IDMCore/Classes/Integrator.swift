@@ -30,6 +30,27 @@
 
 import Foundation
 
+open class AbstractIntegrator<Parameter, Result>: IntegratorProtocol, Equatable {
+    public typealias GParameterType = Parameter
+    public typealias GResultType = Result
+
+    public fileprivate(set) var idenitifier: String
+
+    public init() {
+        idenitifier = ProcessInfo.processInfo.globallyUniqueString
+    }
+
+    open func prepareCall(parameters _: Parameter?) -> IntegrationCall<Result> {
+        assertionFailure("Abstract method needs an implementation")
+
+        return IntegrationCall<Result>()
+    }
+
+    public static func == (lhs: AbstractIntegrator, rhs: AbstractIntegrator) -> Bool {
+        return lhs.idenitifier == rhs.idenitifier
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 class IntegrationInfo<ModelType, ParameterType>: NSObject {
     var parameters: ParameterType?
@@ -51,7 +72,7 @@ public enum IntegrationType {
     case latest // The integration will cancel all integration call before & only execute latest integration call
 }
 
-open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: ModelProtocol, IntegrateResult>: NSObject, IntegrationProtocol where IntegrateProvider.DataType == IntegrateModel.DataType {
+open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: ModelProtocol, IntegrateResult>: AbstractIntegrator<IntegrateProvider.ParameterType, IntegrateResult>, IntegrationProtocol where IntegrateProvider.DataType == IntegrateModel.DataType {
     public typealias GParameterType = IntegrateProvider.ParameterType
     public typealias GResultType = IntegrateResult
     public typealias DataProviderType = IntegrateProvider
@@ -65,11 +86,11 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     open var noValueError: Error?
 
     fileprivate var debouncedFunction: Debouncer? // only valid for latest executing
-    fileprivate var defaultCall: IntegrationCall<ResultType> = IntegrationCall<ResultType>()
-    fileprivate var retryCall: IntegrationCall<ResultType> = IntegrationCall<ResultType>()
+    fileprivate var defaultCall = IntegrationCall<ResultType>()
+    fileprivate var retryCall = IntegrationCall<ResultType>()
     fileprivate var retrySetBlock: ((IntegrationCall<ResultType>) -> Void)?
-    fileprivate var executingQueue = DispatchQueue.idmRunQueue
-    fileprivate var preparingQueue = DispatchQueue.idmPrepareQueue
+    fileprivate var executingQueue = DispatchQueue.running
+    fileprivate var preparingQueue = DispatchQueue.momentum
     fileprivate var runningCallsQueue: SynchronizedArray<CallInfo>
     fileprivate var queueRunning: AtomicBool // useful for type = .queue or .only
     fileprivate var callInfosQueue: SynchronizedArray<CallInfo>
@@ -79,7 +100,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                 executingType: IntegrationType = .default) {
         self.dataProvider = dataProvider
         self.executingType = executingType
-        queueRunning = AtomicBool(queue: DispatchQueue.idmQueue)
+        queueRunning = AtomicBool(queue: DispatchQueue.idmConcurrent)
         callInfosQueue = SynchronizedArray<CallInfo>(queue: preparingQueue, elements: [])
         runningCallsQueue = SynchronizedArray<CallInfo>(queue: executingQueue, elements: [])
 
@@ -391,7 +412,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
 
     /*********************************************************************************/
 
-    public func prepareCall(parameters: ParameterType? = nil) -> IntegrationCall<ResultType> {
+    open override func prepareCall(parameters: ParameterType? = nil) -> IntegrationCall<ResultType> {
         let call = IntegrationCall<ResultType>()
 
         call.ignoreUnknownError(defaultCall.ignoreUnknownError)
@@ -413,7 +434,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                           },
                           completionHandler: inCall.onCompletion)
         }
-        call.integrator = self
+        call.integratorIndentifier = idenitifier
         return call
     }
 }
