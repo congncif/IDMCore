@@ -40,6 +40,12 @@ public protocol ProgressModelProtocol: DelayingCompletionProtocol {
     var progress: Progress? { get set }
 }
 
+public protocol ProgressDataModelProtocol: ProgressModelProtocol {
+    associatedtype D
+    
+    var data: D? { get set }
+}
+
 open class DataProcessor<ModelType>: NSObject, DataProcessingProtocol {
     open func process(data: ModelType?) {
         assertionFailure("Need override function \(#function) to process data: \(String(describing: data))")
