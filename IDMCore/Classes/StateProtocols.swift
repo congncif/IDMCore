@@ -33,11 +33,11 @@ public protocol ProgressTrackingProtocol {
 }
 
 public protocol DelayingCompletionProtocol {
-    var isDelaying: Bool { get }
+    var isDelaying: Bool { get set }
 }
 
 public protocol ProgressModelProtocol: DelayingCompletionProtocol {
-    var progress: Progress? { get }
+    var progress: Progress? { get set }
 }
 
 open class DataProcessor<ModelType>: NSObject, DataProcessingProtocol {
