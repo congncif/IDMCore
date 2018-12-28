@@ -54,13 +54,8 @@ public protocol IntegratorProtocol: class {
     associatedtype GResultType
     
     func prepareCall(parameters: GParameterType?) -> IntegrationCall<GResultType>
+    func cancel()
 }
-
-// extension IntegratorProtocol {
-//    public func prepareCall(parameters _: GParameterType?) -> IntegrationCall<GResultType> {
-//        return IntegrationCall<GResultType>()
-//    }
-// }
 
 extension IntegrationProtocol {
     public var noValueError: Error? {

@@ -2,12 +2,19 @@
 All notable changes to this project will be documented in this file.
 
 #### 2.x Releases
-- `2.8.x` Releases  - [2.8.0](#280)
+- `2.8.x` Releases  - [2.8.0](#280) |  [2.8.1](#281)
 - `2.7.x` Releases  - [2.7.0](#270) | [2.7.1](#271) | [2.7.2](#272) | [2.7.3](#273) |  | [2.7.8](#278)
 - `2.6.x` Releases  - [2.6.0](#260) | [2.6.1](#261) | [2.6.2](#262) | [2.6.3](#263)  | [2.6.4](#264) | [2.6.5](#265) | [2.6.6](#266) | [2.6.7](#267)
 - `2.5.x` Releases  - [2.5.0](#250)
 
 ---
+## [2.8.1](https://github.com/congncif/IDMFoundation/releases/tag/2.8.1)
+Released on 2018-12-28
+
+#### Added
+- Added `GroupIntegrator` to work with multiple Integrators.
+- Added `DataProviderConverter` to convert an Integrator to DataProvider.
+
 ## [2.8.0](https://github.com/congncif/IDMFoundation/releases/tag/2.8.0)
 Released on 2018-12-27
 

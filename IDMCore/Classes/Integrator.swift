@@ -41,11 +41,13 @@ open class AbstractIntegrator<Parameter, Result>: IntegratorProtocol, Equatable 
     }
 
     open func prepareCall(parameters _: Parameter?) -> IntegrationCall<Result> {
-        assertionFailure("Abstract method needs an implementation")
+        assertionFailure("\(type(of: self)): Abstract method needs an implementation")
 
         return IntegrationCall<Result>()
     }
 
+    open func cancel() {}
+    
     public static func == (lhs: AbstractIntegrator, rhs: AbstractIntegrator) -> Bool {
         return lhs.idenitifier == rhs.idenitifier
     }
@@ -116,7 +118,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
 
     deinit {
         retrySetBlock = nil
-        cancelRunning()
+        cancel()
     }
 
     fileprivate func cancelCurrentTasks() {
@@ -398,7 +400,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         retrySetBlock = nil
     }
 
-    public func cancelRunning() {
+    open override func cancel() {
         debouncedFunction?.cancel()
         callInfosQueue.removeAll()
         cancelCurrentTasks()

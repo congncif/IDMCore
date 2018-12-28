@@ -58,12 +58,17 @@ class DataProvider2: DataProviderProtocol {
 
 class ViewController: UIViewController {
     var exSer: AbstractIntegrator<Int, TestDelay>!
-    
+    lazy var groupSer: GroupIntegrator<AmazingIntegrator<DataProvider2>> = {
+        return GroupIntegrator<AmazingIntegrator<DataProvider2>>.init (creator: {
+            AmazingIntegrator(dataProvider: DataProvider2())
+        })
+    }()
+
     let retryService = AmazingIntegrator(dataProvider: DataProvider1(), executingType: .only)
     let service = AmazingIntegrator(dataProvider: DataProvider2())
     let service2 = AmazingIntegrator(dataProvider: DataProvider2())
     let service3 = AmazingIntegrator(dataProvider: DataProvider2())
-    
+
     //    let integrator = AmazingIntegrator(dataProvider: DataProvider2() >>>> DataProvider1())
 
     //    let integrator2 = AmazingIntegrator(dataProvider: DataProvider1() >><< DataProvider2())
@@ -71,19 +76,25 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        for i in 1...5 {
-            retryService.prepareCall().onSuccess { text in
-                print("Tak at: \(String(describing: text)) \(i)")
+//        for i in 1...5 {
+//            retryService.prepareCall().onSuccess { text in
+//                print("Tak at: \(String(describing: text)) \(i)")
+//            }
+//            .call(delay: Double(i))
+//        }
+//
+//        exSer = service
+
+        groupSer
+            .prepareCall(parameters: [1, 2, 3])
+            .onSuccess { result in
+                print(result.debugDescription)
             }
-            .call(delay: Double(i))
-        }
-        
-        exSer = service
-        
-        exSer.prepareCall(parameters: 1).onError { (err) in
-            print(String(describing: err))
-        }.call()
-        
+            .call()
+
+//        exSer.prepareCall(parameters: 1).onError { err in
+//            print(String(describing: err))
+//        }.call()
 
         // Do any additional setup after loading the view, typically from a nib.
         //        integrator.prepareCall().onSuccess { result in

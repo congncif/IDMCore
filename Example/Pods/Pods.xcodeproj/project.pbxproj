@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		200B444A21D3CD5500558E28 /* StateProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200B444921D3CD5500558E28 /* StateProtocols.swift */; };
 		200B444C21D3D2EE00558E28 /* IDMError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200B444B21D3D2EE00558E28 /* IDMError.swift */; };
+		2031EE4B21D5AF4100677EAA /* SequenceDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2031EE4A21D5AF4100677EAA /* SequenceDataProvider.swift */; };
+		2031EE4D21D5B0C900677EAA /* DataProviderConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2031EE4C21D5B0C900677EAA /* DataProviderConverter.swift */; };
+		2031EE4F21D5DA6100677EAA /* GroupIntegrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2031EE4E21D5DA6100677EAA /* GroupIntegrator.swift */; };
 		2032B5EA21BE1E3C008AC2FD /* SynchronizedArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2032B5E921BE1E3C008AC2FD /* SynchronizedArray.swift */; };
 		2032B5EC21BE220F008AC2FD /* AtomicBool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2032B5EB21BE220F008AC2FD /* AtomicBool.swift */; };
 		2032B5EE21BE581A008AC2FD /* DispatchQueue+IDM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2032B5ED21BE581A008AC2FD /* DispatchQueue+IDM.swift */; };
@@ -27,7 +30,7 @@
 		9F98A8612045233A00C2FB2E /* IntegrationCall+Delegation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F98A8602045233A00C2FB2E /* IntegrationCall+Delegation.swift */; };
 		9FF02D911EC2EBC7001D45A2 /* Integrator+Delegation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF02D901EC2EBC7001D45A2 /* Integrator+Delegation.swift */; };
 		BD1D612BAC087E037792ED28FE6B0C8B /* IDMCore-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 381FB4CC49373501D6C64C9458D48A94 /* IDMCore-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		C2BC59A1B19D010A3D90305B6E8643B9 /* AutoIntegrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6EF1FCDF1A9861482C5E564ABC3B17 /* AutoIntegrator.swift */; };
+		C2BC59A1B19D010A3D90305B6E8643B9 /* IntegratorConstructor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6EF1FCDF1A9861482C5E564ABC3B17 /* IntegratorConstructor.swift */; };
 		EB920D5B64BC9A3874FD903CA8993069 /* Integrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAB234D57659DC868FC92E827E6046A2 /* Integrator.swift */; };
 		F55258082C47A05536A36E936578A414 /* DataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3269F78E0A8578557DC9EE1BA4F10DD2 /* DataProvider.swift */; };
 /* End PBXBuildFile section */
@@ -47,6 +50,9 @@
 		0DD60DC238CFBD7AD19FE5E49E50F023 /* IDMCore.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = IDMCore.xcconfig; sourceTree = "<group>"; };
 		200B444921D3CD5500558E28 /* StateProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateProtocols.swift; sourceTree = "<group>"; };
 		200B444B21D3D2EE00558E28 /* IDMError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IDMError.swift; sourceTree = "<group>"; };
+		2031EE4A21D5AF4100677EAA /* SequenceDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequenceDataProvider.swift; sourceTree = "<group>"; };
+		2031EE4C21D5B0C900677EAA /* DataProviderConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataProviderConverter.swift; sourceTree = "<group>"; };
+		2031EE4E21D5DA6100677EAA /* GroupIntegrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupIntegrator.swift; sourceTree = "<group>"; };
 		2032B5E921BE1E3C008AC2FD /* SynchronizedArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizedArray.swift; sourceTree = "<group>"; };
 		2032B5EB21BE220F008AC2FD /* AtomicBool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicBool.swift; sourceTree = "<group>"; };
 		2032B5ED21BE581A008AC2FD /* DispatchQueue+IDM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+IDM.swift"; sourceTree = "<group>"; };
@@ -57,7 +63,7 @@
 		2F94C651AABEF876FB872CAE34254046 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3269F78E0A8578557DC9EE1BA4F10DD2 /* DataProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DataProvider.swift; sourceTree = "<group>"; };
 		381FB4CC49373501D6C64C9458D48A94 /* IDMCore-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "IDMCore-umbrella.h"; sourceTree = "<group>"; };
-		3F6EF1FCDF1A9861482C5E564ABC3B17 /* AutoIntegrator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AutoIntegrator.swift; sourceTree = "<group>"; };
+		3F6EF1FCDF1A9861482C5E564ABC3B17 /* IntegratorConstructor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegratorConstructor.swift; sourceTree = "<group>"; };
 		4C2E425F3327AC1287952C3473B03EF2 /* Pods-IDMCore_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-IDMCore_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		583E4D7CAB0B2A98CB8CFCA7EAD29176 /* IntegrationCall.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationCall.swift; sourceTree = "<group>"; };
 		6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.3.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -155,23 +161,26 @@
 		6C3D8B06206EEAACE452F1BE6A95A8B1 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				3F6EF1FCDF1A9861482C5E564ABC3B17 /* AutoIntegrator.swift */,
+				2032B5EB21BE220F008AC2FD /* AtomicBool.swift */,
 				3269F78E0A8578557DC9EE1BA4F10DD2 /* DataProvider.swift */,
+				2031EE4C21D5B0C900677EAA /* DataProviderConverter.swift */,
 				D842632026ACEF5EA4964D3F8E6744C1 /* DataProviderProtocol.swift */,
 				20F8C263206A06EE00A53994 /* Debouncer.swift */,
+				2032B5ED21BE581A008AC2FD /* DispatchQueue+IDM.swift */,
 				7E80CFF99FFAD96B0E3A8F0239EC29C8 /* GroupDataProvider.swift */,
+				2031EE4E21D5DA6100677EAA /* GroupIntegrator.swift */,
+				200B444B21D3D2EE00558E28 /* IDMError.swift */,
 				20A0275F205909E900967497 /* IntegrationBatchCall.swift */,
 				583E4D7CAB0B2A98CB8CFCA7EAD29176 /* IntegrationCall.swift */,
 				9F98A8602045233A00C2FB2E /* IntegrationCall+Delegation.swift */,
 				255A77CF5200CD5605E9466810AE3B5A /* IntegrationProtocol.swift */,
 				AAB234D57659DC868FC92E827E6046A2 /* Integrator.swift */,
 				9FF02D901EC2EBC7001D45A2 /* Integrator+Delegation.swift */,
+				3F6EF1FCDF1A9861482C5E564ABC3B17 /* IntegratorConstructor.swift */,
 				D0748D4C96A02C1A2DA55E364FA7ED4E /* ModelProtocol.swift */,
-				2032B5E921BE1E3C008AC2FD /* SynchronizedArray.swift */,
-				2032B5EB21BE220F008AC2FD /* AtomicBool.swift */,
-				2032B5ED21BE581A008AC2FD /* DispatchQueue+IDM.swift */,
+				2031EE4A21D5AF4100677EAA /* SequenceDataProvider.swift */,
 				200B444921D3CD5500558E28 /* StateProtocols.swift */,
-				200B444B21D3D2EE00558E28 /* IDMError.swift */,
+				2032B5E921BE1E3C008AC2FD /* SynchronizedArray.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -330,7 +339,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C2BC59A1B19D010A3D90305B6E8643B9 /* AutoIntegrator.swift in Sources */,
+				2031EE4F21D5DA6100677EAA /* GroupIntegrator.swift in Sources */,
+				C2BC59A1B19D010A3D90305B6E8643B9 /* IntegratorConstructor.swift in Sources */,
 				2032B5EA21BE1E3C008AC2FD /* SynchronizedArray.swift in Sources */,
 				F55258082C47A05536A36E936578A414 /* DataProvider.swift in Sources */,
 				2032B5EC21BE220F008AC2FD /* AtomicBool.swift in Sources */,
@@ -341,8 +351,10 @@
 				95539735191FB56BC2D81ACBA13737C2 /* IntegrationCall.swift in Sources */,
 				4CD87473A8D3A9024F7CE51BED44FDFD /* IntegrationProtocol.swift in Sources */,
 				20A02760205909E900967497 /* IntegrationBatchCall.swift in Sources */,
+				2031EE4D21D5B0C900677EAA /* DataProviderConverter.swift in Sources */,
 				9F98A8612045233A00C2FB2E /* IntegrationCall+Delegation.swift in Sources */,
 				EB920D5B64BC9A3874FD903CA8993069 /* Integrator.swift in Sources */,
+				2031EE4B21D5AF4100677EAA /* SequenceDataProvider.swift in Sources */,
 				200B444C21D3D2EE00558E28 /* IDMError.swift in Sources */,
 				2032B5EE21BE581A008AC2FD /* DispatchQueue+IDM.swift in Sources */,
 				20F8C264206A06EE00A53994 /* Debouncer.swift in Sources */,
