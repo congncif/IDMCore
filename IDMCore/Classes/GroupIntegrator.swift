@@ -28,7 +28,7 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
         }
     }
     
-    class InternalWorkItem: NSObject {
+    internal class InternalWorkItem: NSObject {
         var parameter: I.GParameterType?
         var integrator: I
         
@@ -42,28 +42,77 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
         }
     }
     
+    internal class InternalOperation: Operation {
+        var workItem: InternalWorkItem
+        var completion: (Result<I.GResultType>) -> Void
+        var queue: IntegrationCallQueue
+        
+        init(workItem: InternalWorkItem,
+             queue: IntegrationCallQueue,
+             completion: @escaping (Result<I.GResultType>) -> Void) {
+            self.workItem = workItem
+            self.completion = completion
+            self.queue = queue
+        }
+        
+        override func main() {
+            var result: Result<I.GResultType> = Result<I.GResultType>.failure(nil)
+            
+            guard !isCancelled else {
+                completion(result)
+                return
+            }
+            let call = workItem.buildIntegrationCall()
+            let semaphore = DispatchSemaphore(value: 0)
+            
+            call
+                .next(state: .success, nextBlock: { value in
+                    if let data = value {
+                        result = data
+                    }
+                })
+                .next(state: .error, nextBlock: { error in
+                    if let data = error {
+                        result = data
+                    }
+                })
+                .next(state: .completion, nextBlock: { _ in
+                    semaphore.signal()
+                })
+                .call(queue: queue)
+            
+            _ = semaphore.wait(timeout: .distantFuture)
+            
+            completion(result)
+        }
+    }
+    
     // mutable state
     private var workItems: [InternalWorkItem]
+    
+    private lazy var runningQueue: OperationQueue = {
+        OperationQueue()
+    }()
     
     // config
     private var integratorCreator: (() -> I)
     
-    public var queue: IntegrationCallQueue
-//    public var maxConcurrent: Int = 3 {
-//        didSet {
-//            guard maxConcurrent > 0 else {
-//                fatalError("Max concurrent must be greater than 0")
-//            }
-//        }
-//    }
+    public private(set) var queue: IntegrationCallQueue = .main
     
+    public var usingIntegrationBatchCall: Bool = false
     public var successFilterType: GroupIntegratingSuccessFilterType = .default
+    public var maxConcurrent: Int = 3 {
+        didSet {
+            guard maxConcurrent > 0 else {
+                fatalError("Max concurrent must be greater than 0")
+            }
+            assert(usingIntegrationBatchCall == false, "maxConcurrent is only valid when usingIntegrationBatchCall set to false")
+        }
+    }
     
-    public init(creator: @escaping (() -> I), requestQueue: IntegrationCallQueue = .main) {
+    public init(creator: @escaping (() -> I), requestOn queue: IntegrationCallQueue = .main) {
         integratorCreator = creator
-        
-        queue = requestQueue
-        
+        self.queue = queue
         workItems = []
     }
     
@@ -74,15 +123,9 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
             return nil
         }
         
-        let creator = integratorCreator
-        workItems = params.map { (p) -> InternalWorkItem in
-            InternalWorkItem(parameter: p, creator: creator)
-        }
-        
-        let calls = workItems.map { $0.buildIntegrationCall() }
-        
-        let filterType = successFilterType
-        calls.call(queue: queue, delay: 0.1) { result in
+        func performCompletion(_ completion: @escaping (Bool, [Result<I.GResultType>]?, Error?) -> Void,
+                               result: [Result<I.GResultType>],
+                               filterType: GroupIntegratingSuccessFilterType) {
             switch filterType {
             case .allSuccess:
                 let fails = result.filter { (item) -> Bool in
@@ -106,6 +149,44 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
             }
         }
         
+        let creator = integratorCreator
+        workItems = params.map { (p) -> InternalWorkItem in
+            InternalWorkItem(parameter: p, creator: creator)
+        }
+        
+        if usingIntegrationBatchCall {
+            let calls = workItems.map { $0.buildIntegrationCall() }
+            let filterType = successFilterType
+            calls.call(queue: queue, delay: 0.1) { result in
+                performCompletion(completion, result: result, filterType: filterType)
+            }
+        } else {
+            let group = DispatchGroup()
+            var results: [Result<I.GResultType>] = []
+            let requestQueue = queue
+            
+            let tasks = workItems.map { (item) -> InternalOperation in
+                InternalOperation(workItem: item, queue: requestQueue) { result in
+                    requestQueue.dispatchQueue.async {
+                        results.append(result)
+                        group.leave()
+                    }
+                }
+            }
+            
+            runningQueue.maxConcurrentOperationCount = maxConcurrent
+            
+            for task in tasks {
+                group.enter()
+                runningQueue.addOperation(task)
+            }
+            
+            let filterType = successFilterType
+            group.notify(queue: queue.dispatchQueue) {
+                performCompletion(completion, result: results, filterType: filterType)
+            }
+        }
+        
         return { [weak self] in
             guard let self = self else { return }
             self.cancel()
@@ -113,6 +194,8 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
     }
     
     private func cancel() {
+        runningQueue.cancelAllOperations()
+        
         workItems.forEach { item in
             item.integrator.cancel()
         }
@@ -121,11 +204,8 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
 }
 
 open class GroupIntegrator<I: IntegratorProtocol>: AmazingIntegrator<GroupIntegratingDataProvider<I>> {
-    public init(creator: @escaping (() -> I),
-                successFilterType: GroupIntegratingSuccessFilterType = .default,
-                requestQueue: IntegrationCallQueue = .main) {
-        let provider = GroupIntegratingDataProvider<I>.init(creator: creator, requestQueue: requestQueue)
-        provider.successFilterType = successFilterType
+    public init(creator: @escaping (() -> I), requestOn queue: IntegrationCallQueue = .main) {
+        let provider = GroupIntegratingDataProvider<I>.init(creator: creator, requestOn: queue)
         super.init(dataProvider: provider, executingType: .only)
     }
 }
