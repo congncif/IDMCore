@@ -59,9 +59,9 @@ class DataProvider2: DataProviderProtocol {
 class ViewController: UIViewController {
     var exSer: AbstractIntegrator<Int, TestDelay>!
     lazy var groupSer: GroupIntegrator<AmazingIntegrator<DataProvider2>> = {
-        GroupIntegrator<AmazingIntegrator<DataProvider2>>.init {
+        return GroupIntegrator<AmazingIntegrator<DataProvider2>>.init (creator: {
             AmazingIntegrator(dataProvider: DataProvider2())
-        }
+        })
     }()
 
     let retryService = AmazingIntegrator(dataProvider: DataProvider1(), executingType: .only)
@@ -75,7 +75,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
 //        for i in 1...5 {
 //            retryService.prepareCall().onSuccess { text in
 //                print("Tak at: \(String(describing: text)) \(i)")
@@ -84,7 +84,7 @@ class ViewController: UIViewController {
 //        }
 //
 //        exSer = service
-
+        
         groupSer
             .prepareCall(parameters: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
             .onSuccess { result in
