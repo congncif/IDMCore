@@ -28,17 +28,43 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
         }
     }
     
-    public private(set) var internalIntegrators: [I]
-    public private(set) var queue: DispatchQueue
+    class InternalWorkItem: NSObject {
+        var parameter: I.GParameterType?
+        var integrator: I
+        
+        init(parameter: I.GParameterType?, creator: (() -> I)) {
+            self.parameter = parameter
+            integrator = creator()
+        }
+        
+        func buildIntegrationCall() -> IntegrationCall<I.GResultType> {
+            return integrator.prepareCall(parameters: parameter)
+        }
+    }
+    
+    // mutable state
+    private var workItems: [InternalWorkItem]
+    
+    // config
+    private var integratorCreator: (() -> I)
+    
+    public var queue: IntegrationCallQueue
+//    public var maxConcurrent: Int = 3 {
+//        didSet {
+//            guard maxConcurrent > 0 else {
+//                fatalError("Max concurrent must be greater than 0")
+//            }
+//        }
+//    }
     
     public var successFilterType: GroupIntegratingSuccessFilterType = .default
     
-    private var integratorCreator: (() -> I)
-    
-    public init(creator: @escaping (() -> I), requestQueue: DispatchQueue = .main) {
+    public init(creator: @escaping (() -> I), requestQueue: IntegrationCallQueue = .main) {
         integratorCreator = creator
-        internalIntegrators = []
+        
         queue = requestQueue
+        
+        workItems = []
     }
     
     public func request(parameters: [I.GParameterType?]?,
@@ -49,18 +75,11 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
         }
         
         let creator = integratorCreator
-        internalIntegrators = params.map { (_) -> I in
-            return creator()
+        workItems = params.map { (p) -> InternalWorkItem in
+            InternalWorkItem(parameter: p, creator: creator)
         }
         
-        var calls: [IntegrationCall<I.GResultType>] = []
-        
-        for (idx, param) in params.enumerated() {
-            let integrator = internalIntegrators[idx]
-            
-            let newCall = integrator.prepareCall(parameters: param)
-            calls.append(newCall)
-        }
+        let calls = workItems.map { $0.buildIntegrationCall() }
         
         let filterType = successFilterType
         calls.call(queue: queue, delay: 0.1) { result in
@@ -94,17 +113,17 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
     }
     
     private func cancel() {
-        internalIntegrators.forEach { integrator in
-            integrator.cancel()
+        workItems.forEach { item in
+            item.integrator.cancel()
         }
-        internalIntegrators = []
+        workItems = []
     }
 }
 
 open class GroupIntegrator<I: IntegratorProtocol>: AmazingIntegrator<GroupIntegratingDataProvider<I>> {
     public init(creator: @escaping (() -> I),
                 successFilterType: GroupIntegratingSuccessFilterType = .default,
-                requestQueue: DispatchQueue = .main) {
+                requestQueue: IntegrationCallQueue = .main) {
         let provider = GroupIntegratingDataProvider<I>.init(creator: creator, requestQueue: requestQueue)
         provider.successFilterType = successFilterType
         super.init(dataProvider: provider, executingType: .only)

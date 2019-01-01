@@ -9,9 +9,9 @@ import Foundation
 
 open class IntegratingDataProvider<I: IntegratorProtocol>: DataProviderProtocol {
     public private(set) var internalIntegrator: I
-    public private(set) var queue: DispatchQueue
+    public private(set) var queue: IntegrationCallQueue
 
-    public init(integrator: I, on requestQueue: DispatchQueue = .main) {
+    public init(integrator: I, on requestQueue: IntegrationCallQueue = .main) {
         internalIntegrator = integrator
         queue = requestQueue
     }
@@ -36,7 +36,7 @@ open class IntegratingDataProvider<I: IntegratorProtocol>: DataProviderProtocol 
 }
 
 extension IntegratorProtocol {
-    public func convertToDataProvider(queue: DispatchQueue = .main) -> IntegratingDataProvider<Self> {
+    public func convertToDataProvider(queue: IntegrationCallQueue = .main) -> IntegratingDataProvider<Self> {
         return IntegratingDataProvider(integrator: self, on: queue)
     }
 }

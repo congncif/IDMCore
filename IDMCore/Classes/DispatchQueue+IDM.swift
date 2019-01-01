@@ -13,3 +13,17 @@ extension DispatchQueue {
     public static let idmConcurrent = DispatchQueue(label: "com.if.idmcore.concurrent", attributes: .concurrent)
     public static let idmSerial = DispatchQueue(label: "com.if.idmcore.serial")
 }
+
+public enum IntegrationCallQueue {
+    case main
+    case serial
+
+    public var dispatchQueue: DispatchQueue {
+        switch self {
+        case .main:
+            return DispatchQueue.main
+        default:
+            return DispatchQueue.idmSerial
+        }
+    }
+}

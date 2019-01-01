@@ -65,7 +65,7 @@ public class IntegrationCall<ModelType> {
     internal var retryErrorBlock: ((Error?) -> ())? // retryErrorBlock is higher priority than retryBlock
     internal var retryBlock: (() -> ())?
     
-    fileprivate(set) var callQueue: DispatchQueue = DispatchQueue.main
+    fileprivate(set) var callQueue: IntegrationCallQueue = .main
     fileprivate(set) var callDelay: Double = 0
     
     public internal(set) var integratorIndentifier: String = String()
@@ -210,17 +210,17 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    public func call(queue: DispatchQueue = DispatchQueue.main, delay: Double = 0) {
+    public func call(queue: IntegrationCallQueue = .main, delay: Double = 0) {
         callQueue = queue
         callDelay = delay
-        queue.asyncAfter(deadline: .now() + delay) {
+        callQueue.dispatchQueue.asyncAfter(deadline: .now() + delay) {
             self.doCall?(self)
         }
     }
     
     public func call<Result>(dependOn requiredCall: IntegrationCall<Result>,
                              with state: NextState = .completion,
-                             queue: DispatchQueue = DispatchQueue.main,
+                             queue: IntegrationCallQueue = .main,
                              delay: Double = 0) {
         callQueue = queue
         callDelay = delay

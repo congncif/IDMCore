@@ -75,7 +75,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
 //        for i in 1...5 {
 //            retryService.prepareCall().onSuccess { text in
 //                print("Tak at: \(String(describing: text)) \(i)")
@@ -86,7 +86,7 @@ class ViewController: UIViewController {
 //        exSer = service
 
         groupSer
-            .prepareCall(parameters: [1, 2, 3])
+            .prepareCall(parameters: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
             .onSuccess { result in
                 print(result.debugDescription)
             }
