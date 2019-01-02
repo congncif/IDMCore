@@ -39,4 +39,83 @@ extension IntegratorProtocol {
     public func convertToDataProvider(queue: IntegrationCallQueue = .main) -> IntegratingDataProvider<Self> {
         return IntegratingDataProvider(integrator: self, on: queue)
     }
+
+    public var dataProvider: IntegratingDataProvider<Self> {
+        return convertToDataProvider()
+    }
+}
+
+open class ConvertDataProvider<P1, P2>: NSObject, DataProviderProtocol {
+    private var converter: ((P1?) throws -> P2?)?
+
+    public convenience init(converter: ((P1?) throws -> P2?)?) {
+        self.init()
+        self.converter = converter
+    }
+
+    public override init() {
+        super.init()
+    }
+
+    open func request(parameters: P1?,
+                      completion: @escaping (Bool, P2?, Error?) -> Void) -> CancelHandler? {
+        if let convertFunc = self.converter {
+            do {
+                let outParameter = try convertFunc(parameters)
+                completion(true, outParameter, nil)
+            } catch let ex {
+                completion(false, nil, ex)
+            }
+        } else {
+            do {
+                let outParameter = try convert(parameter: parameters)
+                completion(true, outParameter, nil)
+            } catch let ex {
+                completion(false, nil, ex)
+            }
+        }
+
+        return nil
+    }
+
+    open func convert(parameter: P1?) throws -> P2? {
+        assertionFailure("Converter needs an implementation")
+        return nil
+    }
+}
+
+open class ForwardDataProvider<P>: ConvertDataProvider<P, P> {
+    private var forwarder: ((P?) throws -> P?)?
+
+    public convenience init(forwarder: ((P?) throws -> P?)?) {
+        self.init()
+        self.forwarder = forwarder
+    }
+
+    public override init() {
+        super.init()
+    }
+
+    open override func convert(parameter: P?) throws -> P? {
+        if let forwardFunc = forwarder {
+            return try forwardFunc(parameter)
+        } else {
+            return parameter
+        }
+    }
+}
+
+open class BridgeDataProvider<R: ModelProtocol>: ConvertDataProvider<Any, R> where R.DataType == Any {
+    public override init() {
+        super.init()
+    }
+
+    open override func convert(parameter: Any?) throws -> R? {
+        do {
+            let data: R? = try R(fromData: parameter)
+            return data
+        } catch let ex {
+            throw ex
+        }
+    }
 }

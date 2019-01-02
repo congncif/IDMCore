@@ -30,13 +30,81 @@
 
 import Foundation
 
+extension DataProviderProtocol {
+    public func convertToIntegrator<M>(modelType: M.Type,
+                                       executingType: IntegrationType = .default) -> MagicalIntegrator<Self, M>
+        where M: ModelProtocol, Self.DataType == M.DataType {
+        return MagicalIntegrator(dataProvider: self, modelType: M.self, executingType: executingType)
+    }
+
+    public func convertToIntegrator(executingType: IntegrationType = .default) -> AmazingIntegrator<Self> {
+        return AmazingIntegrator(dataProvider: self, executingType: executingType)
+    }
+
+    public var integrator: AmazingIntegrator<Self> {
+        return convertToIntegrator()
+    }
+}
+
 open class AbstractDataProvider<Parameter, Data>: NSObject, DataProviderProtocol {
     public override init() {
         super.init()
     }
-    
-    open func request(parameters: Parameter?, completion: @escaping (Bool, Data?, Error?) -> Void) -> CancelHandler? {
+
+    open func request(parameters: Parameter?,
+                      completion: @escaping (Bool, Data?, Error?) -> Void) -> CancelHandler? {
         assertionFailure("\(type(of: self)): Abstract method needs an implementation")
         return nil
     }
 }
+
+/*
+open class ClosureDataProvider: AbstractDataProvider<Any, Any> {
+    public typealias DataProviderFunction = ((Bool, Any?, Error?) -> Void)
+
+    private var function: (Any?, DataProviderFunction) -> Void
+
+    public init(function: @escaping (Any?, DataProviderFunction) -> Void) {
+        self.function = function
+    }
+
+    open override func request(parameters: Any?,
+                               completion: @escaping (Bool, Any?, Error?) -> Void) -> CancelHandler? {
+        function(parameters, completion)
+        return nil
+    }
+}
+
+public protocol IDMConvertable {
+    var toIDM: ClosureDataProvider { get }
+}
+
+extension IDMConvertable {
+    public var toIDM: ClosureDataProvider {
+        return ClosureDataProvider { _, completion in
+            completion(true, self, nil)
+        }
+    }
+}
+
+extension NSObject: IDMConvertable {}
+
+extension String: IDMConvertable {}
+
+extension Int: IDMConvertable {}
+extension Int8: IDMConvertable {}
+extension Int16: IDMConvertable {}
+extension Int32: IDMConvertable {}
+extension Int64: IDMConvertable {}
+
+extension UInt: IDMConvertable {}
+extension UInt8: IDMConvertable {}
+extension UInt16: IDMConvertable {}
+extension UInt32: IDMConvertable {}
+extension UInt64: IDMConvertable {}
+
+extension Double: IDMConvertable {}
+
+extension Float: IDMConvertable {}
+extension Float80: IDMConvertable {}
+*/

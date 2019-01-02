@@ -1,5 +1,4 @@
 //
-import IDMCore
 //  ViewController.swift
 //  IDMCore
 //
@@ -7,6 +6,7 @@ import IDMCore
 //  Copyright (c) 2016 Nguyen Chi Cong. All rights reserved.
 //
 
+import IDMCore
 import UIKit
 
 struct TestDelay: DelayingCompletionProtocol {
@@ -59,7 +59,7 @@ class DataProvider2: DataProviderProtocol {
 class ViewController: UIViewController {
     var exSer: AbstractIntegrator<Int, TestDelay>!
     lazy var groupSer: GroupIntegrator<AmazingIntegrator<DataProvider2>> = {
-        return GroupIntegrator<AmazingIntegrator<DataProvider2>>.init (creator: {
+        GroupIntegrator<AmazingIntegrator<DataProvider2>>(creator: {
             AmazingIntegrator(dataProvider: DataProvider2())
         })
     }()
@@ -75,7 +75,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
 //        for i in 1...5 {
 //            retryService.prepareCall().onSuccess { text in
 //                print("Tak at: \(String(describing: text)) \(i)")
@@ -84,13 +84,13 @@ class ViewController: UIViewController {
 //        }
 //
 //        exSer = service
-        
-        groupSer
-            .prepareCall(parameters: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-            .onSuccess { result in
-                print(result.debugDescription)
-            }
-            .call()
+
+//        groupSer
+//            .prepareCall(parameters: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+//            .onSuccess { result in
+//                print(result.debugDescription)
+//            }
+//            .call()
 
 //        exSer.prepareCall(parameters: 1).onError { err in
 //            print(String(describing: err))

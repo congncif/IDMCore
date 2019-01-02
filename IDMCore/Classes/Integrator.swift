@@ -40,14 +40,14 @@ open class AbstractIntegrator<Parameter, Result>: IntegratorProtocol, Equatable 
         idenitifier = ProcessInfo.processInfo.globallyUniqueString
     }
 
-    open func prepareCall(parameters _: Parameter?) -> IntegrationCall<Result> {
+    open func prepareCall(parameters _: Parameter? = nil) -> IntegrationCall<Result> {
         assertionFailure("\(type(of: self)): Abstract method needs an implementation")
 
         return IntegrationCall<Result>()
     }
 
     open func cancel() {}
-    
+
     public static func == (lhs: AbstractIntegrator, rhs: AbstractIntegrator) -> Bool {
         return lhs.idenitifier == rhs.idenitifier
     }
