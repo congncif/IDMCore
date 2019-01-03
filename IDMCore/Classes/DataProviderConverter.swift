@@ -105,12 +105,12 @@ open class ForwardDataProvider<P>: ConvertDataProvider<P, P> {
     }
 }
 
-open class BridgeDataProvider<R: ModelProtocol>: ConvertDataProvider<Any, R> where R.DataType == Any {
+open class BridgeDataProvider<P, R: ModelProtocol>: ConvertDataProvider<P, R> where R.DataType == P {
     public override init() {
         super.init()
     }
 
-    open override func convert(parameter: Any?) throws -> R? {
+    open override func convert(parameter: P?) throws -> R? {
         do {
             let data: R? = try R(fromData: parameter)
             return data

@@ -46,7 +46,13 @@ public protocol IntegrationProtocol: IntegratorProtocol where Self.ParameterType
                  successHandler: ((ResultType?) -> Void)?,
                  failureHandler: ((Error?) -> Void)?,
                  completionHandler: (() -> Void)?)
-//    var noValueError: Error? { get }
+    var noValueError: Error? { get }
+}
+
+extension IntegrationProtocol {
+    public var noValueError: Error? {
+        return nil
+    }
 }
 
 public protocol IntegratorProtocol: class {
@@ -63,6 +69,8 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                 data: DataProviderType.DataType?,
                 error: Error?,
                 completion: ((Bool, ResultType?, Error?) -> Void)?) {
+        let noValueError = self.noValueError
+        
         if success {
             DispatchQueue.global(qos: .userInteractive).async {
                 var newError = error
@@ -79,8 +87,13 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
                     }
                     
                 } catch let ex {
-                    newSuccess = false
-                    newError = ex
+                    if let err = noValueError { // custom noValue error
+                        newSuccess = false
+                        newError = err
+                    } else {
+                        newSuccess = false
+                        newError = ex
+                    }
                     
                     // Ignore noValue error, accept any results includes nil
                     if let _ = newError as? IgnoreError {
