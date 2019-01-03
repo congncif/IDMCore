@@ -351,10 +351,10 @@ public class IntegrationCall<ModelType> {
     }
     
     @discardableResult
-    public func transformNext<Result>(state: NextState = .completion, integrationCall: IntegrationCall<Result>) -> IntegrationCall<Result> {
+    public func transform<Result>(nextState: NextState = .completion, integrationCall: IntegrationCall<Result>) -> IntegrationCall<Result> {
         let queue = callQueue
         let delay = callDelay
-        switch state {
+        switch nextState {
         case .success:
             let success = doSuccess
             doSuccess = { result in
@@ -409,10 +409,10 @@ public class IntegrationCall<ModelType> {
     }
     
     @discardableResult
-    public func next<Parameter, ResultType>(state: NextState = .completion,
-                                            integrator: AbstractIntegrator<Parameter, ResultType>,
-                                            parametersBuilder: ((Result<ModelType>?) -> Parameter?)? = nil,
-                                            configuration: ((IntegrationCall<ResultType>, Result<ModelType>?) -> ())? = nil) -> Self {
+    public func nextTo<Parameter, ResultType>(state: NextState = .completion,
+                                              integrator: AbstractIntegrator<Parameter, ResultType>,
+                                              parametersBuilder: ((Result<ModelType>?) -> Parameter?)? = nil,
+                                              configuration: ((IntegrationCall<ResultType>, Result<ModelType>?) -> ())? = nil) -> Self {
         let queue = callQueue
         let delay = callDelay
         switch state {
@@ -453,9 +453,9 @@ public class IntegrationCall<ModelType> {
     }
     
     @discardableResult
-    public func transformNext<Parameter, ResultType>(state: NextState = .completion,
-                                                     integrator: AbstractIntegrator<Parameter, ResultType>,
-                                                     parametersBuilder: ((Result<ModelType>?) -> Parameter?)? = nil) -> IntegrationCall<ResultType> {
+    public func transformNextTo<Parameter, ResultType>(state: NextState = .completion,
+                                                       integrator: AbstractIntegrator<Parameter, ResultType>,
+                                                       parametersBuilder: ((Result<ModelType>?) -> Parameter?)? = nil) -> IntegrationCall<ResultType> {
         let queue = callQueue
         let delay = callDelay
         switch state {
@@ -554,9 +554,9 @@ public class IntegrationCall<ModelType> {
     /*********************************************************************************/
     
     @discardableResult
-    public func nextSuccess<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
-                                               parametersBuilder: ((ModelType?) -> Parameter?)? = nil,
-                                               configuration: ((IntegrationCall<Result>, ModelType?) -> ())? = nil) -> Self {
+    public func nextSuccessTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
+                                                 parametersBuilder: ((ModelType?) -> Parameter?)? = nil,
+                                                 configuration: ((IntegrationCall<Result>, ModelType?) -> ())? = nil) -> Self {
         let success = doSuccess
         let queue = callQueue
         let delay = callDelay
@@ -573,8 +573,8 @@ public class IntegrationCall<ModelType> {
     }
     
     @discardableResult
-    public func forwardSuccess<Result>(integrator: AbstractIntegrator<ModelType, Result>,
-                                       configuration: ((IntegrationCall<Result>, ModelType?) -> ())? = nil) -> Self {
+    public func forwardSuccessTo<Result>(integrator: AbstractIntegrator<ModelType, Result>,
+                                         configuration: ((IntegrationCall<Result>, ModelType?) -> ())? = nil) -> Self {
         let success = doSuccess
         let queue = callQueue
         let delay = callDelay
@@ -589,9 +589,9 @@ public class IntegrationCall<ModelType> {
     }
     
     @discardableResult
-    public func nextError<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
-                                             parametersBuilder: ((Error?) -> Parameter?)? = nil,
-                                             configuration: ((IntegrationCall<Result>, Error?) -> ())? = nil) -> Self {
+    public func nextErrorTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
+                                               parametersBuilder: ((Error?) -> Parameter?)? = nil,
+                                               configuration: ((IntegrationCall<Result>, Error?) -> ())? = nil) -> Self {
         let block = doError
         let queue = callQueue
         let delay = callDelay
@@ -608,8 +608,8 @@ public class IntegrationCall<ModelType> {
     }
     
     @discardableResult
-    public func fowardError<Result>(integrator: AbstractIntegrator<Error, Result>,
-                                    configuration: ((IntegrationCall<Result>, Error?) -> ())? = nil) -> Self {
+    public func forwardErrorTo<Result>(integrator: AbstractIntegrator<Error, Result>,
+                                       configuration: ((IntegrationCall<Result>, Error?) -> ())? = nil) -> Self {
         let block = doError
         let queue = callQueue
         let delay = callDelay
@@ -625,9 +625,9 @@ public class IntegrationCall<ModelType> {
     }
     
     @discardableResult
-    public func nextCompletion<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
-                                                  parameters: Parameter? = nil,
-                                                  configuration: ((IntegrationCall<Result>) -> ())? = nil) -> Self {
+    public func nextCompletionTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
+                                                    parameters: Parameter? = nil,
+                                                    configuration: ((IntegrationCall<Result>) -> ())? = nil) -> Self {
         let block = doCompletion
         let queue = callQueue
         let delay = callDelay
@@ -723,15 +723,15 @@ public func -*> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) 
 }
 
 public func ~-> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> IntegrationCall<R2> {
-    return left.transformNext(state: .completion, integrationCall: right)
+    return left.transform(nextState: .completion, integrationCall: right)
 }
 
 public func ~>> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> IntegrationCall<R2> {
-    return left.transformNext(state: .success, integrationCall: right)
+    return left.transform(nextState: .success, integrationCall: right)
 }
 
 public func ~*> <R1, R2>(left: IntegrationCall<R1>, right: IntegrationCall<R2>) -> IntegrationCall<R2> {
-    return left.transformNext(state: .error, integrationCall: right)
+    return left.transform(nextState: .error, integrationCall: right)
 }
 
 public func == <R>(lhs: IntegrationCall<R>, rhs: IntegrationCall<R>) -> Bool {
