@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'IDMCore'
-  s.version          = '2.8.8'
+  s.version          = '2.8.9'
   s.summary          = 'Integrator - Data Provider - Model core architecture for data flow'
   s.swift_version    = '4.2'
 

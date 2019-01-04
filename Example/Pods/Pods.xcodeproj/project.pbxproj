@@ -15,6 +15,7 @@
 		2032B5EA21BE1E3C008AC2FD /* SynchronizedArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2032B5E921BE1E3C008AC2FD /* SynchronizedArray.swift */; };
 		2032B5EC21BE220F008AC2FD /* AtomicBool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2032B5EB21BE220F008AC2FD /* AtomicBool.swift */; };
 		2032B5EE21BE581A008AC2FD /* DispatchQueue+IDM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2032B5ED21BE581A008AC2FD /* DispatchQueue+IDM.swift */; };
+		20507EDE21DF598C00B079F1 /* BlockDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20507EDD21DF598C00B079F1 /* BlockDataProvider.swift */; };
 		20A02760205909E900967497 /* IntegrationBatchCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20A0275F205909E900967497 /* IntegrationBatchCall.swift */; };
 		20F8C264206A06EE00A53994 /* Debouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20F8C263206A06EE00A53994 /* Debouncer.swift */; };
 		242FDAA578147E26E128CC6FA2C32BB7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6604A7D69453B4569E4E4827FB9155A9 /* Foundation.framework */; };
@@ -56,6 +57,7 @@
 		2032B5E921BE1E3C008AC2FD /* SynchronizedArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizedArray.swift; sourceTree = "<group>"; };
 		2032B5EB21BE220F008AC2FD /* AtomicBool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicBool.swift; sourceTree = "<group>"; };
 		2032B5ED21BE581A008AC2FD /* DispatchQueue+IDM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+IDM.swift"; sourceTree = "<group>"; };
+		20507EDD21DF598C00B079F1 /* BlockDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockDataProvider.swift; sourceTree = "<group>"; };
 		20A0275F205909E900967497 /* IntegrationBatchCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntegrationBatchCall.swift; sourceTree = "<group>"; };
 		20F8C263206A06EE00A53994 /* Debouncer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Debouncer.swift; sourceTree = "<group>"; };
 		23DAC4F4B19D67B072D6BE50CAAC89D8 /* IDMCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IDMCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -162,6 +164,7 @@
 			isa = PBXGroup;
 			children = (
 				2032B5EB21BE220F008AC2FD /* AtomicBool.swift */,
+				20507EDD21DF598C00B079F1 /* BlockDataProvider.swift */,
 				3269F78E0A8578557DC9EE1BA4F10DD2 /* DataProvider.swift */,
 				2031EE4C21D5B0C900677EAA /* DataProviderConverter.swift */,
 				D842632026ACEF5EA4964D3F8E6744C1 /* DataProviderProtocol.swift */,
@@ -347,6 +350,7 @@
 				33CF04FD8008194E68FE7E545E5B9186 /* DataProviderProtocol.swift in Sources */,
 				200B444A21D3CD5500558E28 /* StateProtocols.swift in Sources */,
 				3F4625EAB1B5DD4704CB018F14F9DA91 /* GroupDataProvider.swift in Sources */,
+				20507EDE21DF598C00B079F1 /* BlockDataProvider.swift in Sources */,
 				6C16FF50F0E35083E0B8E7D810F89DB8 /* IDMCore-dummy.m in Sources */,
 				95539735191FB56BC2D81ACBA13737C2 /* IntegrationCall.swift in Sources */,
 				4CD87473A8D3A9024F7CE51BED44FDFD /* IntegrationProtocol.swift in Sources */,

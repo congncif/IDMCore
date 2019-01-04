@@ -30,26 +30,8 @@
 
 import Foundation
 
-extension DataProviderProtocol {
-    public func convertToIntegrator<M>(modelType: M.Type,
-                                       executingType: IntegrationType = .default) -> MagicalIntegrator<Self, M>
-        where M: ModelProtocol, Self.DataType == M.DataType {
-        return MagicalIntegrator(dataProvider: self, modelType: M.self, executingType: executingType)
-    }
-
-    public func convertToIntegrator(executingType: IntegrationType = .default) -> AmazingIntegrator<Self> {
-        return AmazingIntegrator(dataProvider: self, executingType: executingType)
-    }
-
-    public var integrator: AmazingIntegrator<Self> {
-        return convertToIntegrator()
-    }
-}
-
-open class AbstractDataProvider<Parameter, Data>: NSObject, DataProviderProtocol {
-    public override init() {
-        super.init()
-    }
+open class AbstractDataProvider<Parameter, Data>: DataProviderProtocol {
+    public init() {}
 
     open func request(parameters: Parameter?,
                       completion: @escaping (Bool, Data?, Error?) -> Void) -> CancelHandler? {

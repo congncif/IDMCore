@@ -46,7 +46,9 @@ public protocol ProgressDataModelProtocol: ProgressModelProtocol {
     var data: D? { get set }
 }
 
-open class DataProcessor<ModelType>: NSObject, DataProcessingProtocol {
+open class DataProcessor<ModelType>: DataProcessingProtocol {
+    public init() {}
+    
     open func process(data: ModelType?) {
         assertionFailure("Need override function \(#function) to process data: \(String(describing: data))")
     }
