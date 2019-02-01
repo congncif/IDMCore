@@ -686,18 +686,25 @@ extension IntegrationCall where ModelType: DelayingCompletionProtocol {
 
 extension IntegrationCall where ModelType: ProgressModelProtocol {
     @discardableResult
-    public func progress<T: ProgressLoadingProtocol>(monitor: T) -> Self where T: AnyObject {
-        onBeginning { [weak monitor] in
-            monitor?.beginProgressLoading()
+    public func progressTracker<T: ProgressLoadingProtocol>(_ tracker: T) -> Self where T: AnyObject {
+        onBeginning { [weak tracker] in
+            tracker?.beginProgressLoading()
         }
         
-        onCompletion { [weak monitor] in
-            monitor?.finishProgressLoading()
+        onCompletion { [weak tracker] in
+            tracker?.finishProgressLoading()
         }
         
-        onProgress { [weak monitor] model in
-            monitor?.loadingDidUpdateProgress(model?.progress)
+        onProgress { [weak tracker] model in
+            tracker?.loadingDidUpdateProgress(model?.progress)
         }
+        return self
+    }
+    
+    public func progressTracker<T: ProgressLoadingProtocol>(_ tracker: T) -> Self {
+        onBeginning(tracker.beginProgressLoading)
+        onCompletion(tracker.finishProgressLoading)
+        onProgress { tracker.loadingDidUpdateProgress($0?.progress) }
         return self
     }
 }

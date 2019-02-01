@@ -31,20 +31,20 @@ import Foundation
 
 extension IntegrationCall {
     @discardableResult
-    public func loading<T: LoadingProtocol>(monitor: T) -> Self where T: AnyObject {
-        onBeginning { [weak monitor] in
-            monitor?.beginLoading()
+    public func loadingHandler<T: LoadingProtocol>(_ handler: T) -> Self where T: AnyObject {
+        onBeginning { [weak handler] in
+            handler?.beginLoading()
         }
         
-        onCompletion { [weak monitor] in
-            monitor?.finishLoading()
+        onCompletion { [weak handler] in
+            handler?.finishLoading()
         }
         
         return self
     }
     
     @discardableResult
-    public func error<T: ErrorHandlingProtocol>(handler: T) -> Self where T: AnyObject {
+    public func errorHandler<T: ErrorHandlingProtocol>(_ handler: T) -> Self where T: AnyObject {
         onError { [weak handler] err in
             handler?.handle(error: err)
         }
@@ -53,7 +53,7 @@ extension IntegrationCall {
     }
     
     @discardableResult
-    public func data<T: DataProcessingProtocol>(processor: T) -> Self where T: AnyObject, T.ModelType == ModelType {
+    public func dataProcessor<T: DataProcessingProtocol>(_ processor: T) -> Self where T: AnyObject, T.ModelType == ModelType {
         onSuccess { [weak processor] model in
             processor?.process(data: model)
         }
@@ -62,14 +62,20 @@ extension IntegrationCall {
     }
     
     @discardableResult
-    public func presenter<T>(_ presenter: T) -> Self where T: AnyObject, T: LoadingProtocol, T: ErrorHandlingProtocol {
-        loading(monitor: presenter).error(handler: presenter)
+    public func display<T>(on view: T) -> Self where T: AnyObject, T: LoadingProtocol, T: ErrorHandlingProtocol {
+        loadingHandler(view).errorHandler(view)
         return self
     }
     
     @discardableResult
     public func delegate<T>(_ delegate: T) -> Self where T: AnyObject, T: LoadingProtocol, T: ErrorHandlingProtocol, T: DataProcessingProtocol, T.ModelType == ModelType {
-        loading(monitor: delegate).error(handler: delegate).data(processor: delegate)
+        loadingHandler(delegate).errorHandler(delegate).dataProcessor(delegate)
+        return self
+    }
+    
+    @discardableResult
+    public func dataProcessor<T: DataProcessingProtocol>(_ processor: T) -> Self where T.ModelType == ModelType {
+        onSuccess(processor.process)
         return self
     }
 }
