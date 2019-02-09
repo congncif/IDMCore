@@ -42,14 +42,26 @@ public protocol ProgressModelProtocol: DelayingCompletionProtocol {
 
 public protocol ProgressDataModelProtocol: ProgressModelProtocol {
     associatedtype D
-    
+
     var data: D? { get set }
 }
 
-open class DataProcessor<ModelType>: DataProcessingProtocol {
+open class AbstractDataProcessor<ModelType>: DataProcessingProtocol {
     public init() {}
-    
+
     open func process(data: ModelType?) {
         assertionFailure("Need override function \(#function) to process data: \(String(describing: data))")
+    }
+}
+
+public struct DataProcessor<ModelType>: DataProcessingProtocol {
+    public var dataProcessing: (ModelType?) -> Void
+
+    public init(dataProcessing: @escaping (ModelType?) -> Void) {
+        self.dataProcessing = dataProcessing
+    }
+
+    public func process(data: ModelType?) {
+        dataProcessing(data)
     }
 }
