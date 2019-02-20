@@ -45,7 +45,7 @@ public class GroupIntegrationCall<R1, R2> {
         self.call2 = call2
     }
     
-    public func call(queue: IntegrationCallQueue = .main, delay: Double = 0, completion: (((Result<R1>, Result<R2>)) -> Void)? = nil) {
+    public func call(queue: IntegrationCallQueue = .serial, delay: Double = 0, completion: (((Result<R1>, Result<R2>)) -> Void)? = nil) {
         IntegrationBatchCall().call(self, queue: queue, delay: delay, completion: completion)
     }
 }
@@ -70,7 +70,7 @@ public class Group3IntegrationCall<R1, R2, R3> {
         self.call3 = call3
     }
     
-    public func call(queue: IntegrationCallQueue = .main, delay: Double = 0, completion: (((Result<R1>, Result<R2>, Result<R3>)) -> Void)? = nil) {
+    public func call(queue: IntegrationCallQueue = .serial, delay: Double = 0, completion: (((Result<R1>, Result<R2>, Result<R3>)) -> Void)? = nil) {
         IntegrationBatchCall().call(self, queue: queue, delay: delay, completion: completion)
     }
 }
@@ -106,7 +106,7 @@ public class Group4IntegrationCall<R1, R2, R3, R4> {
         self.call4 = call4
     }
     
-    public func call(queue: IntegrationCallQueue = .main, delay: Double = 0, completion: (((Result<R1>, Result<R2>, Result<R3>, Result<R4>)) -> Void)? = nil) {
+    public func call(queue: IntegrationCallQueue = .serial, delay: Double = 0, completion: (((Result<R1>, Result<R2>, Result<R3>, Result<R4>)) -> Void)? = nil) {
         IntegrationBatchCall().call(self, queue: queue, delay: delay, completion: completion)
     }
 }
@@ -156,7 +156,7 @@ public class Group5IntegrationCall<R1, R2, R3, R4, R5> {
         self.call5 = call5
     }
     
-    public func call(queue: IntegrationCallQueue = .main, delay: Double = 0, completion: (((Result<R1>, Result<R2>, Result<R3>, Result<R4>, Result<R5>)) -> Void)? = nil) {
+    public func call(queue: IntegrationCallQueue = .serial, delay: Double = 0, completion: (((Result<R1>, Result<R2>, Result<R3>, Result<R4>, Result<R5>)) -> Void)? = nil) {
         IntegrationBatchCall().call(self, queue: queue, delay: delay, completion: completion)
     }
 }
@@ -168,7 +168,7 @@ public class IntegrationBatchCall {
 //        #endif
     }
     
-    public func call<M>(_ calls: [IntegrationCall<M>], queue: IntegrationCallQueue = .main, delay: Double = 0, completion: (([Result<M>]) -> Void)? = nil) {
+    public func call<M>(_ calls: [IntegrationCall<M>], queue: IntegrationCallQueue = .serial, delay: Double = 0, completion: (([Result<M>]) -> Void)? = nil) {
         let internalCalls = calls
         
         for (index, call) in internalCalls.enumerated() where index + 1 < internalCalls.count {
@@ -208,7 +208,7 @@ public class IntegrationBatchCall {
     }
     
     public func call<R1, R2>(_ calls: GroupIntegrationCall<R1, R2>,
-                             queue: IntegrationCallQueue = .main,
+                             queue: IntegrationCallQueue = .serial,
                              delay: Double = 0,
                              completion: (((Result<R1>, Result<R2>)) -> Void)? = nil) {
         let group = DispatchGroup()
@@ -256,7 +256,7 @@ public class IntegrationBatchCall {
     }
     
     public func call<R1, R2, R3>(_ calls: Group3IntegrationCall<R1, R2, R3>,
-                                 queue: IntegrationCallQueue = .main,
+                                 queue: IntegrationCallQueue = .serial,
                                  delay: Double = 0,
                                  completion: (((Result<R1>, Result<R2>, Result<R3>)) -> Void)? = nil) {
         let group = DispatchGroup()
@@ -321,7 +321,7 @@ public class IntegrationBatchCall {
     }
     
     public func call<R1, R2, R3, R4>(_ calls: Group4IntegrationCall<R1, R2, R3, R4>,
-                                     queue: IntegrationCallQueue = .main,
+                                     queue: IntegrationCallQueue = .serial,
                                      delay: Double = 0,
                                      completion: (((Result<R1>, Result<R2>, Result<R3>, Result<R4>)) -> Void)? = nil) {
         let group = DispatchGroup()
@@ -403,7 +403,7 @@ public class IntegrationBatchCall {
     }
     
     public func call<R1, R2, R3, R4, R5>(_ calls: Group5IntegrationCall<R1, R2, R3, R4, R5>,
-                                         queue: IntegrationCallQueue = .main,
+                                         queue: IntegrationCallQueue = .serial,
                                          delay: Double = 0,
                                          completion: (((Result<R1>, Result<R2>, Result<R3>, Result<R4>, Result<R5>)) -> Void)? = nil) {
         let group = DispatchGroup()
@@ -501,7 +501,7 @@ public class IntegrationBatchCall {
         }
     }
     
-    public class func call<M>(_ calls: [IntegrationCall<M>], queue: IntegrationCallQueue = .main, delay: Double = 0, completion: (([Result<M>]) -> Void)? = nil) {
+    public class func call<M>(_ calls: [IntegrationCall<M>], queue: IntegrationCallQueue = .serial, delay: Double = 0, completion: (([Result<M>]) -> Void)? = nil) {
         IntegrationBatchCall().call(calls, queue: queue, delay: delay, completion: completion)
     }
     
@@ -513,7 +513,7 @@ public class IntegrationBatchCall {
 }
 
 extension Array {
-    public func call<M>(queue: IntegrationCallQueue = .main, delay: Double = 0, completion: (([Result<M>]) -> Void)? = nil) where Element == IntegrationCall<M> {
+    public func call<M>(queue: IntegrationCallQueue = .serial, delay: Double = 0, completion: (([Result<M>]) -> Void)? = nil) where Element == IntegrationCall<M> {
         IntegrationBatchCall.call(self, queue: queue, delay: delay, completion: completion)
     }
 }
