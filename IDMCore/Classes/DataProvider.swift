@@ -39,3 +39,42 @@ open class AbstractDataProvider<Parameter, Data>: DataProviderProtocol {
         return nil
     }
 }
+
+public typealias AnyResultDataProvider<ParameterType> = AbstractDataProvider<ParameterType, Any>
+public typealias AnyAnyDataProvider = AbstractDataProvider<Any, Any>
+
+// -------------------------------------------------------------------------
+
+open class DataProvider<ParameterType, ValueType>: AbstractDataProvider<ParameterType, ValueType> {
+    public typealias Result = IDMCore.Result<ValueType>
+    public typealias ValueFactory = (ParameterType?) -> Result
+
+    private var valueFactory: ValueFactory
+
+    public init(valueFactory: @escaping ValueFactory) {
+        self.valueFactory = valueFactory
+    }
+
+    open override func request(parameters: ParameterType?,
+                               completion: @escaping (Bool, ValueType?, Error?) -> Void) -> CancelHandler? {
+        switch valueFactory(parameters) {
+        case .success(let data):
+            completion(true, data, nil)
+        case .failure(let error):
+            completion(false, nil, error)
+        }
+        return nil
+    }
+}
+
+extension DataProvider where ParameterType == Any {
+    // flashFactory is a shortcut of valueFactory with no explicit parameters
+    public convenience init(flashFactory: @escaping () -> Result) {
+        let _valueFactory: ValueFactory = { _ in flashFactory() }
+        self.init(valueFactory: _valueFactory)
+    }
+}
+
+public typealias ValueDataProvider<ValueType> = DataProvider<Any, ValueType>
+public typealias AnyValueDataProvider<ParameterType> = DataProvider<ParameterType, Any>
+public typealias AnyAnyValueDataProvider = DataProvider<Any, Any>

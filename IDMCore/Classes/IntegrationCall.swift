@@ -40,11 +40,6 @@ public enum NextState {
     case completion
 }
 
-public enum Result<Value> {
-    case success(Value?)
-    case failure(Error?)
-}
-
 public class IntegrationCall<ModelType> {
     fileprivate var doBeginning: (() -> ())?
     fileprivate var doSuccess: ((ModelType?) -> ())?

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A5D052822229E3E005C66C0 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D052722229E3E005C66C0 /* Result.swift */; };
 		200B444A21D3CD5500558E28 /* StateProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200B444921D3CD5500558E28 /* StateProtocols.swift */; };
 		200B444C21D3D2EE00558E28 /* IDMError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200B444B21D3D2EE00558E28 /* IDMError.swift */; };
 		2031EE4B21D5AF4100677EAA /* SequenceDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2031EE4A21D5AF4100677EAA /* SequenceDataProvider.swift */; };
@@ -48,6 +49,7 @@
 
 /* Begin PBXFileReference section */
 		003B1A07C1BD4B329EE24298A5678715 /* Pods-IDMCore_Example-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-IDMCore_Example-acknowledgements.markdown"; sourceTree = "<group>"; };
+		0A5D052722229E3E005C66C0 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		0DD60DC238CFBD7AD19FE5E49E50F023 /* IDMCore.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = IDMCore.xcconfig; sourceTree = "<group>"; };
 		200B444921D3CD5500558E28 /* StateProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateProtocols.swift; sourceTree = "<group>"; };
 		200B444B21D3D2EE00558E28 /* IDMError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IDMError.swift; sourceTree = "<group>"; };
@@ -181,6 +183,7 @@
 				9FF02D901EC2EBC7001D45A2 /* Integrator+Delegation.swift */,
 				3F6EF1FCDF1A9861482C5E564ABC3B17 /* IntegratorConstructor.swift */,
 				D0748D4C96A02C1A2DA55E364FA7ED4E /* ModelProtocol.swift */,
+				0A5D052722229E3E005C66C0 /* Result.swift */,
 				2031EE4A21D5AF4100677EAA /* SequenceDataProvider.swift */,
 				200B444921D3CD5500558E28 /* StateProtocols.swift */,
 				2032B5E921BE1E3C008AC2FD /* SynchronizedArray.swift */,
@@ -355,6 +358,7 @@
 				95539735191FB56BC2D81ACBA13737C2 /* IntegrationCall.swift in Sources */,
 				4CD87473A8D3A9024F7CE51BED44FDFD /* IntegrationProtocol.swift in Sources */,
 				20A02760205909E900967497 /* IntegrationBatchCall.swift in Sources */,
+				0A5D052822229E3E005C66C0 /* Result.swift in Sources */,
 				2031EE4D21D5B0C900677EAA /* DataProviderConverter.swift in Sources */,
 				9F98A8612045233A00C2FB2E /* IntegrationCall+Delegation.swift in Sources */,
 				EB920D5B64BC9A3874FD903CA8993069 /* Integrator.swift in Sources */,
