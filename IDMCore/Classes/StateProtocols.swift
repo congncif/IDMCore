@@ -65,3 +65,59 @@ public struct DataProcessor<ModelType>: DataProcessingProtocol {
         dataProcessing(data)
     }
 }
+
+public struct LoadingHandler: LoadingProtocol {
+    private let beginHandler: () -> Void
+    private let finishHandler: () -> Void
+
+    public init(beginHandler: @escaping () -> Void, finishHandler: @escaping () -> Void) {
+        self.beginHandler = beginHandler
+        self.finishHandler = finishHandler
+    }
+
+    public func beginLoading() {
+        beginHandler()
+    }
+
+    public func finishLoading() {
+        finishHandler()
+    }
+}
+
+public struct ProgressLoadingHandler: ProgressLoadingProtocol {
+    private let beginHandler: () -> Void
+    private let finishHandler: () -> Void
+    private let updateHandler: (Progress?) -> Void
+
+    public init(beginHandler: @escaping () -> Void,
+                updateHandler: @escaping (Progress?) -> Void,
+                finishHandler: @escaping () -> Void) {
+        self.beginHandler = beginHandler
+        self.finishHandler = finishHandler
+        self.updateHandler = updateHandler
+    }
+
+    public func beginProgressLoading() {
+        beginHandler()
+    }
+
+    public func loadingDidUpdateProgress(_ progress: Progress?) {
+        updateHandler(progress)
+    }
+
+    public func finishProgressLoading() {
+        finishHandler()
+    }
+}
+
+public struct ErrorHandler: ErrorHandlingProtocol {
+    private let handler: (Error?) -> Void
+
+    public init(handler: @escaping (Error?) -> Void) {
+        self.handler = handler
+    }
+
+    public func handle(error: Error?) {
+        handler(error)
+    }
+}
