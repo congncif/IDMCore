@@ -129,7 +129,7 @@ public struct ErrorHandler: ErrorHandlingProtocol {
 }
 
 extension LoadingObjectProtocol {
-    func asValueType() -> LoadingProtocol {
+    public func asValueType() -> LoadingProtocol {
         return LoadingHandler(beginHandler: { [weak self] in
             self?.beginLoading()
         }, finishHandler: { [weak self] in
@@ -139,7 +139,7 @@ extension LoadingObjectProtocol {
 }
 
 extension ErrorHandlingObjectProtocol {
-    func asValueType() -> ErrorHandlingProtocol {
+    public func asValueType() -> ErrorHandlingProtocol {
         return ErrorHandler { [weak self] in
             self?.handle(error: $0)
         }
@@ -147,7 +147,7 @@ extension ErrorHandlingObjectProtocol {
 }
 
 extension ProgressLoadingObjectProtocol {
-    func asValueType() -> ProgressLoadingProtocol {
+    public func asValueType() -> ProgressLoadingProtocol {
         return ProgressLoadingHandler(beginHandler: { [weak self] in
             self?.beginProgressLoading()
         }, updateHandler: { [weak self] in
