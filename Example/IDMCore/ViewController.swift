@@ -56,6 +56,16 @@ class DataProvider2: DataProviderProtocol {
     }
 }
 
+class ABC: ProgressDataModelProtocol, ModelProtocol {
+    var data: TestDelay?
+
+    required init(fromData _: TestDelay?) throws {}
+
+    var progress: Progress?
+
+    var isDelaying: Bool = false
+}
+
 class ViewController: UIViewController {
     var exSer: AbstractIntegrator<Int, TestDelay>!
     lazy var groupSer: GroupIntegrator<AmazingIntegrator<DataProvider2>> = {
@@ -67,7 +77,7 @@ class ViewController: UIViewController {
     let retryService = AmazingIntegrator(dataProvider: DataProvider1(), executingType: .only)
     let service = AmazingIntegrator(dataProvider: DataProvider2())
     let service2 = AmazingIntegrator(dataProvider: DataProvider2())
-    let service3 = AmazingIntegrator(dataProvider: DataProvider2())
+    let service3 = MagicalIntegrator(dataProvider: DataProvider2(), modelType: ABC.self)
 
     //    let integrator = AmazingIntegrator(dataProvider: DataProvider2() >>>> DataProvider1())
 
@@ -75,9 +85,9 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        BlockIntegrator<String, String> { $0 }
-        
+
+        _ = BlockIntegrator<String, String> { $0 }
+
 //        for i in 1...5 {
 //            retryService.prepareCall().onSuccess { text in
 //                print("Tak at: \(String(describing: text)) \(i)")

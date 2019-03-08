@@ -12,15 +12,21 @@ public protocol LoadingProtocol {
     func finishLoading()
 }
 
+public protocol LoadingObjectProtocol: AnyObject, LoadingProtocol {}
+
 public protocol ProgressLoadingProtocol {
     func beginProgressLoading()
     func loadingDidUpdateProgress(_ progress: Progress?)
     func finishProgressLoading()
 }
 
+public protocol ProgressLoadingObjectProtocol: AnyObject, ProgressLoadingProtocol {}
+
 public protocol ErrorHandlingProtocol {
     func handle(error: Error?)
 }
+
+public protocol ErrorHandlingObjectProtocol: AnyObject, ErrorHandlingProtocol {}
 
 public protocol DataProcessingProtocol {
     associatedtype ModelType

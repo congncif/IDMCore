@@ -174,13 +174,11 @@ public class IntegrationCall<ModelType> {
         doCall = handler
     }
     
-    @discardableResult
     public func onBeginning(_ handler: (() -> ())?) -> Self {
         doBeginning = handler
         return self
     }
     
-    @discardableResult
     public func onSuccess(_ handler: ((ModelType?) -> ())?) -> Self {
         doSuccess = { [weak self] result in
             guard let self = self else {
@@ -193,13 +191,11 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    @discardableResult
     public func onError(_ handler: ((Error?) -> ())?) -> Self {
         doError = handler
         return self
     }
     
-    @discardableResult
     public func onCompletion(_ handler: (() -> ())?) -> Self {
         doCompletion = handler
         return self
@@ -233,7 +229,7 @@ public class IntegrationCall<ModelType> {
      * silent = true: implicit don't show error message when retry is performing
      * silent = false: show error message when retry is performing
      */
-    @discardableResult
+    
     public func retry(_ count: Int,
                       delay: TimeInterval = 0.3,
                       silent: Bool = true,
@@ -245,7 +241,6 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    @discardableResult
     public func retryCall<Result>(_ integrationCall: IntegrationCall<Result>, state: NextState = .completion) -> Self {
         retryBlock = nil
         
@@ -253,7 +248,7 @@ public class IntegrationCall<ModelType> {
         
         switch state {
         case .error, .success:
-            newCall.next(state: .completion) { [weak self] _ in
+            _ = newCall.next(state: .completion) { [weak self] _ in
                 self?.retryErrorBlock = nil
                 self?.retryBlock = nil
             }
@@ -269,7 +264,6 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    @discardableResult
     public func retryIntegrator<P, R>(_ integrator: AbstractIntegrator<P, R>,
                                       state: NextState = .completion,
                                       configuration: ((IntegrationCall<R>) -> ())? = nil) -> Self where P: Error {
@@ -285,7 +279,7 @@ public class IntegrationCall<ModelType> {
             
             switch state {
             case .error, .success:
-                newCall.next(state: .completion) { [weak self] _ in
+                _ = newCall.next(state: .completion) { [weak self] _ in
                     self?.retryErrorBlock = nil
                     self?.retryBlock = nil
                 }
@@ -293,7 +287,7 @@ public class IntegrationCall<ModelType> {
                 break
             }
             
-            newCall.next(state: state, integrationCall: this)
+            _ = newCall.next(state: state, integrationCall: this)
             newCall.call(queue: queue, delay: delay)
         }
         return self
@@ -303,7 +297,7 @@ public class IntegrationCall<ModelType> {
      * Set ignoreUnknownError to ignore unknown errors, this will prevent to display unexpected error messages
      * Eg: cancel action will set error = nil
      */
-    @discardableResult
+    
     public func ignoreUnknownError(_ ignoreUnknownError: Bool = true) -> Self {
         self.ignoreUnknownError = ignoreUnknownError
         return self
@@ -315,7 +309,6 @@ public class IntegrationCall<ModelType> {
     
     /*********************************************************************************/
     
-    @discardableResult
     public func next<Result>(state: NextState = .completion, integrationCall: IntegrationCall<Result>) -> Self {
         let queue = callQueue
         let delay = callDelay
@@ -345,7 +338,6 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    @discardableResult
     public func transform<Result>(nextState: NextState = .completion, integrationCall: IntegrationCall<Result>) -> IntegrationCall<Result> {
         let queue = callQueue
         let delay = callDelay
@@ -375,7 +367,6 @@ public class IntegrationCall<ModelType> {
         return integrationCall
     }
     
-    @discardableResult
     public func next(state: NextState = .completion, nextBlock: ((Result<ModelType>?) -> ())? = nil) -> Self {
         switch state {
         case .success:
@@ -403,7 +394,6 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    @discardableResult
     public func nextTo<Parameter, ResultType>(state: NextState = .completion,
                                               integrator: AbstractIntegrator<Parameter, ResultType>,
                                               parametersBuilder: ((Result<ModelType>?) -> Parameter?)? = nil,
@@ -447,7 +437,6 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    @discardableResult
     public func transformNextTo<Parameter, ResultType>(state: NextState = .completion,
                                                        integrator: AbstractIntegrator<Parameter, ResultType>,
                                                        parametersBuilder: ((Result<ModelType>?) -> Parameter?)? = nil) -> IntegrationCall<ResultType> {
@@ -548,7 +537,6 @@ public class IntegrationCall<ModelType> {
     
     /*********************************************************************************/
     
-    @discardableResult
     public func nextSuccessTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
                                                  parametersBuilder: ((ModelType?) -> Parameter?)? = nil,
                                                  configuration: ((IntegrationCall<Result>, ModelType?) -> ())? = nil) -> Self {
@@ -567,7 +555,6 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    @discardableResult
     public func forwardSuccessTo<Result>(integrator: AbstractIntegrator<ModelType, Result>,
                                          configuration: ((IntegrationCall<Result>, ModelType?) -> ())? = nil) -> Self {
         let success = doSuccess
@@ -583,7 +570,6 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    @discardableResult
     public func nextErrorTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
                                                parametersBuilder: ((Error?) -> Parameter?)? = nil,
                                                configuration: ((IntegrationCall<Result>, Error?) -> ())? = nil) -> Self {
@@ -602,7 +588,6 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    @discardableResult
     public func forwardErrorTo<Result>(integrator: AbstractIntegrator<Error, Result>,
                                        configuration: ((IntegrationCall<Result>, Error?) -> ())? = nil) -> Self {
         let block = doError
@@ -619,7 +604,6 @@ public class IntegrationCall<ModelType> {
         return self
     }
     
-    @discardableResult
     public func nextCompletionTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
                                                     parameters: Parameter? = nil,
                                                     configuration: ((IntegrationCall<Result>) -> ())? = nil) -> Self {
@@ -664,42 +648,8 @@ public class IntegrationCall<ModelType> {
 }
 
 extension IntegrationCall where ModelType: DelayingCompletionProtocol {
-    @discardableResult
     public func onProgress(_ handler: ((ModelType?) -> ())?) -> Self {
         doProgress = handler
-        return self
-    }
-    
-    @discardableResult
-    public func progress<T: ProgressTrackingProtocol>(tracker: T) -> Self where T: AnyObject, T.ModelType == ModelType {
-        onProgress { [weak tracker] model in
-            tracker?.progressDidUpdate(data: model)
-        }
-        return self
-    }
-}
-
-extension IntegrationCall where ModelType: ProgressModelProtocol {
-    @discardableResult
-    public func progressTracker<T: ProgressLoadingProtocol>(_ tracker: T) -> Self where T: AnyObject {
-        onBeginning { [weak tracker] in
-            tracker?.beginProgressLoading()
-        }
-        
-        onCompletion { [weak tracker] in
-            tracker?.finishProgressLoading()
-        }
-        
-        onProgress { [weak tracker] model in
-            tracker?.loadingDidUpdateProgress(model?.progress)
-        }
-        return self
-    }
-    
-    public func progressTracker<T: ProgressLoadingProtocol>(_ tracker: T) -> Self {
-        onBeginning(tracker.beginProgressLoading)
-        onCompletion(tracker.finishProgressLoading)
-        onProgress { tracker.loadingDidUpdateProgress($0?.progress) }
         return self
     }
 }

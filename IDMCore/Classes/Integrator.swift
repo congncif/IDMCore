@@ -390,7 +390,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     public func retryCall<D, M, R>(_ integrator: Integrator<D, M, R>, state: NextState = .completion, configuration: ((IntegrationCall<R>) -> Void)? = nil) -> Self where D.ParameterType: Error {
         retrySetBlock = nil
         retrySetBlock = { call in
-            call.retryIntegrator(integrator, state: state, configuration: configuration)
+            _ = call.retryIntegrator(integrator, state: state, configuration: configuration)
         }
         return self
     }
@@ -417,9 +417,9 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     open override func prepareCall(parameters: ParameterType? = nil) -> IntegrationCall<ResultType> {
         let call = IntegrationCall<ResultType>()
 
-        call.ignoreUnknownError(defaultCall.ignoreUnknownError)
+        _ = call.ignoreUnknownError(defaultCall.ignoreUnknownError)
 
-        call.retry(retryCall.retryCount, delay: retryCall.retryDelay, silent: retryCall.silentRetry, condition: retryCall.retryCondition)
+        _ = call.retry(retryCall.retryCount, delay: retryCall.retryDelay, silent: retryCall.silentRetry, condition: retryCall.retryCondition)
 
         if let block = retrySetBlock {
             block(call)

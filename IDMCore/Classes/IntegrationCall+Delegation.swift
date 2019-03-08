@@ -30,52 +30,95 @@
 import Foundation
 
 extension IntegrationCall {
-    @discardableResult
-    public func loadingHandler<T: LoadingProtocol>(_ handler: T) -> Self where T: AnyObject {
-        onBeginning { [weak handler] in
+    // mark: - Loading
+    
+    public func loadingHandler(_ handler: LoadingProtocol) -> Self {
+        _ = onBeginning(handler.beginLoading)
+        _ = onCompletion(handler.finishLoading)
+        return self
+    }
+    
+    public func loadingHandler(_ handler: LoadingObjectProtocol?) -> Self {
+        _ = onBeginning { [weak handler] in
             handler?.beginLoading()
         }
         
-        onCompletion { [weak handler] in
+        _ = onCompletion { [weak handler] in
             handler?.finishLoading()
         }
         
         return self
     }
     
-    @discardableResult
-    public func errorHandler<T: ErrorHandlingProtocol>(_ handler: T) -> Self where T: AnyObject {
-        onError { [weak handler] err in
+    // mark: - Error Handling
+    
+    public func errorHandler(_ handler: ErrorHandlingObjectProtocol?) -> Self {
+        _ = onError { [weak handler] err in
             handler?.handle(error: err)
         }
         
         return self
     }
     
-    @discardableResult
-    public func dataProcessor<T: DataProcessingProtocol>(_ processor: T) -> Self where T: AnyObject, T.ModelType == ModelType {
-        onSuccess { [weak processor] model in
+    public func errorHandler(_ handler: ErrorHandlingProtocol) -> Self {
+        _ = onError(handler.handle)
+        return self
+    }
+    
+    // mark: - Data Handler
+    
+    public func dataProcessor<T: DataProcessingProtocol>(_ processor: T) -> Self
+        where T: AnyObject, T.ModelType == ModelType {
+        _ = onSuccess { [weak processor] model in
             processor?.process(data: model)
         }
         
         return self
     }
     
-    @discardableResult
-    public func display<T>(on view: T) -> Self where T: AnyObject, T: LoadingProtocol, T: ErrorHandlingProtocol {
-        loadingHandler(view).errorHandler(view)
+    public func dataProcessor<T: DataProcessingProtocol>(_ processor: T) -> Self
+        where T.ModelType == ModelType {
+        _ = onSuccess(processor.process)
+        return self
+    }
+}
+
+extension IntegrationCall where ModelType: DelayingCompletionProtocol {
+    public func progressTracker<T: ProgressTrackingProtocol>(_ tracker: T) -> Self
+        where T: AnyObject, T.ModelType == ModelType {
+        _ = onProgress { [weak tracker] model in
+            tracker?.progressDidUpdate(data: model)
+        }
         return self
     }
     
-    @discardableResult
-    public func delegate<T>(_ delegate: T) -> Self where T: AnyObject, T: LoadingProtocol, T: ErrorHandlingProtocol, T: DataProcessingProtocol, T.ModelType == ModelType {
-        loadingHandler(delegate).errorHandler(delegate).dataProcessor(delegate)
+    public func progressTracker<T: ProgressTrackingProtocol>(_ tracker: T) -> Self
+        where T.ModelType == ModelType {
+        _ = onProgress(tracker.progressDidUpdate)
+        return self
+    }
+}
+
+extension IntegrationCall where ModelType: ProgressModelProtocol {
+    public func progressTracker(_ tracker: ProgressLoadingObjectProtocol?) -> Self {
+        _ = onBeginning { [weak tracker] in
+            tracker?.beginProgressLoading()
+        }
+        
+        _ = onCompletion { [weak tracker] in
+            tracker?.finishProgressLoading()
+        }
+        
+        _ = onProgress { [weak tracker] model in
+            tracker?.loadingDidUpdateProgress(model?.progress)
+        }
         return self
     }
     
-    @discardableResult
-    public func dataProcessor<T: DataProcessingProtocol>(_ processor: T) -> Self where T.ModelType == ModelType {
-        onSuccess(processor.process)
+    public func progressTracker(_ tracker: ProgressLoadingProtocol) -> Self {
+        _ = onBeginning(tracker.beginProgressLoading)
+        _ = onCompletion(tracker.finishProgressLoading)
+        _ = onProgress { tracker.loadingDidUpdateProgress($0?.progress) }
         return self
     }
 }
