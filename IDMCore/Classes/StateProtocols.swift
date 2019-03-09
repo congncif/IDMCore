@@ -128,6 +128,55 @@ public struct ErrorHandler: ErrorHandlingProtocol {
     }
 }
 
+public struct ErrorHandlingProxy: ErrorHandlingProtocol {
+    private var handlersDict: [String: ErrorHandlingProtocol]
+    private var errorConditions: [String: (Error?) -> Bool] = [:]
+
+    public init(handlers: [ErrorHandlingProtocol] = []) {
+        let payload = handlers.map { (key: String(describing: $0), value: $0) }
+        handlersDict = payload.reduce([:]) { result, item in
+            var newResult = result
+            newResult[item.key] = item.value
+            return newResult
+        }
+    }
+
+    private var handlers: [ErrorHandlingProtocol] {
+        return Array(handlersDict.values)
+    }
+
+    public func handle(error: Error?) {
+        handlers.forEach {
+            let key = String(describing: $0)
+            if let condition = errorConditions[key] {
+                if condition(error) {
+                    $0.handle(error: error)
+                }
+            } else {
+                $0.handle(error: error)
+            }
+        }
+    }
+
+    public mutating func addHandler(_ handler: ErrorHandlingProtocol,
+                                    where condition: ((Error?) -> Bool)? = nil) {
+        let key = String(describing: handler)
+        handlersDict[key] = handler
+        errorConditions[key] = condition
+    }
+
+    public mutating func removeHandler(_ handler: ErrorHandlingProtocol) {
+        let key = String(describing: handler)
+        handlersDict.removeValue(forKey: key)
+        errorConditions.removeValue(forKey: key)
+    }
+
+    public mutating func removeAllHandlers() {
+        handlersDict.removeAll()
+        errorConditions.removeAll()
+    }
+}
+
 extension LoadingObjectProtocol {
     public func asValueType() -> LoadingProtocol {
         return LoadingHandler(beginHandler: { [weak self] in
