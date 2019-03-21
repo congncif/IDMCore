@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0A5D052822229E3E005C66C0 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D052722229E3E005C66C0 /* Result.swift */; };
+		0AC911DE22435C9400B9FD24 /* ErrorHandlingProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC911DD22435C9400B9FD24 /* ErrorHandlingProxy.swift */; };
 		200B444A21D3CD5500558E28 /* StateProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200B444921D3CD5500558E28 /* StateProtocols.swift */; };
 		200B444C21D3D2EE00558E28 /* IDMError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200B444B21D3D2EE00558E28 /* IDMError.swift */; };
 		2031EE4B21D5AF4100677EAA /* SequenceDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2031EE4A21D5AF4100677EAA /* SequenceDataProvider.swift */; };
@@ -50,6 +51,7 @@
 /* Begin PBXFileReference section */
 		003B1A07C1BD4B329EE24298A5678715 /* Pods-IDMCore_Example-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-IDMCore_Example-acknowledgements.markdown"; sourceTree = "<group>"; };
 		0A5D052722229E3E005C66C0 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
+		0AC911DD22435C9400B9FD24 /* ErrorHandlingProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandlingProxy.swift; sourceTree = "<group>"; };
 		0DD60DC238CFBD7AD19FE5E49E50F023 /* IDMCore.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = IDMCore.xcconfig; sourceTree = "<group>"; };
 		200B444921D3CD5500558E28 /* StateProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateProtocols.swift; sourceTree = "<group>"; };
 		200B444B21D3D2EE00558E28 /* IDMError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IDMError.swift; sourceTree = "<group>"; };
@@ -186,6 +188,7 @@
 				0A5D052722229E3E005C66C0 /* Result.swift */,
 				2031EE4A21D5AF4100677EAA /* SequenceDataProvider.swift */,
 				200B444921D3CD5500558E28 /* StateProtocols.swift */,
+				0AC911DD22435C9400B9FD24 /* ErrorHandlingProxy.swift */,
 				2032B5E921BE1E3C008AC2FD /* SynchronizedArray.swift */,
 			);
 			path = Classes;
@@ -365,6 +368,7 @@
 				2031EE4B21D5AF4100677EAA /* SequenceDataProvider.swift in Sources */,
 				200B444C21D3D2EE00558E28 /* IDMError.swift in Sources */,
 				2032B5EE21BE581A008AC2FD /* DispatchQueue+IDM.swift in Sources */,
+				0AC911DE22435C9400B9FD24 /* ErrorHandlingProxy.swift in Sources */,
 				20F8C264206A06EE00A53994 /* Debouncer.swift in Sources */,
 				9FF02D911EC2EBC7001D45A2 /* Integrator+Delegation.swift in Sources */,
 				3226DB0A8AA2686816E5F0B5463E223C /* ModelProtocol.swift in Sources */,
