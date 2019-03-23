@@ -51,7 +51,7 @@ public struct ErrorHandlingProxy: ErrorHandlingProtocol {
     public let type: HandlingType
     private var handlersDict: [String: HandlerInfo]
     
-    public init(type: HandlingType = .chain) {
+    public init(type: HandlingType = .independence) {
         self.type = type
         handlersDict = [:]
     }

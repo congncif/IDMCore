@@ -38,7 +38,7 @@ extension IntegrationCall {
         return self
     }
     
-    public func loadingHandler(_ handler: LoadingObjectProtocol?) -> Self {
+    public func loadingHandler<H>(_ handler: H?) -> Self where H: LoadingProtocol, H: AnyObject {
         _ = onBeginning { [weak handler] in
             handler?.beginLoading()
         }
@@ -52,7 +52,7 @@ extension IntegrationCall {
     
     // mark: - Error Handling
     
-    public func errorHandler(_ handler: ErrorHandlingObjectProtocol?) -> Self {
+    public func errorHandler<H>(_ handler: H?) -> Self where H: ErrorHandlingProtocol, H: AnyObject {
         _ = onError { [weak handler] err in
             handler?.handle(error: err)
         }
@@ -100,7 +100,7 @@ extension IntegrationCall where ModelType: DelayingCompletionProtocol {
 }
 
 extension IntegrationCall where ModelType: ProgressModelProtocol {
-    public func progressTracker(_ tracker: ProgressLoadingObjectProtocol?) -> Self {
+    public func progressTracker<T>(_ tracker: T?) -> Self where T: ProgressLoadingProtocol, T: AnyObject {
         _ = onBeginning { [weak tracker] in
             tracker?.beginProgressLoading()
         }
