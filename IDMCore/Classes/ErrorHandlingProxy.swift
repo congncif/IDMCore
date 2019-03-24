@@ -97,3 +97,22 @@ public struct ErrorHandlingProxy: ErrorHandlingProtocol {
         handlersDict.removeAll()
     }
 }
+
+extension ErrorHandlingProxy {
+    public mutating func addDedicatedHandler<E>(_ handler: DedicatedErrorHandler<E>,
+                                                priority: HandlingPriority = .default,
+                                                where condition: ((E) -> Bool)? = nil) {
+        let wrappedCondition: (Error?) -> Bool = { error in
+            guard let error = error as? E else {
+                return false
+            }
+            guard let condition = condition else {
+                return true
+            }
+            return condition(error)
+        }
+        let info = HandlerInfo(handler: handler, condition: wrappedCondition, priority: priority.value)
+        let key = info.identifier
+        handlersDict[key] = info
+    }
+}
