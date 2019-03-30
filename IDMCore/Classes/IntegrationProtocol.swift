@@ -64,7 +64,7 @@ public protocol IntegratorProtocol: class {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-public extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataType {
+extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataType {
     func finish(success: Bool,
                 data: DataProviderType.DataType?,
                 error: Error?,
@@ -134,9 +134,7 @@ public extension IntegrationProtocol where DataProviderType.DataType == ModelTyp
             } else {
                 failureHandler?(error)
             }
-            defer {
-                completionHandler?()
-            }
+            completionHandler?()
         }
     }
     

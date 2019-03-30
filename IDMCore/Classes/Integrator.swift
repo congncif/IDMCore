@@ -200,7 +200,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         }
         switch executingType {
         case .latest:
-            if runningCallsQueue.count > 0 {
+            if !runningCallsQueue.isEmpty {
                 cancelCurrentTasks()
             }
             executeTask()
@@ -212,7 +212,6 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
             callInfosQueue.removeAll()
         default: // .queue: execute tasks by queue using queueRunning to control only call at the same time
             executeTask()
-            break
         }
     }
 
@@ -238,7 +237,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                 return
             }
             info = _info
-            if callInfosQueue.count > 0 {
+            if !callInfosQueue.isEmpty {
                 callInfosQueue.remove(at: 0)
             }
         }
@@ -266,10 +265,9 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                      } else {
                          self?.defaultCall.onError?(e)
                      }
-                     defer {
-                         self?.defaultCall.onCompletion?()
-                         completion?(s, d, e)
-                     }
+                     self?.defaultCall.onCompletion?()
+                     completion?(s, d, e)
+
         })
     }
 
@@ -291,18 +289,16 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                          self?.defaultCall.onError?(error)
                          failureHandler?(error)
                      }
-                     defer {
-                         if let delayObject = model as? DelayingCompletionProtocol {
-                             if delayObject.isDelaying {
-                                 //                                print("Delaying completion: \(String(describing: delayObject)) ...")
-                             } else {
-                                 self?.defaultCall.onCompletion?()
-                                 completionHandler?()
-                             }
+                     if let delayObject = model as? DelayingCompletionProtocol {
+                         if delayObject.isDelaying {
+                             //                                print("Delaying completion: \(String(describing: delayObject)) ...")
                          } else {
                              self?.defaultCall.onCompletion?()
                              completionHandler?()
                          }
+                     } else {
+                         self?.defaultCall.onCompletion?()
+                         completionHandler?()
                      }
         })
     }
@@ -326,7 +322,6 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
             }
         default:
             print("\(#function) is only valid with .latest executingType")
-            break
         }
         return self
     }
