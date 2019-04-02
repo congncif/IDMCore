@@ -49,12 +49,6 @@ public protocol IntegrationProtocol: IntegratorProtocol where Self.ParameterType
     var noValueError: Error? { get }
 }
 
-extension IntegrationProtocol {
-    public var noValueError: Error? {
-        return nil
-    }
-}
-
 public protocol IntegratorProtocol: class {
     associatedtype GParameterType
     associatedtype GResultType
@@ -72,7 +66,7 @@ extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataT
         let noValueError = self.noValueError
         
         if success {
-            DispatchQueue.global(qos: .userInteractive).async {
+            DispatchQueue.global(qos: .userInitiated).async {
                 var newError = error
                 var newSuccess = success
                 var results: ResultType?

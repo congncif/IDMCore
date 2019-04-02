@@ -40,7 +40,7 @@ public class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondPro
         
         let semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
         
-        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             defer {
                 DispatchQueue.main.async {
                     cancelBlock = nil

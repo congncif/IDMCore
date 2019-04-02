@@ -126,7 +126,7 @@ public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvid
             self?.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
         }
 
-        grouptasks.notify(queue: DispatchQueue.global(qos: .userInteractive)) {
+        grouptasks.notify(queue: DispatchQueue.global(qos: .userInitiated)) {
             let results: DataType = (result1, result2)
             DispatchQueue.main.async {
                 completion(resultsSuccess, results, resultsError)
@@ -180,7 +180,7 @@ public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
             self?.processSubRequestDone(success: &resultsSuccess, result: &result3, error: &resultsError, s: s, d: d, e: e)
         }
 
-        grouptasks.notify(queue: DispatchQueue.global(qos: .userInteractive)) {
+        grouptasks.notify(queue: DispatchQueue.global(qos: .userInitiated)) {
             let results: DataType = (result1, result2, result3)
             DispatchQueue.main.async {
                 completion(resultsSuccess, results, resultsError)
@@ -238,7 +238,7 @@ public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
             self?.processSubRequestDone(success: &resultsSuccess, result: &result4, error: &resultsError, s: s, d: d, e: e)
         }
 
-        grouptasks.notify(queue: DispatchQueue.global(qos: .userInteractive)) {
+        grouptasks.notify(queue: DispatchQueue.global(qos: .userInitiated)) {
             let results: DataType = (result1, result2, result3, result4)
             DispatchQueue.main.async {
                 completion(resultsSuccess, results, resultsError)
@@ -301,7 +301,7 @@ public class Group5DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
             self?.processSubRequestDone(success: &resultsSuccess, result: &result5, error: &resultsError, s: s, d: d, e: e)
         }
 
-        grouptasks.notify(queue: DispatchQueue.global(qos: .userInteractive)) {
+        grouptasks.notify(queue: DispatchQueue.global(qos: .userInitiated)) {
             let results: DataType = (result1, result2, result3, result4, result5)
             DispatchQueue.main.async {
                 completion(resultsSuccess, results, resultsError)
