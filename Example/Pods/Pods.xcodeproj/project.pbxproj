@@ -10,8 +10,8 @@
 		0A5B8AC22246012300379695 /* DedicatedErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5B8AC12246012300379695 /* DedicatedErrorHandling.swift */; };
 		0A5D052822229E3E005C66C0 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A5D052722229E3E005C66C0 /* Result.swift */; };
 		0AC911DE22435C9400B9FD24 /* ErrorHandlingProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AC911DD22435C9400B9FD24 /* ErrorHandlingProxy.swift */; };
+		0AD7B6CC2253A43700F2788B /* IDMError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD7B6CB2253A43600F2788B /* IDMError.swift */; };
 		200B444A21D3CD5500558E28 /* StateProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200B444921D3CD5500558E28 /* StateProtocols.swift */; };
-		200B444C21D3D2EE00558E28 /* IDMError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200B444B21D3D2EE00558E28 /* IDMError.swift */; };
 		2031EE4B21D5AF4100677EAA /* SequenceDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2031EE4A21D5AF4100677EAA /* SequenceDataProvider.swift */; };
 		2031EE4D21D5B0C900677EAA /* DataProviderConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2031EE4C21D5B0C900677EAA /* DataProviderConverter.swift */; };
 		2031EE4F21D5DA6100677EAA /* GroupIntegrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2031EE4E21D5DA6100677EAA /* GroupIntegrator.swift */; };
@@ -54,9 +54,9 @@
 		0A5B8AC12246012300379695 /* DedicatedErrorHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DedicatedErrorHandling.swift; sourceTree = "<group>"; };
 		0A5D052722229E3E005C66C0 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		0AC911DD22435C9400B9FD24 /* ErrorHandlingProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandlingProxy.swift; sourceTree = "<group>"; };
+		0AD7B6CB2253A43600F2788B /* IDMError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IDMError.swift; sourceTree = "<group>"; };
 		0DD60DC238CFBD7AD19FE5E49E50F023 /* IDMCore.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = IDMCore.xcconfig; sourceTree = "<group>"; };
 		200B444921D3CD5500558E28 /* StateProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateProtocols.swift; sourceTree = "<group>"; };
-		200B444B21D3D2EE00558E28 /* IDMError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IDMError.swift; sourceTree = "<group>"; };
 		2031EE4A21D5AF4100677EAA /* SequenceDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequenceDataProvider.swift; sourceTree = "<group>"; };
 		2031EE4C21D5B0C900677EAA /* DataProviderConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataProviderConverter.swift; sourceTree = "<group>"; };
 		2031EE4E21D5DA6100677EAA /* GroupIntegrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupIntegrator.swift; sourceTree = "<group>"; };
@@ -180,7 +180,7 @@
 				0AC911DD22435C9400B9FD24 /* ErrorHandlingProxy.swift */,
 				7E80CFF99FFAD96B0E3A8F0239EC29C8 /* GroupDataProvider.swift */,
 				2031EE4E21D5DA6100677EAA /* GroupIntegrator.swift */,
-				200B444B21D3D2EE00558E28 /* IDMError.swift */,
+				0AD7B6CB2253A43600F2788B /* IDMError.swift */,
 				20A0275F205909E900967497 /* IntegrationBatchCall.swift */,
 				583E4D7CAB0B2A98CB8CFCA7EAD29176 /* IntegrationCall.swift */,
 				9F98A8602045233A00C2FB2E /* IntegrationCall+Delegation.swift */,
@@ -359,6 +359,7 @@
 				2032B5EC21BE220F008AC2FD /* AtomicBool.swift in Sources */,
 				33CF04FD8008194E68FE7E545E5B9186 /* DataProviderProtocol.swift in Sources */,
 				200B444A21D3CD5500558E28 /* StateProtocols.swift in Sources */,
+				0AD7B6CC2253A43700F2788B /* IDMError.swift in Sources */,
 				3F4625EAB1B5DD4704CB018F14F9DA91 /* GroupDataProvider.swift in Sources */,
 				20507EDE21DF598C00B079F1 /* BlockDataProvider.swift in Sources */,
 				6C16FF50F0E35083E0B8E7D810F89DB8 /* IDMCore-dummy.m in Sources */,
@@ -370,7 +371,6 @@
 				9F98A8612045233A00C2FB2E /* IntegrationCall+Delegation.swift in Sources */,
 				EB920D5B64BC9A3874FD903CA8993069 /* Integrator.swift in Sources */,
 				2031EE4B21D5AF4100677EAA /* SequenceDataProvider.swift in Sources */,
-				200B444C21D3D2EE00558E28 /* IDMError.swift in Sources */,
 				2032B5EE21BE581A008AC2FD /* DispatchQueue+IDM.swift in Sources */,
 				0AC911DE22435C9400B9FD24 /* ErrorHandlingProxy.swift in Sources */,
 				0A5B8AC22246012300379695 /* DedicatedErrorHandling.swift in Sources */,

@@ -7,9 +7,7 @@
 
 import Foundation
 
-public struct IDMError: LocalizedError {
-    public static let modelCannotInitialize = IDMError(message: NSLocalizedString("Model cannot initialize", comment: ""))
-
+public struct ParsingError: LocalizedError {
     public var message: String
     public var failureReason: String?
 
@@ -19,11 +17,13 @@ public struct IDMError: LocalizedError {
     }
 
     public var errorDescription: String? {
-        return self.message
+        return NSLocalizedString(self.message, comment: "")
     }
 }
 
 public struct IgnoreError: LocalizedError {
+    public static let `default` = IgnoreError()
+    
     public var errorDescription: String? {
         return NSLocalizedString("Ignore this error", comment: "")
     }

@@ -105,7 +105,9 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         queueRunning = AtomicBool(queue: DispatchQueue.idmConcurrent)
         callInfosQueue = SynchronizedArray<CallInfo>(queue: preparingQueue, elements: [])
         runningCallsQueue = SynchronizedArray<CallInfo>(queue: executingQueue, elements: [])
-
+        
+        noValueError = IgnoreError.default
+        
         super.init()
 
         switch executingType {

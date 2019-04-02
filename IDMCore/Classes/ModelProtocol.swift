@@ -44,7 +44,7 @@ public protocol SelfModelProtocol: ModelProtocol {}
 extension SelfModelProtocol {
     public init(fromData data: Self?) throws {
         guard let data = data else {
-            throw IDMError.modelCannotInitialize
+            throw ParsingError(message: "Model cannot initialize")
         }
         self = data
     }
@@ -57,7 +57,7 @@ extension ModelProtocol {
                 return result
             }
         }
-        throw IDMError(message: "*** Cannot getData of type \(Self.self) ***")
+        throw ParsingError(message: "*** Cannot getData of type \(Self.self) ***")
     }
 
     public var invalidDataError: Error? {
@@ -82,7 +82,7 @@ public struct AutoWrapModel<Type>: ModelProtocol {
                 return result
             }
         }
-        throw IDMError(message: "*** Cannot getData of type \(Type.self) or \(AutoWrapModel<Type>.self) ***")
+        throw ParsingError(message: "*** Cannot getData of type \(Type.self) or \(AutoWrapModel<Type>.self) ***")
     }
 }
 
