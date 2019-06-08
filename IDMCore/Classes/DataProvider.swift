@@ -31,10 +31,12 @@
 import Foundation
 
 open class AbstractDataProvider<Parameter, Data>: DataProviderProtocol {
+    public typealias ParameterType = Parameter
+    public typealias DataType = Data
+
     public init() {}
 
-    open func request(parameters: Parameter?,
-                      completion: @escaping (Bool, Data?, Error?) -> Void) -> CancelHandler? {
+    public func request(parameters: Parameter?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
         assertionFailure("\(type(of: self)): Abstract method needs an implementation")
         return nil
     }
@@ -46,8 +48,8 @@ public typealias AnyAnyDataProvider = AbstractDataProvider<Any, Any>
 // -------------------------------------------------------------------------
 
 open class DataProvider<ParameterType, ValueType>: AbstractDataProvider<ParameterType, ValueType> {
-    public typealias Result = IDMCore.Result<ValueType>
-    public typealias ValueFactory = (ParameterType?) -> Result
+    public typealias ValueResult = Swift.Result<ValueType?, Error>
+    public typealias ValueFactory = (ParameterType?) -> ValueResult
 
     private var valueFactory: ValueFactory
 
@@ -55,8 +57,20 @@ open class DataProvider<ParameterType, ValueType>: AbstractDataProvider<Paramete
         self.valueFactory = valueFactory
     }
 
-    open override func request(parameters: ParameterType?,
-                               completion: @escaping (Bool, ValueType?, Error?) -> Void) -> CancelHandler? {
+    open override func request(parameters: ParameterType?, completionResult: @escaping (Swift.Result<ValueType?, Error>) -> Void) -> CancelHandler? {
+        request(parameters: parameters) { success, data, error in
+            if success {
+                completionResult(.success(data))
+            } else if let error = error {
+                completionResult(.failure(error))
+            } else {
+                completionResult(.failure(IgnoreError.default))
+            }
+        }
+    }
+
+    private func request(parameters: ParameterType?,
+                         completion: @escaping (Bool, ValueType?, Error?) -> Void) -> CancelHandler? {
         switch valueFactory(parameters) {
         case .success(let data):
             completion(true, data, nil)
@@ -69,7 +83,7 @@ open class DataProvider<ParameterType, ValueType>: AbstractDataProvider<Paramete
 
 extension DataProvider where ParameterType == Any {
     // flashFactory is a shortcut of valueFactory with no explicit parameters
-    public convenience init(flashFactory: @escaping () -> Result) {
+    public convenience init(flashFactory: @escaping () -> ValueResult) {
         let _valueFactory: ValueFactory = { _ in flashFactory() }
         self.init(valueFactory: _valueFactory)
     }

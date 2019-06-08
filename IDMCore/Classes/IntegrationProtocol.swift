@@ -1,16 +1,16 @@
 /**
  Copyright (c) 2016 Nguyen Chi Cong
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,11 +34,11 @@ public protocol IntegrationProtocol: IntegratorProtocol where Self.ParameterType
     associatedtype DataProviderType: DataProviderProtocol
     associatedtype ModelType: ModelProtocol
     associatedtype ResultType
-    
+
     typealias ParameterType = DataProviderType.ParameterType
-    
+
     var dataProvider: DataProviderType { get }
-    
+
     func execute(parameters: ParameterType?,
                  completion: ((Bool, ResultType?, Error?) -> Void)?)
     func execute(parameters: ParameterType?,
@@ -52,7 +52,7 @@ public protocol IntegrationProtocol: IntegratorProtocol where Self.ParameterType
 public protocol IntegratorProtocol: class {
     associatedtype GParameterType
     associatedtype GResultType
-    
+
     func prepareCall(parameters: GParameterType?) -> IntegrationCall<GResultType>
     func cancel()
 }
@@ -64,7 +64,7 @@ extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataT
                 error: Error?,
                 completion: ((Bool, ResultType?, Error?) -> Void)?) {
         let noValueError = self.noValueError
-        
+
         if success {
             DispatchQueue.global(qos: .userInitiated).async {
                 var newError = error
@@ -79,7 +79,7 @@ extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataT
                         let resultData: ResultType = try model.getData()
                         results = resultData
                     }
-                    
+
                 } catch let ex {
                     if let err = noValueError { // custom noValue error
                         newSuccess = false
@@ -88,14 +88,14 @@ extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataT
                         newSuccess = false
                         newError = ex
                     }
-                    
+
                     // Ignore noValue error, accept any results includes nil
                     if let _ = newError as? IgnoreError {
                         newSuccess = true
                         newError = nil
                     }
                 }
-                
+
                 DispatchQueue.main.async {
                     completion?(newSuccess, results, newError)
                 }
@@ -106,14 +106,27 @@ extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataT
             }
         }
     }
-    
+
     public func execute(parameters: ParameterType? = nil,
                         completion: ((Bool, ResultType?, Error?) -> Void)? = nil) {
-        _ = dataProvider.request(parameters: parameters) { success, data, error in
+        _ = dataProvider.request(parameters: parameters, completionResult: { result in
+            var success: Bool
+            var data: DataProviderType.DataType?
+            var error: Error?
+
+            switch result {
+            case .success(let _data):
+                success = true
+                data = _data
+            case .failure(let _error):
+                success = false
+                error = _error
+            }
+
             self.finish(success: success, data: data, error: error, completion: completion)
-        }
+        })
     }
-    
+
     public func execute(parameters: ParameterType? = nil,
                         loadingHandler: (() -> Void)?,
                         successHandler: ((ResultType?) -> Void)?,
@@ -131,7 +144,7 @@ extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataT
             completionHandler?()
         }
     }
-    
+
     public func execute<DataBindingType: DataProcessingProtocol>(parameters: ParameterType? = nil,
                                                                  loadingPresenter: LoadingProtocol? = nil,
                                                                  errorAlertPresenter: ErrorHandlingProtocol? = nil,
@@ -151,7 +164,7 @@ extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataT
                     loadingPresenter?.finishLoading()
         })
     }
-    
+
     public func execute<DataBindingType: DataProcessingProtocol>(parameters: ParameterType? = nil,
                                                                  delegate: DataBindingType?)
         where DataBindingType: LoadingProtocol,
@@ -159,7 +172,7 @@ extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataT
         DataBindingType.ModelType == ResultType {
         execute(parameters: parameters, loadingPresenter: delegate, errorAlertPresenter: delegate, dataBinding: delegate)
     }
-    
+
     public func execute(parameters: ParameterType? = nil,
                         loadingPresenter: LoadingProtocol? = nil,
                         errorAlertPresenter: ErrorHandlingProtocol? = nil,

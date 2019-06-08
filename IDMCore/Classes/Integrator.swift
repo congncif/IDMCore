@@ -105,9 +105,9 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         queueRunning = AtomicBool(queue: DispatchQueue.idmConcurrent)
         callInfosQueue = SynchronizedArray<CallInfo>(queue: preparingQueue, elements: [])
         runningCallsQueue = SynchronizedArray<CallInfo>(queue: executingQueue, elements: [])
-        
+
         noValueError = IgnoreError.default
-        
+
         super.init()
 
         switch executingType {
@@ -137,18 +137,30 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         DispatchQueue.main.async {
             task.loading?()
         }
-        let cancel = dataProvider.request(parameters: task.parameters) { [weak self] success, data, error in
-            guard let this = self else {
-                return
+
+        let cancel = dataProvider.request(parameters: task.parameters) { [weak self] result in
+            guard let self = self else { return }
+            var success: Bool
+            var data: IntegrateProvider.DataType?
+            var error: Error?
+
+            switch result {
+            case .success(let _data):
+                success = true
+                data = _data
+            case .failure(let _error):
+                success = false
+                error = _error
             }
-            self?.finish(success: success, data: data, error: error) { [weak this] s, d, e in
-                // forward results
+
+            self.finish(success: success, data: data, error: error) { [weak self] s, d, e in
                 DispatchQueue.main.async {
                     task.completion?(s, d, e)
                 }
-                this?.dequeueTask(task)
+                self?.dequeueTask(task)
             }
         }
+
         task.cancel = cancel
         enqueueTask(task)
     }

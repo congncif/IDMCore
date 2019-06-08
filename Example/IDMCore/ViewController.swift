@@ -15,15 +15,10 @@ struct TestDelay: DelayingCompletionProtocol {
 }
 
 class DataProvider1: DataProviderProtocol {
-    func request(parameters: NSError?, completion: @escaping ((Bool, String?, Error?) -> Void)) -> (() -> Void)? {
+    func request(parameters: NSError?, completionResult: @escaping (Result<String?, Error>) -> Void) -> CancelHandler? {
         DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(3)) {
-            completion(true, "result 1 input error: \(String(describing: parameters))", NSError(domain: "retry error", code: 112, userInfo: nil))
-            //            completion(true, "result 2", nil)
-            //            completion(true, "result 3", nil)
-            //            completion(true, "result 4", nil)
-            //            completion(true, "result 5", nil)
+            completionResult(.success("XXXX"))
         }
-
         return {}
     }
 }
@@ -35,23 +30,8 @@ class Service: AmazingIntegrator<DataProvider1> {
 }
 
 class DataProvider2: DataProviderProtocol {
-    func request(parameters _: Int?, completion: @escaping ((Bool, TestDelay?, Error?) -> Void)) -> (() -> Void)? {
-        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(2)) {
-            completion(false, TestDelay(isDelaying: true, text: "result 2"), NSError(domain: "xxx", code: 1, userInfo: nil))
-        }
-
-//        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(3)) {
-//            completion(true, TestDelay(isDelaying: true, text: "result 3"), nil)
-//        }
-//
-//        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(4)) {
-//            completion(true, TestDelay(isDelaying: true, text: "result 4"), nil)
-//        }
-//
-//        DispatchQueue.global().asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(5)) {
-//            completion(true, TestDelay(isDelaying: false, text: "result 5"), nil)
-//        }
-
+    func request(parameters: Int?, completionResult: @escaping (Result<TestDelay?, Error>) -> Void) -> CancelHandler? {
+        
         return {}
     }
 }

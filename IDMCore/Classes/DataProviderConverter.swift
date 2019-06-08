@@ -11,13 +11,13 @@ extension DataProviderProtocol {
     public func convertToIntegrator<M>(modelType: M.Type,
                                        executingType: IntegrationType = .default) -> MagicalIntegrator<Self, M>
         where M: ModelProtocol, Self.DataType == M.DataType {
-            return MagicalIntegrator(dataProvider: self, modelType: M.self, executingType: executingType)
+        return MagicalIntegrator(dataProvider: self, modelType: M.self, executingType: executingType)
     }
-    
+
     public func convertToIntegrator(executingType: IntegrationType = .default) -> AmazingIntegrator<Self> {
         return AmazingIntegrator(dataProvider: self, executingType: executingType)
     }
-    
+
     public var integrator: AmazingIntegrator<Self> {
         return convertToIntegrator()
     }
@@ -30,6 +30,22 @@ open class IntegratingDataProvider<I: IntegratorProtocol>: DataProviderProtocol 
     public init(integrator: I, on requestQueue: IntegrationCallQueue = .main) {
         internalIntegrator = integrator
         queue = requestQueue
+    }
+
+    public typealias GResultType = Swift.Result<I.GResultType?, Error>
+
+    public func request(parameters: I.GParameterType?, completionResult: @escaping (GResultType) -> Void) -> CancelHandler? {
+        return request(parameters: parameters) { success, data, error in
+            var result: ResultType
+            if success {
+                result = .success(data)
+            } else if let error = error {
+                result = .failure(error)
+            } else {
+                result = .failure(IgnoreError.default)
+            }
+            completionResult(result)
+        }
     }
 
     public func request(parameters: I.GParameterType?,
@@ -62,6 +78,9 @@ extension IntegratorProtocol {
 }
 
 open class ConvertDataProvider<P1, P2>: DataProviderProtocol {
+    public typealias ParameterType = P1
+    public typealias DataType = P2
+
     private var converter: ((P1?) throws -> P2?)?
 
     public convenience init(converter: ((P1?) throws -> P2?)?) {
@@ -70,6 +89,20 @@ open class ConvertDataProvider<P1, P2>: DataProviderProtocol {
     }
 
     public init() {}
+
+    open func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+        return request(parameters: parameters) { success, data, error in
+            var result: ResultType
+            if success {
+                result = .success(data)
+            } else if let error = error {
+                result = .failure(error)
+            } else {
+                result = .failure(IgnoreError.default)
+            }
+            completionResult(result)
+        }
+    }
 
     open func request(parameters: P1?,
                       completion: @escaping (Bool, P2?, Error?) -> Void) -> CancelHandler? {

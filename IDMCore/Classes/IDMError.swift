@@ -22,6 +22,7 @@ public struct ParsingError: LocalizedError {
 }
 
 public struct IgnoreError: LocalizedError {
+    private init() {}
     public static let `default` = IgnoreError()
     
     public var errorDescription: String? {

@@ -13,8 +13,25 @@ public enum GroupIntegratingSuccessFilterType {
 }
 
 open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProtocol {
+    public typealias ParameterType = [I.GParameterType?]
+    public typealias DataType = [Result<I.GResultType?, Error>]
+
+    public func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+        return request(parameters: parameters) { (success, data, error) in
+            var result: ResultType
+            if success {
+                result = .success(data)
+            } else if let error = error {
+                result = .failure(error)
+            } else {
+                result = .failure(IgnoreError.default)
+            }
+            completionResult(result)
+        }
+    }
+    
     public struct WrappedError: Error {
-        public var result: [Result<I.GResultType>]
+        public var result: [Result<I.GResultType?, Error>]
         public var errors: [Error] {
             let errorItems = result.compactMap { (item) -> Error? in
                 switch item {
@@ -44,19 +61,19 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
     
     internal class InternalOperation: Operation {
         var workItem: InternalWorkItem
-        var completion: (Result<I.GResultType>) -> Void
+        var completion: (Result<I.GResultType?, Error>) -> Void
         var queue: IntegrationCallQueue
         
         init(workItem: InternalWorkItem,
              queue: IntegrationCallQueue,
-             completion: @escaping (Result<I.GResultType>) -> Void) {
+             completion: @escaping (Result<I.GResultType?, Error>) -> Void) {
             self.workItem = workItem
             self.completion = completion
             self.queue = queue
         }
         
         override func main() {
-            var result: Result<I.GResultType> = Result<I.GResultType>.failure(nil)
+            var result: Result<I.GResultType?, Error> = Result<I.GResultType?, Error>.failure(IgnoreError.default)
             
             guard !isCancelled else {
                 completion(result)
@@ -117,14 +134,14 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
     }
     
     public func request(parameters: [I.GParameterType?]?,
-                        completion: @escaping (Bool, [Result<I.GResultType>]?, Error?) -> Void) -> CancelHandler? {
+                        completion: @escaping (Bool, [Result<I.GResultType?, Error>]?, Error?) -> Void) -> CancelHandler? {
         guard let params = parameters, params.count > 0 else {
             completion(true, nil, nil)
             return nil
         }
         
-        func performCompletion(_ completion: @escaping (Bool, [Result<I.GResultType>]?, Error?) -> Void,
-                               result: [Result<I.GResultType>],
+        func performCompletion(_ completion: @escaping (Bool, [Result<I.GResultType?, Error>]?, Error?) -> Void,
+                               result: [Result<I.GResultType?, Error>],
                                filterType: GroupIntegratingSuccessFilterType) {
             switch filterType {
             case .allSuccess:
@@ -162,7 +179,7 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
             }
         } else {
             let group = DispatchGroup()
-            var results: [Result<I.GResultType>] = []
+            var results: [Result<I.GResultType?, Error>] = []
             let requestQueue = queue
             
             let tasks = workItems.map { (item) -> InternalOperation in

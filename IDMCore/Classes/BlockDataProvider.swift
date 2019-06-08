@@ -10,12 +10,29 @@ import Foundation
 /** BlockDataProvider is a synchronous result data provider which created to be compatible to IDM data flow. */
 
 open class BlockDataProvider<P, D>: DataProviderProtocol {
+    public typealias ParameterType = P
+    public typealias DataType = D
+
     public typealias RequestFunction = (P?) throws -> D?
 
     fileprivate var block: RequestFunction
 
     public init(_ block: @escaping RequestFunction) {
         self.block = block
+    }
+
+    open func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+        return request(parameters: parameters) { success, data, error in
+            var result: ResultType
+            if success {
+                result = .success(data)
+            } else if let error = error {
+                result = .failure(error)
+            } else {
+                result = .failure(IgnoreError.default)
+            }
+            completionResult(result)
+        }
     }
 
     open func request(parameters: P?, completion: @escaping (Bool, D?, Error?) -> Void) -> CancelHandler? {

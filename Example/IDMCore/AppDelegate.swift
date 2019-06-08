@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let vc = ViewController()
         let handler = DedicatedErrorHandler(errorType: XXX.self, viewController: vc)
         handler.handle(error: XXX(message: "DCMVCL"))
-        
+
         return true
     }
 }
@@ -34,7 +34,7 @@ protocol XXXError: Error {
 extension DedicatedErrorHandler where E: XXXError {
     init(errorType: E.Type, viewController: UIViewController?) {
         self.init(errorType: errorType) { [weak viewController] error in
-            print("XXX handled: \(error.message) by \(viewController)")
+            print("XXX handled: \(error.message) by \(String(describing: viewController))")
         }
     }
 }
