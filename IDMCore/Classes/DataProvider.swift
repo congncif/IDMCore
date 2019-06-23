@@ -36,7 +36,7 @@ open class AbstractDataProvider<Parameter, Data>: DataProviderProtocol {
 
     public init() {}
 
-    public func request(parameters: Parameter?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+    open func request(parameters: Parameter?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
         assertionFailure("\(type(of: self)): Abstract method needs an implementation")
         return nil
     }

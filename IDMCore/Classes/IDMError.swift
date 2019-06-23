@@ -24,8 +24,26 @@ public struct ParsingError: LocalizedError {
 public struct IgnoreError: LocalizedError {
     private init() {}
     public static let `default` = IgnoreError()
-    
+
     public var errorDescription: String? {
         return NSLocalizedString("Ignore this error", comment: "")
+    }
+}
+
+public struct NoDataError: LocalizedError {
+    private init() {}
+    public static let `default` = NoDataError()
+
+    public var errorDescription: String? {
+        return NSLocalizedString("No data available", comment: "")
+    }
+}
+
+public struct InterruptedError: LocalizedError {
+    private init() {}
+    public static let `default` = InterruptedError()
+
+    public var errorDescription: String? {
+        return NSLocalizedString("The integration is interrupted", comment: "")
     }
 }

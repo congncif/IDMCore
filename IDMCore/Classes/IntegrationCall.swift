@@ -41,6 +41,7 @@ public enum NextState {
 }
 
 public class IntegrationCall<ModelType> {
+    public typealias ModelHandler = (ModelType) -> ()
     public typealias DataHandler = (ModelType?) -> ()
     public typealias Handler = () -> ()
     public typealias ErrorHandler = (Error) -> ()
@@ -91,11 +92,7 @@ public class IntegrationCall<ModelType> {
 //        #endif
     }
 
-    /*********************************************************************************/
-
     // MARK: - Getters
-
-    /*********************************************************************************/
 
     func handleError(error: Error?) {
         if ignoreUnknownError {
@@ -185,11 +182,7 @@ public class IntegrationCall<ModelType> {
         return doCompletion
     }
 
-    /*********************************************************************************/
-
     // MARK: - Execute
-
-    /*********************************************************************************/
 
     func doCall(_ handler: ((IntegrationCall<ModelType>) -> ())?) {
         doCall = handler
@@ -202,11 +195,27 @@ public class IntegrationCall<ModelType> {
 
     public func onSuccess(_ handler: DataHandler?) -> Self {
         doSuccess = { [weak self] result in
-            guard let self = self else {
-                return
-            }
+            guard let self = self else { return }
+
             self.retryErrorBlock = nil
             self.retryBlock = nil
+
+            handler?(result)
+        }
+        return self
+    }
+
+    public func onSuccessEnsured(_ handler: ModelHandler?) -> Self {
+        doSuccess = { [weak self] result in
+            guard let self = self else { return }
+            guard let result = result else {
+                self.onError?(NoDataError.default)
+                return
+            }
+
+            self.retryErrorBlock = nil
+            self.retryBlock = nil
+
             handler?(result)
         }
         return self
@@ -242,11 +251,7 @@ public class IntegrationCall<ModelType> {
         requiredCall.next(state: state, integrationCall: self).call(queue: queue, delay: delay)
     }
 
-    /*********************************************************************************/
-
     // MARK: - Retry
-
-    /*********************************************************************************/
 
     /**
      * Set up options to retry if the call fatal error
@@ -336,11 +341,7 @@ public class IntegrationCall<ModelType> {
         return self
     }
 
-    /*********************************************************************************/
-
     // MARK: - Advance Next
-
-    /*********************************************************************************/
 
     public func next<Result>(state: NextState = .completion, integrationCall: IntegrationCall<Result>) -> Self {
         let queue = callQueue
@@ -564,11 +565,7 @@ public class IntegrationCall<ModelType> {
         return self
     }
 
-    /*********************************************************************************/
-
     // MARK: - Manually next
-
-    /*********************************************************************************/
 
     public func nextSuccessTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
                                                  parametersBuilder: ((ModelType?) -> Parameter?)? = nil,
@@ -653,11 +650,7 @@ public class IntegrationCall<ModelType> {
         return self
     }
 
-    /*********************************************************************************/
-
     // MARK: - ThenRecall
-
-    /*********************************************************************************/
 
     @discardableResult
     public func thenRecall<DataProvider, Model>(with integrator: Integrator<DataProvider, Model, ModelType>,
