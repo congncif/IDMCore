@@ -384,7 +384,7 @@ public class IntegrationCall<ModelType> {
         return integrationCall
     }
 
-    public func next(state: NextState = .completion, nextBlock: ((Result<ModelType?, Error>?) -> ())? = nil) -> Self {
+    public func next(state: NextState = .completion, nextBlock: ((SimpleResult<ModelType?>?) -> ())? = nil) -> Self {
         switch state {
         case .success:
             let success = doSuccess
@@ -413,8 +413,8 @@ public class IntegrationCall<ModelType> {
 
     public func nextTo<Parameter, ResultType>(state: NextState = .completion,
                                               integrator: AbstractIntegrator<Parameter, ResultType>,
-                                              parametersBuilder: ((Result<ModelType?, Error>?) -> Parameter?)? = nil,
-                                              configuration: ((IntegrationCall<ResultType>, Result<ModelType?, Error>?) -> ())? = nil) -> Self {
+                                              parametersBuilder: ((SimpleResult<ModelType?>?) -> Parameter?)? = nil,
+                                              configuration: ((IntegrationCall<ResultType>, SimpleResult<ModelType?>?) -> ())? = nil) -> Self {
         let queue = callQueue
         let delay = callDelay
         switch state {
@@ -422,7 +422,7 @@ public class IntegrationCall<ModelType> {
             let success = doSuccess
             doSuccess = { result in
                 success?(result)
-                let wrapped = Result<ModelType?, Error>.success(result)
+                let wrapped = SimpleResult<ModelType?>.success(result)
                 let parameters = parametersBuilder?(wrapped)
                 let integrationCall = integrator.prepareCall(parameters: parameters)
                 configuration?(integrationCall, Result.success(result))
@@ -433,7 +433,7 @@ public class IntegrationCall<ModelType> {
             let block = doError
             doError = { error in
                 block?(error)
-                let wrapped = Result<ModelType?, Error>.failure(error ?? IgnoreError.default)
+                let wrapped = SimpleResult<ModelType?>.failure(error ?? IgnoreError.default)
                 let parameters = parametersBuilder?(wrapped)
                 let integrationCall = integrator.prepareCall(parameters: parameters)
                 configuration?(integrationCall, .failure(error ?? IgnoreError.default))
@@ -456,7 +456,7 @@ public class IntegrationCall<ModelType> {
 
     public func transformNextTo<Parameter, ResultType>(state: NextState = .completion,
                                                        integrator: AbstractIntegrator<Parameter, ResultType>,
-                                                       parametersBuilder: ((Result<ModelType?, Error>?) -> Parameter?)? = nil) -> IntegrationCall<ResultType> {
+                                                       parametersBuilder: ((SimpleResult<ModelType?>?) -> Parameter?)? = nil) -> IntegrationCall<ResultType> {
         let queue = callQueue
         let delay = callDelay
         switch state {
@@ -465,7 +465,7 @@ public class IntegrationCall<ModelType> {
             var fireCall = integrator.prepareCall()
             doSuccess = { result in
                 success?(result)
-                let wrapped = Result<ModelType?, Error>.success(result)
+                let wrapped = SimpleResult<ModelType?>.success(result)
                 let parameters = parametersBuilder?(wrapped)
                 let newCall = integrator.prepareCall(parameters: parameters)
 
@@ -485,7 +485,7 @@ public class IntegrationCall<ModelType> {
             var fireCall = integrator.prepareCall()
             doError = { error in
                 block?(error)
-                let wrapped = Result<ModelType?, Error>.failure(error ?? IgnoreError.default)
+                let wrapped = SimpleResult<ModelType?>.failure(error ?? IgnoreError.default)
                 let parameters = parametersBuilder?(wrapped)
                 let newCall = integrator.prepareCall(parameters: parameters)
 

@@ -45,7 +45,7 @@ public class GroupIntegrationCall<R1, R2> {
         self.call2 = call2
     }
     
-    public func call(queue: IntegrationCallQueue = .serial, delay: Double = 0, completion: (((Result<R1?, Error>, Result<R2?, Error>)) -> Void)? = nil) {
+    public func call(queue: IntegrationCallQueue = .serial, delay: Double = 0, completion: (((SimpleResult<R1?>, SimpleResult<R2?>)) -> Void)? = nil) {
         IntegrationBatchCall().call(self, queue: queue, delay: delay, completion: completion)
     }
 }
@@ -70,7 +70,7 @@ public class Group3IntegrationCall<R1, R2, R3> {
         self.call3 = call3
     }
     
-    public func call(queue: IntegrationCallQueue = .serial, delay: Double = 0, completion: (((Result<R1?, Error>, Result<R2?, Error>, Result<R3?, Error>)) -> Void)? = nil) {
+    public func call(queue: IntegrationCallQueue = .serial, delay: Double = 0, completion: (((SimpleResult<R1?>, SimpleResult<R2?>, SimpleResult<R3?>)) -> Void)? = nil) {
         IntegrationBatchCall().call(self, queue: queue, delay: delay, completion: completion)
     }
 }

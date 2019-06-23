@@ -39,7 +39,7 @@ public protocol DataProviderProtocol {
 //    @discardableResult
 //    func request(parameters: ParameterType?, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler?
 
-    typealias ResultType = Swift.Result<DataType?, Error>
+    typealias ResultType = SimpleResult<DataType?>
 
     @discardableResult
     func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler?

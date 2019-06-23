@@ -48,7 +48,7 @@ public typealias AnyAnyDataProvider = AbstractDataProvider<Any, Any>
 // -------------------------------------------------------------------------
 
 open class DataProvider<ParameterType, ValueType>: AbstractDataProvider<ParameterType, ValueType> {
-    public typealias ValueResult = Swift.Result<ValueType?, Error>
+    public typealias ValueResult = SimpleResult<ValueType?>
     public typealias ValueFactory = (ParameterType?) -> ValueResult
 
     private var valueFactory: ValueFactory
@@ -57,8 +57,8 @@ open class DataProvider<ParameterType, ValueType>: AbstractDataProvider<Paramete
         self.valueFactory = valueFactory
     }
 
-    open override func request(parameters: ParameterType?, completionResult: @escaping (Swift.Result<ValueType?, Error>) -> Void) -> CancelHandler? {
-        request(parameters: parameters) { success, data, error in
+    open override func request(parameters: ParameterType?, completionResult: @escaping (ValueResult) -> Void) -> CancelHandler? {
+        return request(parameters: parameters) { success, data, error in
             if success {
                 completionResult(.success(data))
             } else if let error = error {

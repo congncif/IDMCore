@@ -53,7 +53,7 @@ public func >><< <A, B, C, D, E: DataProviderProtocol>(left: Group4DataProvider<
 //////////////////////////////////////////////////////////////////////////////////////
 
 extension DataProviderProtocol {
-    typealias SubResultType<S: DataProviderProtocol> = Swift.Result<S.DataType?, Error>
+    typealias SubResultType<S: DataProviderProtocol> = SimpleResult<S.DataType?>
 
     func requestSubItem<S: DataProviderProtocol>(sub: S,
                                                  grouptasks: DispatchGroup,

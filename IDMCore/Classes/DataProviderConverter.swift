@@ -32,7 +32,7 @@ open class IntegratingDataProvider<I: IntegratorProtocol>: DataProviderProtocol 
         queue = requestQueue
     }
 
-    public typealias GResultType = Swift.Result<I.GResultType?, Error>
+    public typealias GResultType = SimpleResult<I.GResultType?>
 
     public func request(parameters: I.GParameterType?, completionResult: @escaping (GResultType) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
