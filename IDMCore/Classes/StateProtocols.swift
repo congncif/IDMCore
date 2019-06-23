@@ -41,9 +41,9 @@ public protocol ProgressModelProtocol: DelayingCompletionProtocol {
 }
 
 public protocol ProgressDataModelProtocol: ProgressModelProtocol {
-    associatedtype D
+    associatedtype DataModel
 
-    var data: D? { get set }
+    var data: DataModel? { get set }
 }
 
 open class AbstractDataProcessor<ModelType>: DataProcessingProtocol {
