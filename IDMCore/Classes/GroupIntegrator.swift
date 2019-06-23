@@ -25,7 +25,7 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
             } else if let error = error {
                 result = .failure(error)
             } else {
-                result = .failure(IgnoreError.default)
+                result = .failure(UnknownError.default)
             }
             completionResult(result)
         }
@@ -74,7 +74,7 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
         }
 
         override func main() {
-            var result: Element = .failure(IgnoreError.default)
+            var result: Element = .failure(UnknownError.default)
 
             guard !isCancelled else {
                 completion(result)

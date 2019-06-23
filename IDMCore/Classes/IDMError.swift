@@ -30,6 +30,15 @@ public struct IgnoreError: LocalizedError {
     }
 }
 
+public struct UnknownError: LocalizedError {
+    private init() {}
+    public static let `default` = UnknownError()
+
+    public var errorDescription: String? {
+        return NSLocalizedString("Unknown error", comment: "Error null")
+    }
+}
+
 public struct NoDataError: LocalizedError {
     private init() {}
     public static let `default` = NoDataError()

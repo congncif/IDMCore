@@ -95,6 +95,11 @@ public class IntegrationCall<ModelType> {
     // MARK: - Getters
 
     func handleError(error: Error?) {
+        // Default ignore
+        if let _ = error as? IgnoreError {
+            return
+        }
+
         if ignoreUnknownError {
             if error == nil {
                 retryErrorBlock = nil
@@ -103,8 +108,7 @@ public class IntegrationCall<ModelType> {
                 return
             }
 
-            // Default ignore
-            if let _ = error as? IgnoreError {
+            if let _ = error as? UnknownError {
                 return
             }
         }
@@ -268,7 +272,7 @@ public class IntegrationCall<ModelType> {
         retryDelay = delay
         if let condition = condition {
             retryCondition = {
-                condition($0 ?? IgnoreError.default)
+                condition($0 ?? UnknownError.default)
             }
         }
         return self
@@ -414,7 +418,7 @@ public class IntegrationCall<ModelType> {
             let block = doError
             doError = { error in
                 block?(error)
-                nextBlock?(Result.failure(error ?? IgnoreError.default))
+                nextBlock?(Result.failure(error ?? UnknownError.default))
             }
 
         case .completion:
@@ -450,10 +454,10 @@ public class IntegrationCall<ModelType> {
             let block = doError
             doError = { error in
                 block?(error)
-                let wrapped = SimpleResult<ModelType?>.failure(error ?? IgnoreError.default)
+                let wrapped = SimpleResult<ModelType?>.failure(error ?? UnknownError.default)
                 let parameters = parametersBuilder?(wrapped)
                 let integrationCall = integrator.prepareCall(parameters: parameters)
-                configuration?(integrationCall, .failure(error ?? IgnoreError.default))
+                configuration?(integrationCall, .failure(error ?? UnknownError.default))
                 integrationCall.call(queue: queue, delay: delay)
             }
 
@@ -502,7 +506,7 @@ public class IntegrationCall<ModelType> {
             var fireCall = integrator.prepareCall()
             doError = { error in
                 block?(error)
-                let wrapped = SimpleResult<ModelType?>.failure(error ?? IgnoreError.default)
+                let wrapped = SimpleResult<ModelType?>.failure(error ?? UnknownError.default)
                 let parameters = parametersBuilder?(wrapped)
                 let newCall = integrator.prepareCall(parameters: parameters)
 

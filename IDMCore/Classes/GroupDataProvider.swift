@@ -153,7 +153,7 @@ public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvid
             } else if let error = error {
                 result = .failure(error)
             } else {
-                result = .failure(IgnoreError.default)
+                result = .failure(UnknownError.default)
             }
             completionResult(result)
         }
@@ -221,7 +221,7 @@ public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
             } else if let error = error {
                 result = .failure(error)
             } else {
-                result = .failure(IgnoreError.default)
+                result = .failure(UnknownError.default)
             }
             completionResult(result)
         }
@@ -250,7 +250,7 @@ public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
             } else if let error = error {
                 result = .failure(error)
             } else {
-                result = .failure(IgnoreError.default)
+                result = .failure(UnknownError.default)
             }
             completionResult(result)
         }
@@ -322,7 +322,7 @@ public class Group5DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
             } else if let error = error {
                 result = .failure(error)
             } else {
-                result = .failure(IgnoreError.default)
+                result = .failure(UnknownError.default)
             }
             completionResult(result)
         }

@@ -64,7 +64,7 @@ open class DataProvider<ParameterType, ValueType>: AbstractDataProvider<Paramete
             } else if let error = error {
                 completionResult(.failure(error))
             } else {
-                completionResult(.failure(IgnoreError.default))
+                completionResult(.failure(UnknownError.default))
             }
         }
     }

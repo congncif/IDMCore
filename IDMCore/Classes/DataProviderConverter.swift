@@ -42,7 +42,7 @@ open class IntegratingDataProvider<I: IntegratorProtocol>: DataProviderProtocol 
             } else if let error = error {
                 result = .failure(error)
             } else {
-                result = .failure(IgnoreError.default)
+                result = .failure(UnknownError.default)
             }
             completionResult(result)
         }
@@ -98,7 +98,7 @@ open class ConvertDataProvider<P1, P2>: DataProviderProtocol {
             } else if let error = error {
                 result = .failure(error)
             } else {
-                result = .failure(IgnoreError.default)
+                result = .failure(UnknownError.default)
             }
             completionResult(result)
         }
