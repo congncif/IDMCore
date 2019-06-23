@@ -41,11 +41,20 @@ public enum NextState {
 }
 
 public class IntegrationCall<ModelType> {
-    fileprivate var doBeginning: (() -> ())?
-    fileprivate var doSuccess: ((ModelType?) -> ())?
-    fileprivate var doProgress: ((ModelType?) -> ())?
-    fileprivate var doError: ((Error?) -> ())?
-    fileprivate var doCompletion: (() -> ())?
+    public typealias DataHandler = (ModelType?) -> ()
+    public typealias Handler = () -> ()
+    public typealias ErrorHandler = (Error) -> ()
+    public typealias ErrorCondition = (Error) -> Bool
+    public typealias ResultHandler = (SimpleResult<ModelType?>) -> ()
+
+    typealias InternalErrorHandler = (Error?) -> ()
+    typealias InternalErrorCondition = (Error?) -> Bool
+
+    fileprivate var doBeginning: Handler?
+    fileprivate var doSuccess: DataHandler?
+    fileprivate var doProgress: DataHandler?
+    fileprivate var doError: InternalErrorHandler?
+    fileprivate var doCompletion: Handler?
     fileprivate var doCall: ((IntegrationCall<ModelType>) -> ())?
 
     public fileprivate(set) var idenitifier: String
@@ -56,10 +65,10 @@ public class IntegrationCall<ModelType> {
     fileprivate(set) var retryCount: Int = 0
     fileprivate(set) var retryDelay: TimeInterval = 0
     fileprivate(set) var silentRetry: Bool = true
-    fileprivate(set) var retryCondition: ((Error?) -> Bool)?
+    fileprivate(set) var retryCondition: InternalErrorCondition?
 
-    internal var retryErrorBlock: ((Error?) -> ())? // retryErrorBlock is higher priority than retryBlock
-    internal var retryBlock: (() -> ())?
+    internal var retryErrorBlock: InternalErrorHandler? // retryErrorBlock is higher priority than retryBlock
+    internal var retryBlock: Handler?
 
     fileprivate(set) var callQueue: IntegrationCallQueue = .serial
     fileprivate(set) var callDelay: Double = 0
@@ -160,19 +169,19 @@ public class IntegrationCall<ModelType> {
         }
     }
 
-    var onError: ((Error?) -> ())? {
+    var onError: InternalErrorHandler? {
         return doError
     }
 
-    var onBeginning: (() -> ())? {
+    var onBeginning: Handler? {
         return doBeginning
     }
 
-    var onSuccess: ((ModelType?) -> ())? {
+    var onSuccess: DataHandler? {
         return doSuccess
     }
 
-    var onCompletion: (() -> ())? {
+    var onCompletion: Handler? {
         return doCompletion
     }
 
@@ -186,12 +195,12 @@ public class IntegrationCall<ModelType> {
         doCall = handler
     }
 
-    public func onBeginning(_ handler: (() -> ())?) -> Self {
+    public func onBeginning(_ handler: Handler?) -> Self {
         doBeginning = handler
         return self
     }
 
-    public func onSuccess(_ handler: ((ModelType?) -> ())?) -> Self {
+    public func onSuccess(_ handler: DataHandler?) -> Self {
         doSuccess = { [weak self] result in
             guard let self = self else {
                 return
@@ -203,12 +212,15 @@ public class IntegrationCall<ModelType> {
         return self
     }
 
-    public func onError(_ handler: ((Error?) -> ())?) -> Self {
-        doError = handler
+    public func onError(_ handler: ErrorHandler?) -> Self {
+        doError = {
+            let err = $0 ?? IgnoreError.default
+            handler?(err)
+        }
         return self
     }
 
-    public func onCompletion(_ handler: (() -> ())?) -> Self {
+    public func onCompletion(_ handler: Handler?) -> Self {
         doCompletion = handler
         return self
     }
@@ -245,11 +257,15 @@ public class IntegrationCall<ModelType> {
     public func retry(_ count: Int,
                       delay: TimeInterval = 0.3,
                       silent: Bool = true,
-                      condition: ((Error?) -> Bool)? = nil) -> Self {
+                      condition: ErrorCondition? = nil) -> Self {
         retryCount = count
         silentRetry = silent
         retryDelay = delay
-        retryCondition = condition
+        if let condition = condition {
+            retryCondition = {
+                condition($0 ?? IgnoreError.default)
+            }
+        }
         return self
     }
 
@@ -315,7 +331,7 @@ public class IntegrationCall<ModelType> {
         return self
     }
 
-    public func ignoreErrors(_ ignoredErrors: @escaping (Error) -> Bool) -> Self {
+    public func ignoreErrors(_ ignoredErrors: @escaping ErrorCondition) -> Self {
         self.ignoredErrors = ignoredErrors
         return self
     }

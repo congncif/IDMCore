@@ -36,24 +36,8 @@ public protocol DataProviderProtocol {
     associatedtype ParameterType
     associatedtype DataType
 
-//    @discardableResult
-//    func request(parameters: ParameterType?, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler?
-
     typealias ResultType = SimpleResult<DataType?>
 
     @discardableResult
     func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler?
-}
-
-extension DataProviderProtocol {
-//    public func request(parameters: ParameterType?, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
-//        self.request(parameters: parameters) { result in
-//            switch result {
-//            case .success(let data):
-//                completion(true, data, nil)
-//            case .failure(let error):
-//                completion(false, nil, error)
-//            }
-//        }
-//    }
 }
