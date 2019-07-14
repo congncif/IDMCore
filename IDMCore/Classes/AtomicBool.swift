@@ -8,9 +8,9 @@
 import Foundation
 
 public class AtomicBool {
-    fileprivate var queue = DispatchQueue.idmConcurrent
+    fileprivate var queue: DispatchQueue
 
-    public init(queue: DispatchQueue = DispatchQueue.idmConcurrent) {
+    public init(queue: DispatchQueue = DispatchQueue.concurrent) {
         self.queue = queue
     }
 

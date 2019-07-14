@@ -331,8 +331,8 @@ public class IntegrationCall<ModelType> {
     }
 
     /**
-     * Set ignoreUnknownError to ignore unknown errors, this will prevent to display unexpected error messages
-     * Eg: cancel action will set error = nil
+     * Set `ignoreUnknownError` to ignore unknown errors, this will prevent to display unexpected error messages.
+     * Eg: Cancel action will set `error = nil` or explicit `UnknownError`.
      */
 
     public func ignoreUnknownError(_ ignoreUnknownError: Bool = true) -> Self {

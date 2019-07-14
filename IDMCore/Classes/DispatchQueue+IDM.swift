@@ -10,8 +10,8 @@ import Foundation
 extension DispatchQueue {
     public static let running = DispatchQueue(label: "com.if.idmcore.running", attributes: .concurrent)
     public static let momentum = DispatchQueue(label: "com.if.idmcore.momentum", attributes: .concurrent)
-    public static let idmConcurrent = DispatchQueue(label: "com.if.idmcore.concurrent", attributes: .concurrent)
-    public static let idmSerial = DispatchQueue(label: "com.if.idmcore.serial")
+    public static let concurrent = DispatchQueue(label: "com.if.idmcore.concurrent", attributes: .concurrent)
+    public static let serial = DispatchQueue(label: "com.if.idmcore.serial")
 }
 
 public enum IntegrationCallQueue {
@@ -23,7 +23,7 @@ public enum IntegrationCallQueue {
         case .main:
             return DispatchQueue.main
         default:
-            return DispatchQueue.idmSerial
+            return DispatchQueue.serial
         }
     }
 }

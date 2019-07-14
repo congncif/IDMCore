@@ -63,6 +63,8 @@ class ViewController: UIViewController {
 
     //    let integrator2 = AmazingIntegrator(dataProvider: DataProvider1() >><< DataProvider2())
 
+    let debouncer = DispatchDebouncer(queue: .serial)
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -128,6 +130,10 @@ class ViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        debouncer.call(delay: 1) {
+            print("🍾🍾🍾🍾🍾🍾🍾🍾🍾")
+        }
+
 //        loadData()
 
 //        service.prepareCall().onSuccess { res in
@@ -210,6 +216,6 @@ class ViewController: UIViewController {
     }
 
     deinit {
-        print("Deinit --> // >")
+        print("😍😍😍 Deinit executed. No Memory Leak issue 🤗")
     }
 }
