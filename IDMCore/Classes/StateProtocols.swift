@@ -24,7 +24,7 @@ public protocol ErrorHandlingProtocol {
 
 public protocol DataProcessingProtocol {
     associatedtype ModelType
-    func process(data: ModelType?)
+    func process(data: ModelType)
 }
 
 public protocol ProgressTrackingProtocol {

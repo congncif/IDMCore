@@ -347,13 +347,13 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
     }
 
     @discardableResult
-    public func onSuccess(_ handler: ((ResultType?) -> Void)?) -> Self {
+    public func onSuccess(_ handler: ((ResultType) -> Void)?) -> Self {
         _ = defaultCall.onSuccess(handler)
         return self
     }
 
     @discardableResult
-    public func onError(_ handler: ((Error?) -> Void)?) -> Self {
+    public func onError(_ handler: ((Error) -> Void)?) -> Self {
         _ = defaultCall.onError(handler)
         return self
     }

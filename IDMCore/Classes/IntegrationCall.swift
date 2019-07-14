@@ -100,17 +100,14 @@ public class IntegrationCall<ModelType> {
             return
         }
 
-        if ignoreUnknownError {
-            if error == nil {
-                retryErrorBlock = nil
-                retryBlock = nil
-//                print("*** an error nil was ignored ***")
-                return
-            }
+        if error == nil {
+            retryErrorBlock = nil
+            retryBlock = nil
+            return
+        }
 
-            if let _ = error as? UnknownError {
-                return
-            }
+        if let _ = error as? UnknownError, ignoreUnknownError {
+            return
         }
 
         if let error = error, let ignoredErrors = self.ignoredErrors {
@@ -197,6 +194,8 @@ public class IntegrationCall<ModelType> {
         return self
     }
 
+    /* Response data should not be Optional
+
     public func onSuccess(_ handler: DataHandler?) -> Self {
         doSuccess = { [weak self] result in
             guard let self = self else { return }
@@ -208,8 +207,9 @@ public class IntegrationCall<ModelType> {
         }
         return self
     }
-
-    public func onSuccessEnsured(_ handler: ModelHandler?) -> Self {
+     */
+    
+    public func onSuccess(_ handler: ModelHandler?) -> Self {
         doSuccess = { [weak self] result in
             guard let self = self else { return }
             guard let result = result else {
