@@ -66,7 +66,7 @@ public struct ErrorHandlingProxy: ErrorHandlingProtocol {
         return Array(handlersDict.values).sorted { $0.priority > $1.priority }
     }
 
-    public func handle(error: Error?) {
+    public func handle(error: Error) {
         let handlersInfo = sortedHandlersInfo
 
         for info in handlersInfo {

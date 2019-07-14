@@ -19,7 +19,7 @@ public protocol ProgressLoadingProtocol {
 }
 
 public protocol ErrorHandlingProtocol {
-    func handle(error: Error?)
+    func handle(error: Error)
 }
 
 public protocol DataProcessingProtocol {
@@ -133,13 +133,13 @@ extension ProgressLoadingHandler {
 }
 
 public struct ErrorHandler: ErrorHandlingProtocol {
-    private let handler: (Error?) -> Void
+    private let handler: (Error) -> Void
 
-    public init(handler: @escaping (Error?) -> Void) {
+    public init(handler: @escaping (Error) -> Void) {
         self.handler = handler
     }
 
-    public func handle(error: Error?) {
+    public func handle(error: Error) {
         handler(error)
     }
 }

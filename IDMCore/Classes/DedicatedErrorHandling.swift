@@ -13,7 +13,7 @@ public protocol DedicatedErrorHandlingProtocol {
 }
 
 extension ErrorHandlingProtocol where Self: DedicatedErrorHandlingProtocol {
-    public func handle(error: Error?) {
+    public func handle(error: Error) {
         guard let dedicatedError = error as? ErrorType else { return }
         handleDedicatedError(dedicatedError)
     }
