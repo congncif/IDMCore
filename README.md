@@ -44,9 +44,9 @@
 github "congncif/IDMCore"
 ```
 
-* **IDMFoundation**(https://github.com/congncif/IDMFoundation) with default implementation `IDMCore` with `Alamofire` and `ObjectMapper` will help you create an IDM flow easily.
+* [**IDMFoundation**](https://github.com/congncif/IDMFoundation) with default implementation `IDMCore` with `Alamofire` and `ObjectMapper` will help you create an IDM flow easily.
 
-* **ModuleX**(https://github.com/congncif/ModuleX) with modularization mindset will help you create a clean architecture of mobile app.
+* [**ModuleX**](https://github.com/congncif/ModuleX) with modularization mindset will help you create a clean architecture of mobile app.
 
 ### Tools
 
@@ -65,11 +65,11 @@ You can use below templates to quickly create an `IDM data flow` or `ModuleX mod
 
 **IDMFoundation**🐴 together with **ViewStateCore**🐥 and **ModuleX**🐶 will make your application to ***absolute control***. 💪💪💪
 
-https://github.com/congncif/IDMFoundation
+[IDMFoundation](https://github.com/congncif/IDMFoundation)
 
-https://github.com/congncif/ViewStateCore
+[ViewStateCore](https://github.com/congncif/ViewStateCore)
 
-https://github.com/congncif/ModuleX
+[ModuleX](https://github.com/congncif/ModuleX)
 
 ### Thank you for reading!
 
