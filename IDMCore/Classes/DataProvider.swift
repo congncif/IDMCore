@@ -42,6 +42,24 @@ open class AbstractDataProvider<Parameter, Data>: DataProviderProtocol {
     }
 }
 
+open class AdapterDataProvider<Provider, Parameter, Data>: AbstractDataProvider<Parameter, Data> where Provider: DataProviderProtocol, Provider.ParameterType == Parameter, Provider.DataType == Data {
+    private let provider: Provider
+
+    public init(provider: Provider) {
+        self.provider = provider
+    }
+
+    open override func request(parameters: Parameter?, completionResult: @escaping (Result<Data?, Error>) -> Void) -> CancelHandler? {
+        return provider.request(parameters: parameters, completionResult: completionResult)
+    }
+}
+
+extension DataProviderProtocol {
+    public var abstractedProvider: AbstractDataProvider<ParameterType, DataType> {
+        AdapterDataProvider(provider: self)
+    }
+}
+
 public typealias AnyResultDataProvider<ParameterType> = AbstractDataProvider<ParameterType, Any>
 public typealias AnyAnyDataProvider = AbstractDataProvider<Any, Any>
 
