@@ -194,9 +194,7 @@ public class IntegrationCall<ModelType> {
         return self
     }
 
-    /* Response data should not be Optional
-
-    public func onSuccess(_ handler: DataHandler?) -> Self {
+    public func onEmptyableSuccess(_ handler: DataHandler?) -> Self {
         doSuccess = { [weak self] result in
             guard let self = self else { return }
 
@@ -207,8 +205,7 @@ public class IntegrationCall<ModelType> {
         }
         return self
     }
-     */
-    
+
     public func onSuccess(_ handler: ModelHandler?) -> Self {
         doSuccess = { [weak self] result in
             guard let self = self else { return }
