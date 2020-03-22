@@ -103,11 +103,94 @@ extension DataProviderProtocol {
      Create a data provider which will attach `provider` to this provider.
 
      - Parameter provider: The provider will be attached.
-     - Precondition: `provider` must be same input & output types.
+     - Precondition: `provider` must be same input & output types with `self.
      */
 
-    public func attached<Provider>(provider: Provider) -> AbstractDataProvider<ParameterType, DataType> where Provider: DataProviderProtocol, Provider.ParameterType == ParameterType, Provider.DataType == DataType {
+    public func attached<Provider>(provider: Provider) -> AbstractDataProvider<ParameterType, DataType>
+        where Provider: DataProviderProtocol, Provider.ParameterType == ParameterType, Provider.DataType == DataType {
         AttachableDataProvider(provider: self, attachedProvider: provider)
+    }
+}
+
+// MARK: - Merge Data Provider
+
+/**
+ * Merge two data providers, this might call completion twice if succeed.
+ * Useful for Cache Loader or two services have same data processing.
+ */
+open class MergeDataProvider<Provider1, Provider2, Parameter, Data>: AbstractDataProvider<Parameter, Data>
+    where
+    Provider1: DataProviderProtocol, Provider1.ParameterType == Parameter, Provider1.DataType == Data,
+    Provider2: DataProviderProtocol, Provider2.ParameterType == Parameter, Provider2.DataType == Data {
+    private let provider: Provider1
+    private let otherProvider: Provider2
+    private let completionCondition: ((Data?) -> Bool)?
+
+    /**
+     Create a data provider which will merge the first provider with another provider.
+
+     - Parameter provider: The first provider.
+     - Parameter otherProvider: The provider which will be merged.
+     - Parameter constraintTheFirstCompletionBy: The condtion to the first provider completed. Return `false` if the first provider won't complete if its data is invalid by the condition.
+     - Precondition: Both providers have same input and output types.
+     */
+
+    public init(provider: Provider1,
+                otherProvider: Provider2,
+                constraintTheFirstCompletionBy completionCondition: ((Data?) -> Bool)? = nil) {
+        self.provider = provider
+        self.otherProvider = otherProvider
+        self.completionCondition = completionCondition
+    }
+
+    open override func request(parameters: Parameter?,
+                               completionResult: @escaping (Result<Data?, Error>) -> Void) -> CancelHandler? {
+        if let condition = completionCondition {
+            let cancelable1 = provider.request(parameters: parameters, completionResult: { result in
+                switch result {
+                case let .success(data):
+                    if condition(data) {
+                        completionResult(.success(data))
+                    } else {
+                        // Skip completion
+                    }
+                case let .failure(error):
+                    completionResult(.failure(error))
+                }
+            })
+            let cancelable2 = otherProvider.request(parameters: parameters, completionResult: completionResult)
+
+            return {
+                cancelable1?()
+                cancelable2?()
+            }
+        } else {
+            let cancelable1 = provider.request(parameters: parameters, completionResult: completionResult)
+            let cancelable2 = otherProvider.request(parameters: parameters, completionResult: completionResult)
+
+            return {
+                cancelable1?()
+                cancelable2?()
+            }
+        }
+    }
+}
+
+extension DataProviderProtocol {
+    /**
+     Create a merged data provider.
+
+     - Parameter provider: The provider will be merged.
+     - Parameter completionCondition: The condition for `self` completionResult. `self` won't complete if result data is invalid by the condition.
+     - Precondition: `provider` must be same input & output types with `self`.
+     */
+
+    public func merged<Provider>(provider: Provider,
+                                 completionCondition: ((DataType?) -> Bool)? = nil) -> AbstractDataProvider<ParameterType, DataType>
+        where Provider: DataProviderProtocol, Provider.ParameterType == ParameterType, Provider.DataType == DataType {
+        MergeDataProvider(provider: self,
+                          otherProvider: provider,
+                          constraintTheFirstCompletionBy: completionCondition)
     }
 }
 
@@ -148,9 +231,9 @@ open class DataProvider<ParameterType, ValueType>: AbstractDataProvider<Paramete
     private func request(parameters: ParameterType?,
                          completion: @escaping (Bool, ValueType?, Error?) -> Void) -> CancelHandler? {
         switch valueFactory(parameters) {
-        case .success(let data):
+        case let .success(data):
             completion(true, data, nil)
-        case .failure(let error):
+        case let .failure(error):
             completion(false, nil, error)
         }
         return nil
