@@ -102,10 +102,10 @@ public struct ErrorHandlingProxy: ErrorHandlingProtocol {
     }
 }
 
-extension ErrorHandlingProxy {
-    public typealias DedicatedCondition<T> = (T) -> Bool
+public extension ErrorHandlingProxy {
+    typealias DedicatedCondition<T> = (T) -> Bool
 
-    public mutating func addDedicatedHandler<E>(
+    mutating func addDedicatedHandler<E>(
         _ handler: DedicatedErrorHandler<E>,
         priority: HandlingPriority = .default,
         where condition: DedicatedCondition<E>? = nil
@@ -122,5 +122,27 @@ extension ErrorHandlingProxy {
         let info = HandlerInfo(handler: handler, condition: wrappedCondition, priority: priority.value)
         let key = info.identifier
         handlersDict[key] = info
+    }
+}
+
+// MARK: - CompoundErrorHandling
+
+public protocol CompoundErrorHandling {
+    var errorHandlingProxy: ErrorHandlingProxy { get set }
+}
+
+public extension CompoundErrorHandling {
+    mutating func add(errorHandler: ErrorHandlingProtocol,
+                      priority: ErrorHandlingProxy.HandlingPriority = .default,
+                      where condition: ((Error?) -> Bool)? = nil)
+    {
+        errorHandlingProxy.addHandler(errorHandler, priority: priority, where: condition)
+    }
+
+    mutating func add<ErrorType>(dedicatedErrorHandler handler: DedicatedErrorHandler<ErrorType>,
+                                 priority: ErrorHandlingProxy.HandlingPriority = .default,
+                                 where condition: ((ErrorType) -> Bool)? = nil)
+    {
+        errorHandlingProxy.addDedicatedHandler(handler, priority: priority, where: condition)
     }
 }
