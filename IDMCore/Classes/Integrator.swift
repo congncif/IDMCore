@@ -53,6 +53,12 @@ open class AbstractIntegrator<Parameter, Result>: IntegratorProtocol, Equatable 
     }
 }
 
+extension AbstractIntegrator where Parameter == Void {
+    public func prepareCall() -> IntegrationCall<Result> {
+        prepareCall(parameters: ())
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 class IntegrationInfo<ModelType, ParameterType>: NSObject {
     var parameters: ParameterType

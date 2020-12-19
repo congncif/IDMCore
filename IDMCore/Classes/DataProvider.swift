@@ -200,7 +200,7 @@ extension DataProviderProtocol {
  * `DataProvider` enables to quick initialize from a value closure.
  */
 
-open class DataProvider<ParameterType, ValueType>: AbstractDataProvider<ParameterType, ValueType> {
+open class ValueDataProvider<ParameterType, ValueType>: AbstractDataProvider<ParameterType, ValueType> {
     public typealias ValueResult = SimpleResult<ValueType?>
     public typealias ValueFactory = (ParameterType?) -> ValueResult
 
@@ -240,7 +240,7 @@ open class DataProvider<ParameterType, ValueType>: AbstractDataProvider<Paramete
     }
 }
 
-extension DataProvider where ParameterType == Any {
+extension ValueDataProvider where ParameterType == Any {
     // flashFactory is a shortcut of valueFactory with no explicit parameters
     public convenience init(flashFactory: @escaping () -> ValueResult) {
         let _valueFactory: ValueFactory = { _ in flashFactory() }
@@ -251,8 +251,7 @@ extension DataProvider where ParameterType == Any {
 // Some pre-defined providers
 
 public typealias AnyResultDataProvider<ParameterType> = AbstractDataProvider<ParameterType, Any>
-public typealias AnyAnyDataProvider = AbstractDataProvider<Any, Any>
+public typealias AnyDataProvider = AnyResultDataProvider<Void>
 
-public typealias ValueDataProvider<ValueType> = DataProvider<Any, ValueType>
-public typealias AnyValueDataProvider<ParameterType> = DataProvider<ParameterType, Any>
-public typealias AnyAnyValueDataProvider = DataProvider<Any, Any>
+public typealias AnyResultValueDataProvider<ParameterType> = ValueDataProvider<ParameterType, Any>
+public typealias AnyValueDataProvider<ParameterType> = AnyResultValueDataProvider<Void>
