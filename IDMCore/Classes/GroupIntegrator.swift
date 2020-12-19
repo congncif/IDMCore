@@ -12,7 +12,7 @@ public enum GroupIntegratingSuccessFilterType {
     case allSuccess
 }
 
-open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProtocol {
+public final class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProtocol {
     public typealias ParameterType = [I.GParameterType]
     public typealias Element = SimpleResult<I.GResultType?>
     public typealias DataType = [Element]
@@ -221,7 +221,7 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
     }
 }
 
-open class GroupIntegrator<I: IntegratorProtocol>: AmazingIntegrator<GroupIntegratingDataProvider<I>> {
+public final class GroupIntegrator<I: IntegratorProtocol>: AmazingIntegrator<GroupIntegratingDataProvider<I>> {
     public init(creator: @escaping (() -> I), requestOn queue: IntegrationCallQueue = .main) {
         let provider = GroupIntegratingDataProvider<I>.init(creator: creator, requestOn: queue)
         super.init(dataProvider: provider, executingType: .only)

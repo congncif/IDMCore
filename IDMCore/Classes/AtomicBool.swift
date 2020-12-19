@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class AtomicBool {
+public final class AtomicBool {
     fileprivate var queue: DispatchQueue
 
     public init(queue: DispatchQueue = DispatchQueue.concurrent) {

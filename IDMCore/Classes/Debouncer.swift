@@ -41,7 +41,7 @@ class Debouncer: NSObject {
 }
 */
 
-public class DispatchDebouncer {
+public final class DispatchDebouncer {
     public let queue: DispatchQueue
     public let leeway: DispatchTimeInterval
 

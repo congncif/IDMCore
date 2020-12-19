@@ -40,7 +40,7 @@ public enum NextState {
     case completion
 }
 
-public class IntegrationCall<ModelType> {
+public final class IntegrationCall<ModelType> {
     public typealias ModelHandler = (ModelType) -> ()
     public typealias DataHandler = (ModelType?) -> ()
     public typealias Handler = () -> ()

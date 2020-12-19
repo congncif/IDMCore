@@ -44,14 +44,14 @@ open class AbstractDataProvider<Parameter, Data>: DataProviderProtocol {
 
 // MARK: - WrapDataProvider
 
-open class WrapDataProvider<Provider, Parameter, Data>: AbstractDataProvider<Parameter, Data> where Provider: DataProviderProtocol, Provider.ParameterType == Parameter, Provider.DataType == Data {
+public final class WrapDataProvider<Provider, Parameter, Data>: AbstractDataProvider<Parameter, Data> where Provider: DataProviderProtocol, Provider.ParameterType == Parameter, Provider.DataType == Data {
     private let provider: Provider
 
     public init(provider: Provider) {
         self.provider = provider
     }
 
-    override open func request(parameters: Parameter, completionResult: @escaping (Result<Data?, Error>) -> Void) -> CancelHandler? {
+    override public func request(parameters: Parameter, completionResult: @escaping (Result<Data?, Error>) -> Void) -> CancelHandler? {
         return provider.request(parameters: parameters, completionResult: completionResult)
     }
 }
@@ -78,7 +78,7 @@ extension DataProviderProtocol {
  * Both have same input and output types.
  */
 
-open class AttachableDataProvider<Provider1, Provider2, Parameter, Data>: AbstractDataProvider<Parameter, Data>
+public final class AttachableDataProvider<Provider1, Provider2, Parameter, Data>: AbstractDataProvider<Parameter, Data>
     where
     Provider1: DataProviderProtocol, Provider1.ParameterType == Parameter, Provider1.DataType == Data,
     Provider2: DataProviderProtocol, Provider2.ParameterType == Parameter, Provider2.DataType == Data {
@@ -90,8 +90,8 @@ open class AttachableDataProvider<Provider1, Provider2, Parameter, Data>: Abstra
         self.attachedProvider = attachedProvider
     }
 
-    override open func request(parameters: Parameter,
-                               completionResult: @escaping (Result<Data?, Error>) -> Void) -> CancelHandler? {
+    override public func request(parameters: Parameter,
+                                 completionResult: @escaping (Result<Data?, Error>) -> Void) -> CancelHandler? {
         let cancelable = provider.request(parameters: parameters, completionResult: completionResult)
         attachedProvider.request(parameters: parameters, completionResult: { _ in })
         return cancelable
@@ -118,7 +118,7 @@ extension DataProviderProtocol {
  * Merge two data providers, this might call completion twice if succeed.
  * Useful for Cache Loader or two services have same data processing.
  */
-open class MergeDataProvider<Provider1, Provider2, Parameter, Data>: AbstractDataProvider<Parameter, Data>
+public final class MergeDataProvider<Provider1, Provider2, Parameter, Data>: AbstractDataProvider<Parameter, Data>
     where
     Provider1: DataProviderProtocol, Provider1.ParameterType == Parameter, Provider1.DataType == Data,
     Provider2: DataProviderProtocol, Provider2.ParameterType == Parameter, Provider2.DataType == Data {
@@ -143,8 +143,8 @@ open class MergeDataProvider<Provider1, Provider2, Parameter, Data>: AbstractDat
         self.completionCondition = completionCondition
     }
 
-    override open func request(parameters: Parameter,
-                               completionResult: @escaping (Result<Data?, Error>) -> Void) -> CancelHandler? {
+    override public func request(parameters: Parameter,
+                                 completionResult: @escaping (Result<Data?, Error>) -> Void) -> CancelHandler? {
         if let condition = completionCondition {
             let cancelable1 = provider.request(parameters: parameters, completionResult: { result in
                 switch result {
@@ -200,7 +200,7 @@ extension DataProviderProtocol {
  * `DataProvider` enables to quick initialize from a value closure.
  */
 
-open class ValueDataProvider<ParameterType, ValueType>: AbstractDataProvider<ParameterType, ValueType> {
+public final class ValueDataProvider<ParameterType, ValueType>: AbstractDataProvider<ParameterType, ValueType> {
     public typealias ValueResult = SimpleResult<ValueType?>
     public typealias ValueFactory = (ParameterType?) -> ValueResult
 
@@ -216,7 +216,7 @@ open class ValueDataProvider<ParameterType, ValueType>: AbstractDataProvider<Par
         self.valueFactory = valueFactory
     }
 
-    override open func request(parameters: ParameterType, completionResult: @escaping (ValueResult) -> Void) -> CancelHandler? {
+    override public func request(parameters: ParameterType, completionResult: @escaping (ValueResult) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
             if success {
                 completionResult(.success(data))
@@ -253,7 +253,7 @@ extension ValueDataProvider where ParameterType == Void {
 public typealias AnyResultDataProvider<ParameterType> = AbstractDataProvider<ParameterType, Any>
 
 open class AnyDataProvider: AnyResultDataProvider<Void> {
-    override open func request(parameters: Void, completionResult: @escaping (AbstractDataProvider<Void, Any>.ResultType) -> Void) -> CancelHandler? {
+    override public func request(parameters: Void, completionResult: @escaping (AbstractDataProvider<Void, Any>.ResultType) -> Void) -> CancelHandler? {
         request(completionResult: completionResult)
     }
 

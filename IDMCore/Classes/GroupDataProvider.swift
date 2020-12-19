@@ -103,9 +103,11 @@ extension DataProviderProtocol {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvider: DataProviderProtocol>: DataProviderProtocol {
+public final class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvider: DataProviderProtocol>: DataProviderProtocol {
     public typealias ParameterType = (FirstProvider.ParameterType, SecondProvider.ParameterType)
     public typealias DataType = (FirstProvider.DataType?, SecondProvider.DataType?)
+
+    private lazy var queue = DispatchQueue(label: "idmcore.data-provider.group", qos: .userInitiated, attributes: .concurrent)
 
     var firstProvider: FirstProvider
     var secondProvider: SecondProvider
@@ -134,7 +136,7 @@ public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvid
             self?.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
         }
 
-        grouptasks.notify(queue: DispatchQueue.global(qos: .userInitiated)) {
+        grouptasks.notify(queue: queue) {
             let results: DataType = (result1, result2)
             DispatchQueue.main.async {
                 completion(resultsSuccess, results, resultsError)
@@ -164,11 +166,13 @@ public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvid
     }
 }
 
-public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol>: DataProviderProtocol {
+public final class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol>: DataProviderProtocol {
     public typealias G2 = GroupDataProvider<A, B>
 
     public typealias ParameterType = (A.ParameterType, B.ParameterType, C.ParameterType)
     public typealias DataType = (A.DataType?, B.DataType?, C.DataType?)
+
+    private lazy var queue = DispatchQueue(label: "idmcore.data-provider.group", qos: .userInitiated, attributes: .concurrent)
 
     var firstProvider: G2
     var secondProvider: C
@@ -202,7 +206,7 @@ public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
             self?.processSubRequestDone(success: &resultsSuccess, result: &result3, error: &resultsError, s: s, d: d, e: e)
         }
 
-        grouptasks.notify(queue: DispatchQueue.global(qos: .userInitiated)) {
+        grouptasks.notify(queue: queue) {
             let results: DataType = (result1, result2, result3)
             DispatchQueue.main.async {
                 completion(resultsSuccess, results, resultsError)
@@ -232,11 +236,13 @@ public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
     }
 }
 
-public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol, D: DataProviderProtocol>: DataProviderProtocol {
+public final class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol, D: DataProviderProtocol>: DataProviderProtocol {
     public typealias G3 = Group3DataProvider<A, B, C>
 
     public typealias ParameterType = (A.ParameterType, B.ParameterType, C.ParameterType, D.ParameterType)
     public typealias DataType = (A.DataType?, B.DataType?, C.DataType?, D.DataType?)
+
+    private lazy var queue = DispatchQueue(label: "idmcore.data-provider.group", qos: .userInitiated, attributes: .concurrent)
 
     var firstProvider: G3
     var secondProvider: D
@@ -288,7 +294,7 @@ public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
             self?.processSubRequestDone(success: &resultsSuccess, result: &result4, error: &resultsError, s: s, d: d, e: e)
         }
 
-        grouptasks.notify(queue: DispatchQueue.global(qos: .userInitiated)) {
+        grouptasks.notify(queue: queue) {
             let results: DataType = (result1, result2, result3, result4)
             DispatchQueue.main.async {
                 completion(resultsSuccess, results, resultsError)
@@ -304,11 +310,13 @@ public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
     }
 }
 
-public class Group5DataProvider<A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol, D: DataProviderProtocol, E: DataProviderProtocol>: DataProviderProtocol {
+public final class Group5DataProvider<A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol, D: DataProviderProtocol, E: DataProviderProtocol>: DataProviderProtocol {
     public typealias G4 = Group4DataProvider<A, B, C, D>
 
     public typealias ParameterType = (A.ParameterType, B.ParameterType, C.ParameterType, D.ParameterType, E.ParameterType)
     public typealias DataType = (A.DataType?, B.DataType?, C.DataType?, D.DataType?, E.DataType?)
+
+    private lazy var queue = DispatchQueue(label: "idmcore.data-provider.group", qos: .userInitiated, attributes: .concurrent)
 
     var firstProvider: G4
     var secondProvider: E
@@ -365,7 +373,7 @@ public class Group5DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
             self?.processSubRequestDone(success: &resultsSuccess, result: &result5, error: &resultsError, s: s, d: d, e: e)
         }
 
-        grouptasks.notify(queue: DispatchQueue.global(qos: .userInitiated)) {
+        grouptasks.notify(queue: queue) {
             let results: DataType = (result1, result2, result3, result4, result5)
             DispatchQueue.main.async {
                 completion(resultsSuccess, results, resultsError)

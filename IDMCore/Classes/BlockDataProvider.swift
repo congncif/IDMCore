@@ -9,7 +9,7 @@ import Foundation
 
 /** BlockDataProvider is a synchronous result data provider which created to be compatible to IDM data flow. */
 
-open class BlockDataProvider<P, D>: DataProviderProtocol {
+public class BlockDataProvider<P, D>: DataProviderProtocol {
     public typealias ParameterType = P
     public typealias DataType = D
 
@@ -21,7 +21,7 @@ open class BlockDataProvider<P, D>: DataProviderProtocol {
         self.block = block
     }
 
-    open func request(parameters: ParameterType, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+    public func request(parameters: ParameterType, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
             var result: ResultType
             if success {
@@ -35,7 +35,7 @@ open class BlockDataProvider<P, D>: DataProviderProtocol {
         }
     }
 
-    open func request(parameters: P, completion: @escaping (Bool, D?, Error?) -> Void) -> CancelHandler? {
+    private func request(parameters: P, completion: @escaping (Bool, D?, Error?) -> Void) -> CancelHandler? {
         do {
             let data = try block(parameters)
             completion(true, data, nil)
@@ -46,7 +46,7 @@ open class BlockDataProvider<P, D>: DataProviderProtocol {
     }
 }
 
-open class BlockIntegrator<P, D>: AmazingIntegrator<BlockDataProvider<P, D>> {
+public final class BlockIntegrator<P, D>: AmazingIntegrator<BlockDataProvider<P, D>> {
     public init(_ block: @escaping BlockDataProvider<P, D>.RequestFunction) {
         let provider = BlockDataProvider(block)
         super.init(dataProvider: provider, executingType: .only)

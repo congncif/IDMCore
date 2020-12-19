@@ -15,9 +15,11 @@ extension DataProviderProtocol {
     }
 }
 
-public class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondProvider: DataProviderProtocol>: DataProviderProtocol where FirstProvider.DataType == SecondProvider.ParameterType {
+public final class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondProvider: DataProviderProtocol>: DataProviderProtocol where FirstProvider.DataType == SecondProvider.ParameterType {
     public typealias ParameterType = FirstProvider.ParameterType
     public typealias DataType = SecondProvider.DataType
+
+    private lazy var queue = DispatchQueue(label: "idmcore.data-provider.sequence", qos: .userInitiated, attributes: .concurrent)
 
     fileprivate var firstProvider: FirstProvider
     fileprivate var secondProvider: SecondProvider
@@ -54,7 +56,7 @@ public class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondPro
 
         let semaphore = DispatchSemaphore(value: 0)
 
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+        queue.async { [weak self] in
             defer {
                 DispatchQueue.main.async {
                     cancelBlock = nil

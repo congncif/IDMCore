@@ -8,7 +8,7 @@
 import Foundation
 
 /// A thread-safe array.
-public class SynchronizedArray<Element> {
+public final class SynchronizedArray<Element> {
     fileprivate var queue: DispatchQueue
     fileprivate var array = [Element]()
 

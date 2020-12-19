@@ -161,7 +161,7 @@ public class Group5IntegrationCall<R1, R2, R3, R4, R5> {
     }
 }
 
-public class IntegrationBatchCall {
+public final class IntegrationBatchCall {
     public init() {
 //        #if DEBUG
 //            print("Created a batch call")
@@ -172,7 +172,7 @@ public class IntegrationBatchCall {
         let internalCalls = calls
         
         for (index, call) in internalCalls.enumerated() where index + 1 < internalCalls.count {
-            for i in index + 1..<internalCalls.count {
+            for i in index + 1 ..< internalCalls.count {
                 let other = internalCalls[i]
                 if call.isSameIntegrator(with: other) {
                     fatalError("IntegrationBatchCall only work perfectly if all of calls are created from different Intergrators")
