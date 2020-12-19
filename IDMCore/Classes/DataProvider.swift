@@ -240,7 +240,7 @@ open class ValueDataProvider<ParameterType, ValueType>: AbstractDataProvider<Par
     }
 }
 
-extension ValueDataProvider where ParameterType == Any {
+extension ValueDataProvider where ParameterType == Void {
     // flashFactory is a shortcut of valueFactory with no explicit parameters
     public convenience init(flashFactory: @escaping () -> ValueResult) {
         let _valueFactory: ValueFactory = { _ in flashFactory() }
@@ -251,7 +251,16 @@ extension ValueDataProvider where ParameterType == Any {
 // Some pre-defined providers
 
 public typealias AnyResultDataProvider<ParameterType> = AbstractDataProvider<ParameterType, Any>
-public typealias AnyDataProvider = AnyResultDataProvider<Void>
+
+open class AnyDataProvider: AnyResultDataProvider<Void> {
+    override open func request(parameters: Void, completionResult: @escaping (AbstractDataProvider<Void, Any>.ResultType) -> Void) -> CancelHandler? {
+        request(completionResult: completionResult)
+    }
+
+    open func request(completionResult: @escaping (AbstractDataProvider<Void, Any>.ResultType) -> Void) -> CancelHandler? {
+        assertionFailure("\(type(of: self)): Abstract method needs an implementation")
+        return nil
+    }
+}
 
 public typealias AnyResultValueDataProvider<ParameterType> = ValueDataProvider<ParameterType, Any>
-public typealias AnyValueDataProvider<ParameterType> = AnyResultValueDataProvider<Void>
