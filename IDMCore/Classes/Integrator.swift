@@ -53,6 +53,8 @@ open class AbstractIntegrator<Parameter, Result>: IntegratorProtocol, Equatable 
     }
 }
 
+public typealias SimpleIntegrator<Result> = AbstractIntegrator<Void, Result>
+
 extension AbstractIntegrator where Parameter == Void {
     public func prepareCall() -> IntegrationCall<Result> {
         prepareCall(parameters: ())
