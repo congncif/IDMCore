@@ -39,9 +39,9 @@ public protocol IntegrationProtocol: IntegratorProtocol where Self.ParameterType
 
     var dataProvider: DataProviderType { get }
 
-    func execute(parameters: ParameterType?,
+    func execute(parameters: ParameterType,
                  completion: ((Bool, ResultType?, Error?) -> Void)?)
-    func execute(parameters: ParameterType?,
+    func execute(parameters: ParameterType,
                  loadingHandler: (() -> Void)?,
                  successHandler: ((ResultType?) -> Void)?,
                  failureHandler: ((Error?) -> Void)?,
@@ -52,7 +52,7 @@ public protocol IntegratorProtocol: class {
     associatedtype GParameterType
     associatedtype GResultType
 
-    func prepareCall(parameters: GParameterType?) -> IntegrationCall<GResultType>
+    func prepareCall(parameters: GParameterType) -> IntegrationCall<GResultType>
     func cancel()
 }
 
@@ -92,7 +92,7 @@ extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataT
         }
     }
 
-    public func execute(parameters: ParameterType? = nil,
+    public func execute(parameters: ParameterType,
                         completion: ((Bool, ResultType?, Error?) -> Void)? = nil) {
         _ = dataProvider.request(parameters: parameters, completionResult: { result in
             var success: Bool
@@ -112,7 +112,7 @@ extension IntegrationProtocol where DataProviderType.DataType == ModelType.DataT
         })
     }
 
-    public func execute(parameters: ParameterType? = nil,
+    public func execute(parameters: ParameterType,
                         loadingHandler: (() -> Void)?,
                         successHandler: ((ResultType?) -> Void)?,
                         failureHandler: ((Error?) -> Void)? = nil,

@@ -60,6 +60,10 @@ extension DataProviderProtocol {
                                                  parameter: S.ParameterType?,
                                                  cancelBlocks: inout [() -> Void],
                                                  done: @escaping (SubResultType<S>) -> Void) {
+        guard let parameter = parameter else {
+            done(.failure(DataMissmatchError.default))
+            return
+        }
         grouptasks.enter()
 
         let cancel = sub.request(parameters: parameter) { result in
@@ -100,7 +104,7 @@ extension DataProviderProtocol {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvider: DataProviderProtocol>: DataProviderProtocol {
-    public typealias ParameterType = (FirstProvider.ParameterType?, SecondProvider.ParameterType?)
+    public typealias ParameterType = (FirstProvider.ParameterType, SecondProvider.ParameterType)
     public typealias DataType = (FirstProvider.DataType?, SecondProvider.DataType?)
 
     var firstProvider: FirstProvider
@@ -112,7 +116,7 @@ public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvid
     }
 
     @discardableResult
-    public func request(parameters: ParameterType?, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
+    public func request(parameters: ParameterType, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
         var cancelBlocks: [() -> Void] = []
 
         var resultsSuccess = true
@@ -121,12 +125,12 @@ public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvid
         var result1: FirstProvider.DataType?
         var result2: SecondProvider.DataType?
 
-        let grouptasks: DispatchGroup = DispatchGroup()
+        let grouptasks = DispatchGroup()
 
-        requestSubItem(sub: firstProvider, grouptasks: grouptasks, parameter: parameters?.0, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: firstProvider, grouptasks: grouptasks, parameter: parameters.0, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result1, error: &resultsError, s: s, d: d, e: e)
         }
-        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters?.1, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters.1, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
         }
 
@@ -145,7 +149,7 @@ public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvid
         }
     }
 
-    public func request(parameters: (FirstProvider.ParameterType?, SecondProvider.ParameterType?)?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+    public func request(parameters: (FirstProvider.ParameterType, SecondProvider.ParameterType), completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
             var result: ResultType
             if success {
@@ -163,7 +167,7 @@ public class GroupDataProvider<FirstProvider: DataProviderProtocol, SecondProvid
 public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol>: DataProviderProtocol {
     public typealias G2 = GroupDataProvider<A, B>
 
-    public typealias ParameterType = (A.ParameterType?, B.ParameterType?, C.ParameterType?)
+    public typealias ParameterType = (A.ParameterType, B.ParameterType, C.ParameterType)
     public typealias DataType = (A.DataType?, B.DataType?, C.DataType?)
 
     var firstProvider: G2
@@ -175,7 +179,7 @@ public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
     }
 
     @discardableResult
-    public func request(parameters: ParameterType?, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
+    public func request(parameters: ParameterType, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
         var cancelBlocks: [() -> Void] = []
 
         var resultsSuccess = true
@@ -185,16 +189,16 @@ public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
         var result2: B.DataType?
         var result3: C.DataType?
 
-        let grouptasks: DispatchGroup = DispatchGroup()
+        let grouptasks = DispatchGroup()
 
-        requestSubItem(sub: firstProvider.firstProvider, grouptasks: grouptasks, parameter: parameters?.0, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: firstProvider.firstProvider, grouptasks: grouptasks, parameter: parameters.0, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result1, error: &resultsError, s: s, d: d, e: e)
         }
-        requestSubItem(sub: firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.1, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters.1, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
         }
 
-        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters?.2, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters.2, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result3, error: &resultsError, s: s, d: d, e: e)
         }
 
@@ -213,7 +217,7 @@ public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
         }
     }
 
-    public func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+    public func request(parameters: ParameterType, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
             var result: ResultType
             if success {
@@ -231,7 +235,7 @@ public class Group3DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
 public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol, D: DataProviderProtocol>: DataProviderProtocol {
     public typealias G3 = Group3DataProvider<A, B, C>
 
-    public typealias ParameterType = (A.ParameterType?, B.ParameterType?, C.ParameterType?, D.ParameterType?)
+    public typealias ParameterType = (A.ParameterType, B.ParameterType, C.ParameterType, D.ParameterType)
     public typealias DataType = (A.DataType?, B.DataType?, C.DataType?, D.DataType?)
 
     var firstProvider: G3
@@ -242,7 +246,7 @@ public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
         self.secondProvider = secondProvider
     }
 
-    public func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+    public func request(parameters: ParameterType, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
             var result: ResultType
             if success {
@@ -256,7 +260,7 @@ public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
         }
     }
 
-    public func request(parameters: ParameterType?, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
+    public func request(parameters: ParameterType, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
         var cancelBlocks: [() -> Void] = []
 
         var resultsSuccess = true
@@ -267,20 +271,20 @@ public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
         var result3: C.DataType?
         var result4: D.DataType?
 
-        let grouptasks: DispatchGroup = DispatchGroup()
+        let grouptasks = DispatchGroup()
 
-        requestSubItem(sub: firstProvider.firstProvider.firstProvider, grouptasks: grouptasks, parameter: parameters?.0, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: firstProvider.firstProvider.firstProvider, grouptasks: grouptasks, parameter: parameters.0, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result1, error: &resultsError, s: s, d: d, e: e)
         }
-        requestSubItem(sub: firstProvider.firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.1, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: firstProvider.firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters.1, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
         }
 
-        requestSubItem(sub: firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.2, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters.2, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result3, error: &resultsError, s: s, d: d, e: e)
         }
 
-        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters?.3, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters.3, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result4, error: &resultsError, s: s, d: d, e: e)
         }
 
@@ -303,7 +307,7 @@ public class Group4DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
 public class Group5DataProvider<A: DataProviderProtocol, B: DataProviderProtocol, C: DataProviderProtocol, D: DataProviderProtocol, E: DataProviderProtocol>: DataProviderProtocol {
     public typealias G4 = Group4DataProvider<A, B, C, D>
 
-    public typealias ParameterType = (A.ParameterType?, B.ParameterType?, C.ParameterType?, D.ParameterType?, E.ParameterType?)
+    public typealias ParameterType = (A.ParameterType, B.ParameterType, C.ParameterType, D.ParameterType, E.ParameterType)
     public typealias DataType = (A.DataType?, B.DataType?, C.DataType?, D.DataType?, E.DataType?)
 
     var firstProvider: G4
@@ -314,7 +318,7 @@ public class Group5DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
         self.secondProvider = secondProvider
     }
 
-    public func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+    public func request(parameters: ParameterType, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
             var result: ResultType
             if success {
@@ -328,7 +332,7 @@ public class Group5DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
         }
     }
 
-    public func request(parameters: ParameterType?, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
+    public func request(parameters: ParameterType, completion: @escaping (Bool, DataType?, Error?) -> Void) -> CancelHandler? {
         var cancelBlocks: [() -> Void] = []
 
         var resultsSuccess = true
@@ -340,24 +344,24 @@ public class Group5DataProvider<A: DataProviderProtocol, B: DataProviderProtocol
         var result4: D.DataType?
         var result5: E.DataType?
 
-        let grouptasks: DispatchGroup = DispatchGroup()
+        let grouptasks = DispatchGroup()
 
-        requestSubItem(sub: firstProvider.firstProvider.firstProvider.firstProvider, grouptasks: grouptasks, parameter: parameters?.0, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: firstProvider.firstProvider.firstProvider.firstProvider, grouptasks: grouptasks, parameter: parameters.0, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result1, error: &resultsError, s: s, d: d, e: e)
         }
-        requestSubItem(sub: firstProvider.firstProvider.firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.1, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: firstProvider.firstProvider.firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters.1, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result2, error: &resultsError, s: s, d: d, e: e)
         }
 
-        requestSubItem(sub: firstProvider.firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.2, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: firstProvider.firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters.2, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result3, error: &resultsError, s: s, d: d, e: e)
         }
 
-        requestSubItem(sub: firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters?.3, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: firstProvider.secondProvider, grouptasks: grouptasks, parameter: parameters.3, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result4, error: &resultsError, s: s, d: d, e: e)
         }
 
-        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters?.4, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
+        requestSubItem(sub: secondProvider, grouptasks: grouptasks, parameter: parameters.4, cancelBlocks: &cancelBlocks) { [weak self] s, d, e in
             self?.processSubRequestDone(success: &resultsSuccess, result: &result5, error: &resultsError, s: s, d: d, e: e)
         }
 

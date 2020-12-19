@@ -40,7 +40,7 @@ open class AbstractIntegrator<Parameter, Result>: IntegratorProtocol, Equatable 
         idenitifier = ProcessInfo.processInfo.globallyUniqueString
     }
 
-    open func prepareCall(parameters _: Parameter? = nil) -> IntegrationCall<Result> {
+    open func prepareCall(parameters _: Parameter) -> IntegrationCall<Result> {
         assertionFailure("\(type(of: self)): Abstract method needs an implementation")
 
         return IntegrationCall<Result>()
@@ -55,12 +55,12 @@ open class AbstractIntegrator<Parameter, Result>: IntegratorProtocol, Equatable 
 
 //////////////////////////////////////////////////////////////////////////////////////
 class IntegrationInfo<ModelType, ParameterType>: NSObject {
-    var parameters: ParameterType?
+    var parameters: ParameterType
     var loading: (() -> Void)?
     var cancel: (() -> Void)?
     var completion: ((Bool, ModelType?, Error?) -> Void)?
 
-    init(parameters: ParameterType?, loading: (() -> Void)?, completion: ((Bool, ModelType?, Error?) -> Void)?) {
+    init(parameters: ParameterType, loading: (() -> Void)?, completion: ((Bool, ModelType?, Error?) -> Void)?) {
         self.parameters = parameters
         self.loading = loading
         self.completion = completion
@@ -177,7 +177,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         })
     }
 
-    fileprivate func schedule(parameters: ParameterType?, loading: (() -> Void)? = nil, completion: ((Bool, ResultType?, Error?) -> Void)?) {
+    fileprivate func schedule(parameters: ParameterType, loading: (() -> Void)? = nil, completion: ((Bool, ResultType?, Error?) -> Void)?) {
         switch executingType {
         case .latest:
             let info = IntegrationInfo(parameters: parameters, loading: loading, completion: completion)
@@ -269,7 +269,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
 
     /*********************************************************************************/
 
-    open func execute(parameters: ParameterType? = nil, completion: ((Bool, ResultType?, Error?) -> Void)? = nil) {
+    open func execute(parameters: ParameterType, completion: ((Bool, ResultType?, Error?) -> Void)? = nil) {
         schedule(parameters: parameters,
                  loading: { [weak self] in
                      self?.defaultCall.onBeginning?()
@@ -283,10 +283,10 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                      self?.defaultCall.onCompletion?()
                      completion?(s, d, e)
 
-        })
+                 })
     }
 
-    open func execute(parameters: ParameterType? = nil,
+    open func execute(parameters: ParameterType,
                       loadingHandler: (() -> Void)?,
                       successHandler: ((ResultType?) -> Void)?,
                       failureHandler: ((Error?) -> Void)? = nil,
@@ -315,7 +315,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
                          self?.defaultCall.onCompletion?()
                          completionHandler?()
                      }
-        })
+                 })
     }
 
     /*********************************************************************************/
@@ -379,37 +379,37 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
         return self
     }
 
-    @discardableResult
-    public func retryCall<D, M, R>(_ integrator: Integrator<D, M, R>, state: NextState = .completion, configuration: ((IntegrationCall<R>) -> Void)? = nil) -> Self {
-        retrySetBlock = nil
-        retrySetBlock = { call in
-            let queue = call.callQueue
-            let delay = call.callDelay
-            let retryCall = integrator.prepareCall()
-            configuration?(retryCall)
-            let newCall = retryCall.next(state: state, integrationCall: call)
-            call.retryBlock = {
-                newCall.call(queue: queue, delay: delay)
-            }
-        }
-        return self
-    }
+//    @discardableResult
+//    public func retryCall<D, M, R>(_ integrator: Integrator<D, M, R>, state: NextState = .completion, configuration: ((IntegrationCall<R>) -> Void)? = nil) -> Self {
+//        retrySetBlock = nil
+//        retrySetBlock = { call in
+//            let queue = call.callQueue
+//            let delay = call.callDelay
+//            let retryCall = integrator.prepareCall()
+//            configuration?(retryCall)
+//            let newCall = retryCall.next(state: state, integrationCall: call)
+//            call.retryBlock = {
+//                newCall.call(queue: queue, delay: delay)
+//            }
+//        }
+//        return self
+//    }
 
-    @discardableResult
-    public func retryCall<D, M, R>(_ integrator: Integrator<D, M, R>, state: NextState = .completion, configuration: ((IntegrationCall<R>) -> Void)? = nil) -> Self where D.ParameterType: Error {
-        retrySetBlock = nil
-        retrySetBlock = { call in
-            _ = call.retryIntegrator(integrator, state: state, configuration: configuration)
-        }
-        return self
-    }
+//    @discardableResult
+//    public func retryCall<D, M, R>(_ integrator: Integrator<D, M, R>, state: NextState = .completion, configuration: ((IntegrationCall<R>) -> Void)? = nil) -> Self where D.ParameterType: Error {
+//        retrySetBlock = nil
+//        retrySetBlock = { call in
+//            _ = call.retryIntegrator(integrator, state: state, configuration: configuration)
+//        }
+//        return self
+//    }
 
     public func resetRetryCall() {
         retryCall = IntegrationCall<ResultType>()
         retrySetBlock = nil
     }
 
-    open override func cancel() {
+    override open func cancel() {
         debouncedSource?.cancel()
         callInfosQueue.removeAll()
         cancelCurrentTasks()
@@ -423,7 +423,7 @@ open class Integrator<IntegrateProvider: DataProviderProtocol, IntegrateModel: M
 
     /*********************************************************************************/
 
-    open override func prepareCall(parameters: ParameterType? = nil) -> IntegrationCall<ResultType> {
+    override open func prepareCall(parameters: ParameterType) -> IntegrationCall<ResultType> {
         let call = IntegrationCall<ResultType>()
 
         _ = call.ignoreUnknownError(defaultCall.ignoreUnknownError)

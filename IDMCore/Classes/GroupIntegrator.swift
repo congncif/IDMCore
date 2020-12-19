@@ -13,11 +13,11 @@ public enum GroupIntegratingSuccessFilterType {
 }
 
 open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProtocol {
-    public typealias ParameterType = [I.GParameterType?]
+    public typealias ParameterType = [I.GParameterType]
     public typealias Element = SimpleResult<I.GResultType?>
     public typealias DataType = [Element]
 
-    public func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+    public func request(parameters: ParameterType, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
             var result: ResultType
             if success {
@@ -47,10 +47,10 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
     }
 
     internal class InternalWorkItem: NSObject {
-        var parameter: I.GParameterType?
+        var parameter: I.GParameterType
         var integrator: I
 
-        init(parameter: I.GParameterType?, creator: () -> I) {
+        init(parameter: I.GParameterType, creator: () -> I) {
             self.parameter = parameter
             integrator = creator()
         }
@@ -134,9 +134,9 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
         workItems = []
     }
 
-    public func request(parameters: [I.GParameterType?]?,
+    public func request(parameters: [I.GParameterType],
                         completion: @escaping (Bool, [Element]?, Error?) -> Void) -> CancelHandler? {
-        guard let params = parameters, !params.isEmpty else {
+        guard !parameters.isEmpty else {
             completion(true, nil, nil)
             return nil
         }
@@ -168,7 +168,7 @@ open class GroupIntegratingDataProvider<I: IntegratorProtocol>: DataProviderProt
         }
 
         let creator = integratorCreator
-        workItems = params.map { (p) -> InternalWorkItem in
+        workItems = parameters.map { (p) -> InternalWorkItem in
             InternalWorkItem(parameter: p, creator: creator)
         }
 

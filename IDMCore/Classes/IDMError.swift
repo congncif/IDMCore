@@ -30,6 +30,15 @@ public struct IgnoreError: LocalizedError {
     }
 }
 
+public struct DataMissmatchError: LocalizedError {
+    private init() {}
+    public static let `default` = DataMissmatchError()
+
+    public var errorDescription: String? {
+        return NSLocalizedString("DataMissmatch error", comment: "")
+    }
+}
+
 public struct UnknownError: LocalizedError {
     private init() {}
     public static let `default` = UnknownError()

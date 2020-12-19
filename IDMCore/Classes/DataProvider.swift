@@ -36,7 +36,7 @@ open class AbstractDataProvider<Parameter, Data>: DataProviderProtocol {
 
     public init() {}
 
-    open func request(parameters: Parameter?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+    open func request(parameters: Parameter, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
         assertionFailure("\(type(of: self)): Abstract method needs an implementation")
         return nil
     }
@@ -51,7 +51,7 @@ open class WrapDataProvider<Provider, Parameter, Data>: AbstractDataProvider<Par
         self.provider = provider
     }
 
-    open override func request(parameters: Parameter?, completionResult: @escaping (Result<Data?, Error>) -> Void) -> CancelHandler? {
+    override open func request(parameters: Parameter, completionResult: @escaping (Result<Data?, Error>) -> Void) -> CancelHandler? {
         return provider.request(parameters: parameters, completionResult: completionResult)
     }
 }
@@ -90,7 +90,7 @@ open class AttachableDataProvider<Provider1, Provider2, Parameter, Data>: Abstra
         self.attachedProvider = attachedProvider
     }
 
-    open override func request(parameters: Parameter?,
+    override open func request(parameters: Parameter,
                                completionResult: @escaping (Result<Data?, Error>) -> Void) -> CancelHandler? {
         let cancelable = provider.request(parameters: parameters, completionResult: completionResult)
         attachedProvider.request(parameters: parameters, completionResult: { _ in })
@@ -143,7 +143,7 @@ open class MergeDataProvider<Provider1, Provider2, Parameter, Data>: AbstractDat
         self.completionCondition = completionCondition
     }
 
-    open override func request(parameters: Parameter?,
+    override open func request(parameters: Parameter,
                                completionResult: @escaping (Result<Data?, Error>) -> Void) -> CancelHandler? {
         if let condition = completionCondition {
             let cancelable1 = provider.request(parameters: parameters, completionResult: { result in
@@ -216,7 +216,7 @@ open class DataProvider<ParameterType, ValueType>: AbstractDataProvider<Paramete
         self.valueFactory = valueFactory
     }
 
-    open override func request(parameters: ParameterType?, completionResult: @escaping (ValueResult) -> Void) -> CancelHandler? {
+    override open func request(parameters: ParameterType, completionResult: @escaping (ValueResult) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
             if success {
                 completionResult(.success(data))
@@ -228,7 +228,7 @@ open class DataProvider<ParameterType, ValueType>: AbstractDataProvider<Paramete
         }
     }
 
-    private func request(parameters: ParameterType?,
+    private func request(parameters: ParameterType,
                          completion: @escaping (Bool, ValueType?, Error?) -> Void) -> CancelHandler? {
         switch valueFactory(parameters) {
         case let .success(data):

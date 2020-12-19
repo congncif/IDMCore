@@ -27,7 +27,7 @@ public class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondPro
         self.secondProvider = secondProvider
     }
 
-    public func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+    public func request(parameters: ParameterType, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
             var result: ResultType
             if success {
@@ -42,17 +42,17 @@ public class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondPro
     }
 
     @discardableResult
-    private func request(parameters: FirstProvider.ParameterType?, completion: @escaping (Bool, SecondProvider.DataType?, Error?) -> Void) -> CancelHandler? {
+    private func request(parameters: FirstProvider.ParameterType, completion: @escaping (Bool, SecondProvider.DataType?, Error?) -> Void) -> CancelHandler? {
         var cancelBlock: (() -> Void)?
 
-        let param1: FirstProvider.ParameterType? = parameters
+        let param1: FirstProvider.ParameterType = parameters
         var param2: SecondProvider.ParameterType?
         var results: SecondProvider.DataType?
 
         var resultsSuccess = true
         var resultsError: Error?
 
-        let semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
+        let semaphore = DispatchSemaphore(value: 0)
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             defer {
@@ -79,11 +79,14 @@ public class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondPro
             cancelBlock = cancel
             _ = semaphore.wait(timeout: .distantFuture)
 
-            if !resultsSuccess {
+            if !resultsSuccess { return }
+
+            guard let newParam2 = param2 else {
+                resultsError = DataMissmatchError.default
                 return
             }
 
-            let cancel2 = self?.secondProvider.request(parameters: param2, completionResult: { result in
+            let cancel2 = self?.secondProvider.request(parameters: newParam2, completionResult: { result in
                 switch result {
                 case .success(let data):
                     resultsSuccess = true
@@ -98,9 +101,7 @@ public class SequenceDataProvider<FirstProvider: DataProviderProtocol, SecondPro
             cancelBlock = cancel2
             _ = semaphore.wait(timeout: .distantFuture)
 
-            if !resultsSuccess {
-                return
-            }
+            if !resultsSuccess { return }
         }
 
         return cancelBlock

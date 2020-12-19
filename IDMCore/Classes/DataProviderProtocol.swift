@@ -39,5 +39,5 @@ public protocol DataProviderProtocol {
     typealias ResultType = SimpleResult<DataType?>
 
     @discardableResult
-    func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler?
+    func request(parameters: ParameterType, completionResult: @escaping (ResultType) -> Void) -> CancelHandler?
 }

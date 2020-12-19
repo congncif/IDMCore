@@ -34,7 +34,7 @@ open class IntegratingDataProvider<I: IntegratorProtocol>: DataProviderProtocol 
 
     public typealias GResultType = SimpleResult<I.GResultType?>
 
-    public func request(parameters: I.GParameterType?, completionResult: @escaping (GResultType) -> Void) -> CancelHandler? {
+    public func request(parameters: I.GParameterType, completionResult: @escaping (GResultType) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
             var result: ResultType
             if success {
@@ -48,7 +48,7 @@ open class IntegratingDataProvider<I: IntegratorProtocol>: DataProviderProtocol 
         }
     }
 
-    public func request(parameters: I.GParameterType?,
+    public func request(parameters: I.GParameterType,
                         completion: @escaping (Bool, I.GResultType?, Error?) -> Void) -> CancelHandler? {
         internalIntegrator
             .prepareCall(parameters: parameters)
@@ -90,7 +90,7 @@ open class ConvertDataProvider<P1, P2>: DataProviderProtocol {
 
     public init() {}
 
-    open func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+    open func request(parameters: ParameterType, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
             var result: ResultType
             if success {
@@ -106,7 +106,7 @@ open class ConvertDataProvider<P1, P2>: DataProviderProtocol {
 
     open func request(parameters: P1?,
                       completion: @escaping (Bool, P2?, Error?) -> Void) -> CancelHandler? {
-        if let convertFunc = self.converter {
+        if let convertFunc = converter {
             do {
                 let outParameter = try convertFunc(parameters)
                 completion(true, outParameter, nil)
@@ -139,11 +139,11 @@ open class ForwardDataProvider<P>: ConvertDataProvider<P, P> {
         self.forwarder = forwarder
     }
 
-    public override init() {
+    override public init() {
         super.init()
     }
 
-    open override func convert(parameter: P?) throws -> P? {
+    override open func convert(parameter: P?) throws -> P? {
         if let forwardFunc = forwarder {
             return try forwardFunc(parameter)
         } else {
@@ -153,11 +153,11 @@ open class ForwardDataProvider<P>: ConvertDataProvider<P, P> {
 }
 
 open class BridgeDataProvider<P, R: ModelProtocol>: ConvertDataProvider<P, R> where R.DataType == P {
-    public override init() {
+    override public init() {
         super.init()
     }
 
-    open override func convert(parameter: P?) throws -> R? {
+    override open func convert(parameter: P?) throws -> R? {
         do {
             let data: R? = try R(fromData: parameter)
             return data

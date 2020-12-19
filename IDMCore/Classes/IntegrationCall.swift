@@ -74,7 +74,7 @@ public class IntegrationCall<ModelType> {
     fileprivate(set) var callQueue: IntegrationCallQueue = .serial
     fileprivate(set) var callDelay: Double = 0
 
-    public internal(set) var integratorIndentifier: String = String()
+    public internal(set) var integratorIndentifier = String()
 
     init() {
         idenitifier = ProcessInfo.processInfo.globallyUniqueString
@@ -298,34 +298,39 @@ public class IntegrationCall<ModelType> {
         return self
     }
 
-    public func retryIntegrator<P, R>(_ integrator: AbstractIntegrator<P, R>,
-                                      state: NextState = .completion,
-                                      configuration: ((IntegrationCall<R>) -> ())? = nil) -> Self where P: Error {
-        retryErrorBlock = nil
-        let queue = callQueue
-        let delay = callDelay
-
-        retryErrorBlock = { [weak self] err in
-            guard let this = self else { return }
-            let param = err as? P
-            let newCall = integrator.prepareCall(parameters: param)
-            configuration?(newCall)
-
-            switch state {
-            case .error, .success:
-                _ = newCall.next(state: .completion) { [weak self] _ in
-                    self?.retryErrorBlock = nil
-                    self?.retryBlock = nil
-                }
-            default:
-                break
-            }
-
-            _ = newCall.next(state: state, integrationCall: this)
-            newCall.call(queue: queue, delay: delay)
-        }
-        return self
-    }
+//    public func retryIntegrator<P, R>(_ integrator: AbstractIntegrator<P, R>,
+//                                      state: NextState = .completion,
+//                                      configuration: ((IntegrationCall<R>) -> ())? = nil) -> Self where P: Error {
+//        retryErrorBlock = nil
+//        let queue = callQueue
+//        let delay = callDelay
+//
+//        retryErrorBlock = { [weak self] err in
+//            guard let this = self else { return }
+//            guard let param = err as? P else {
+//                #if DEBUG
+//                print("⚠️ Retry block cannot be executed due to error \(String(describing: err)) didn't match with type \(String(describing: P.self)) of parameter of \(String(describing: integrator))")
+//                #endif
+//                return
+//            }
+//            let newCall = integrator.prepareCall(parameters: param)
+//            configuration?(newCall)
+//
+//            switch state {
+//            case .error, .success:
+//                _ = newCall.next(state: .completion) { [weak self] _ in
+//                    self?.retryErrorBlock = nil
+//                    self?.retryBlock = nil
+//                }
+//            default:
+//                break
+//            }
+//
+//            _ = newCall.next(state: state, integrationCall: this)
+//            newCall.call(queue: queue, delay: delay)
+//        }
+//        return self
+//    }
 
     /**
      * Set `ignoreUnknownError` to ignore unknown errors, this will prevent to display unexpected error messages.
@@ -429,115 +434,115 @@ public class IntegrationCall<ModelType> {
         return self
     }
 
-    public func nextTo<Parameter, ResultType>(state: NextState = .completion,
-                                              integrator: AbstractIntegrator<Parameter, ResultType>,
-                                              parametersBuilder: ((SimpleResult<ModelType?>?) -> Parameter?)? = nil,
-                                              configuration: ((IntegrationCall<ResultType>, SimpleResult<ModelType?>?) -> ())? = nil) -> Self {
-        let queue = callQueue
-        let delay = callDelay
-        switch state {
-        case .success:
-            let success = doSuccess
-            doSuccess = { result in
-                success?(result)
-                let wrapped = SimpleResult<ModelType?>.success(result)
-                let parameters = parametersBuilder?(wrapped)
-                let integrationCall = integrator.prepareCall(parameters: parameters)
-                configuration?(integrationCall, Result.success(result))
-                integrationCall.call(queue: queue, delay: delay)
-            }
-
-        case .error:
-            let block = doError
-            doError = { error in
-                block?(error)
-                let wrapped = SimpleResult<ModelType?>.failure(error ?? UnknownError.default)
-                let parameters = parametersBuilder?(wrapped)
-                let integrationCall = integrator.prepareCall(parameters: parameters)
-                configuration?(integrationCall, .failure(error ?? UnknownError.default))
-                integrationCall.call(queue: queue, delay: delay)
-            }
-
-        case .completion:
-            let block = doCompletion
-            doCompletion = {
-                block?()
-                let parameters = parametersBuilder?(nil)
-                let integrationCall = integrator.prepareCall(parameters: parameters)
-                configuration?(integrationCall, nil)
-                integrationCall.call(queue: queue, delay: delay)
-            }
-        }
-
-        return self
-    }
-
-    public func transformNextTo<Parameter, ResultType>(state: NextState = .completion,
-                                                       integrator: AbstractIntegrator<Parameter, ResultType>,
-                                                       parametersBuilder: ((SimpleResult<ModelType?>?) -> Parameter?)? = nil) -> IntegrationCall<ResultType> {
-        let queue = callQueue
-        let delay = callDelay
-        switch state {
-        case .success:
-            let success = doSuccess
-            var fireCall = integrator.prepareCall()
-            doSuccess = { result in
-                success?(result)
-                let wrapped = SimpleResult<ModelType?>.success(result)
-                let parameters = parametersBuilder?(wrapped)
-                let newCall = integrator.prepareCall(parameters: parameters)
-
-                newCall.doBeginning = fireCall.onBeginning
-                newCall.doSuccess = fireCall.onSuccess
-                newCall.doError = fireCall.onError
-                newCall.doCompletion = fireCall.onCompletion
-
-                fireCall = newCall
-
-                fireCall.call(queue: queue, delay: delay)
-            }
-            return fireCall
-
-        case .error:
-            let block = doError
-            var fireCall = integrator.prepareCall()
-            doError = { error in
-                block?(error)
-                let wrapped = SimpleResult<ModelType?>.failure(error ?? UnknownError.default)
-                let parameters = parametersBuilder?(wrapped)
-                let newCall = integrator.prepareCall(parameters: parameters)
-
-                newCall.doBeginning = fireCall.onBeginning
-                newCall.doSuccess = fireCall.onSuccess
-                newCall.doError = fireCall.onError
-                newCall.doCompletion = fireCall.onCompletion
-
-                fireCall = newCall
-
-                fireCall.call(queue: queue, delay: delay)
-            }
-            return fireCall
-
-        case .completion:
-            let block = doCompletion
-            var fireCall = integrator.prepareCall()
-            doCompletion = {
-                block?()
-                let parameters = parametersBuilder?(nil)
-                let newCall = integrator.prepareCall(parameters: parameters)
-
-                newCall.doBeginning = fireCall.onBeginning
-                newCall.doSuccess = fireCall.onSuccess
-                newCall.doError = fireCall.onError
-                newCall.doCompletion = fireCall.onCompletion
-
-                fireCall = newCall
-
-                fireCall.call(queue: queue, delay: delay)
-            }
-            return fireCall
-        }
-    }
+//    public func nextTo<Parameter, ResultType>(state: NextState = .completion,
+//                                              integrator: AbstractIntegrator<Parameter, ResultType>,
+//                                              parametersBuilder: (SimpleResult<ModelType?>) -> Parameter,
+//                                              configuration: ((IntegrationCall<ResultType>, SimpleResult<ModelType?>?) -> ())? = nil) -> Self {
+//        let queue = callQueue
+//        let delay = callDelay
+//        switch state {
+//        case .success:
+//            let success = doSuccess
+//            doSuccess = { result in
+//                success?(result)
+//                let wrapped = SimpleResult<ModelType?>.success(result)
+//                let parameters = parametersBuilder(wrapped)
+//                let integrationCall = integrator.prepareCall(parameters: parameters)
+//                configuration?(integrationCall, Result.success(result))
+//                integrationCall.call(queue: queue, delay: delay)
+//            }
+//
+//        case .error:
+//            let block = doError
+//            doError = { error in
+//                block?(error)
+//                let wrapped = SimpleResult<ModelType?>.failure(error ?? UnknownError.default)
+//                let parameters = parametersBuilder(wrapped)
+//                let integrationCall = integrator.prepareCall(parameters: parameters)
+//                configuration?(integrationCall, .failure(error ?? UnknownError.default))
+//                integrationCall.call(queue: queue, delay: delay)
+//            }
+//
+//        case .completion:
+//            let block = doCompletion
+//            doCompletion = {
+//                block?()
+//                let parameters = parametersBuilder?(nil)
+//                let integrationCall = integrator.prepareCall(parameters: parameters)
+//                configuration?(integrationCall, nil)
+//                integrationCall.call(queue: queue, delay: delay)
+//            }
+//        }
+//
+//        return self
+//    }
+//
+//    public func transformNextTo<Parameter, ResultType>(state: NextState = .completion,
+//                                                       integrator: AbstractIntegrator<Parameter, ResultType>,
+//                                                       parametersBuilder: ((SimpleResult<ModelType?>?) -> Parameter?)? = nil) -> IntegrationCall<ResultType> {
+//        let queue = callQueue
+//        let delay = callDelay
+//        switch state {
+//        case .success:
+//            let success = doSuccess
+//            var fireCall = integrator.prepareCall()
+//            doSuccess = { result in
+//                success?(result)
+//                let wrapped = SimpleResult<ModelType?>.success(result)
+//                let parameters = parametersBuilder?(wrapped)
+//                let newCall = integrator.prepareCall(parameters: parameters)
+//
+//                newCall.doBeginning = fireCall.onBeginning
+//                newCall.doSuccess = fireCall.onSuccess
+//                newCall.doError = fireCall.onError
+//                newCall.doCompletion = fireCall.onCompletion
+//
+//                fireCall = newCall
+//
+//                fireCall.call(queue: queue, delay: delay)
+//            }
+//            return fireCall
+//
+//        case .error:
+//            let block = doError
+//            var fireCall = integrator.prepareCall()
+//            doError = { error in
+//                block?(error)
+//                let wrapped = SimpleResult<ModelType?>.failure(error ?? UnknownError.default)
+//                let parameters = parametersBuilder?(wrapped)
+//                let newCall = integrator.prepareCall(parameters: parameters)
+//
+//                newCall.doBeginning = fireCall.onBeginning
+//                newCall.doSuccess = fireCall.onSuccess
+//                newCall.doError = fireCall.onError
+//                newCall.doCompletion = fireCall.onCompletion
+//
+//                fireCall = newCall
+//
+//                fireCall.call(queue: queue, delay: delay)
+//            }
+//            return fireCall
+//
+//        case .completion:
+//            let block = doCompletion
+//            var fireCall = integrator.prepareCall()
+//            doCompletion = {
+//                block?()
+//                let parameters = parametersBuilder?(nil)
+//                let newCall = integrator.prepareCall(parameters: parameters)
+//
+//                newCall.doBeginning = fireCall.onBeginning
+//                newCall.doSuccess = fireCall.onSuccess
+//                newCall.doError = fireCall.onError
+//                newCall.doCompletion = fireCall.onCompletion
+//
+//                fireCall = newCall
+//
+//                fireCall.call(queue: queue, delay: delay)
+//            }
+//            return fireCall
+//        }
+//    }
 
     public func forwardSuccess<Result>(callBuilder: @escaping (ModelType?) -> IntegrationCall<Result>) -> Self {
         let success = doSuccess
@@ -568,110 +573,110 @@ public class IntegrationCall<ModelType> {
 
     // MARK: - Manually next
 
-    public func nextSuccessTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
-                                                 parametersBuilder: ((ModelType?) -> Parameter?)? = nil,
-                                                 configuration: ((IntegrationCall<Result>, ModelType?) -> ())? = nil) -> Self {
-        let success = doSuccess
-        let queue = callQueue
-        let delay = callDelay
-
-        doSuccess = { result in
-            success?(result)
-            let parameters = parametersBuilder?(result)
-            let next = integrator.prepareCall(parameters: parameters)
-            configuration?(next, result)
-            next.call(queue: queue, delay: delay)
-        }
-
-        return self
-    }
-
-    public func forwardSuccessTo<Result>(integrator: AbstractIntegrator<ModelType, Result>,
-                                         configuration: ((IntegrationCall<Result>, ModelType?) -> ())? = nil) -> Self {
-        let success = doSuccess
-        let queue = callQueue
-        let delay = callDelay
-
-        doSuccess = { result in
-            success?(result)
-            let next = integrator.prepareCall(parameters: result)
-            configuration?(next, result)
-            next.call(queue: queue, delay: delay)
-        }
-        return self
-    }
-
-    public func nextErrorTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
-                                               parametersBuilder: ((Error?) -> Parameter?)? = nil,
-                                               configuration: ((IntegrationCall<Result>, Error?) -> ())? = nil) -> Self {
-        let block = doError
-        let queue = callQueue
-        let delay = callDelay
-
-        doError = { error in
-            block?(error)
-            let parameters = parametersBuilder?(error)
-            let next = integrator.prepareCall(parameters: parameters)
-            configuration?(next, error)
-            next.call(queue: queue, delay: delay)
-        }
-
-        return self
-    }
-
-    public func forwardErrorTo<Result>(integrator: AbstractIntegrator<Error, Result>,
-                                       configuration: ((IntegrationCall<Result>, Error?) -> ())? = nil) -> Self {
-        let block = doError
-        let queue = callQueue
-        let delay = callDelay
-
-        doError = { error in
-            block?(error)
-            let next = integrator.prepareCall(parameters: error)
-            configuration?(next, error)
-            next.call(queue: queue, delay: delay)
-        }
-
-        return self
-    }
-
-    public func nextCompletionTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
-                                                    parameters: Parameter? = nil,
-                                                    configuration: ((IntegrationCall<Result>) -> ())? = nil) -> Self {
-        let block = doCompletion
-        let queue = callQueue
-        let delay = callDelay
-
-        doCompletion = {
-            block?()
-            let next = integrator.prepareCall(parameters: parameters)
-            configuration?(next)
-            next.call(queue: queue, delay: delay)
-        }
-        return self
-    }
-
-    // MARK: - ThenRecall
-
-    @discardableResult
-    public func thenRecall<DataProvider, Model>(with integrator: Integrator<DataProvider, Model, ModelType>,
-                                                parameters: DataProvider.ParameterType? = nil) -> Self {
-        let beginBlock = doBeginning
-        let successBlock = doSuccess
-        let block = doCompletion
-        let queue = callQueue
-        let delay = callDelay
-
-        doCompletion = {
-            block?()
-            let next: IntegrationCall<ModelType> = integrator.prepareCall(parameters: parameters)
-            next.doBeginning = beginBlock
-            next.doCompletion = block
-            next.doSuccess = successBlock
-            next.call(queue: queue, delay: delay)
-        }
-        return self
-    }
+//    public func nextSuccessTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
+//                                                 parametersBuilder: ((ModelType?) -> Parameter?)? = nil,
+//                                                 configuration: ((IntegrationCall<Result>, ModelType?) -> ())? = nil) -> Self {
+//        let success = doSuccess
+//        let queue = callQueue
+//        let delay = callDelay
+//
+//        doSuccess = { result in
+//            success?(result)
+//            let parameters = parametersBuilder?(result)
+//            let next = integrator.prepareCall(parameters: parameters)
+//            configuration?(next, result)
+//            next.call(queue: queue, delay: delay)
+//        }
+//
+//        return self
+//    }
+//
+//    public func forwardSuccessTo<Result>(integrator: AbstractIntegrator<ModelType, Result>,
+//                                         configuration: ((IntegrationCall<Result>, ModelType?) -> ())? = nil) -> Self {
+//        let success = doSuccess
+//        let queue = callQueue
+//        let delay = callDelay
+//
+//        doSuccess = { result in
+//            success?(result)
+//            let next = integrator.prepareCall(parameters: result)
+//            configuration?(next, result)
+//            next.call(queue: queue, delay: delay)
+//        }
+//        return self
+//    }
+//
+//    public func nextErrorTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
+//                                               parametersBuilder: ((Error?) -> Parameter?)? = nil,
+//                                               configuration: ((IntegrationCall<Result>, Error?) -> ())? = nil) -> Self {
+//        let block = doError
+//        let queue = callQueue
+//        let delay = callDelay
+//
+//        doError = { error in
+//            block?(error)
+//            let parameters = parametersBuilder?(error)
+//            let next = integrator.prepareCall(parameters: parameters)
+//            configuration?(next, error)
+//            next.call(queue: queue, delay: delay)
+//        }
+//
+//        return self
+//    }
+//
+//    public func forwardErrorTo<Result>(integrator: AbstractIntegrator<Error, Result>,
+//                                       configuration: ((IntegrationCall<Result>, Error?) -> ())? = nil) -> Self {
+//        let block = doError
+//        let queue = callQueue
+//        let delay = callDelay
+//
+//        doError = { error in
+//            block?(error)
+//            let next = integrator.prepareCall(parameters: error)
+//            configuration?(next, error)
+//            next.call(queue: queue, delay: delay)
+//        }
+//
+//        return self
+//    }
+//
+//    public func nextCompletionTo<Parameter, Result>(integrator: AbstractIntegrator<Parameter, Result>,
+//                                                    parameters: Parameter? = nil,
+//                                                    configuration: ((IntegrationCall<Result>) -> ())? = nil) -> Self {
+//        let block = doCompletion
+//        let queue = callQueue
+//        let delay = callDelay
+//
+//        doCompletion = {
+//            block?()
+//            let next = integrator.prepareCall(parameters: parameters)
+//            configuration?(next)
+//            next.call(queue: queue, delay: delay)
+//        }
+//        return self
+//    }
+//
+//    // MARK: - ThenRecall
+//
+//    @discardableResult
+//    public func thenRecall<DataProvider, Model>(with integrator: Integrator<DataProvider, Model, ModelType>,
+//                                                parameters: DataProvider.ParameterType? = nil) -> Self {
+//        let beginBlock = doBeginning
+//        let successBlock = doSuccess
+//        let block = doCompletion
+//        let queue = callQueue
+//        let delay = callDelay
+//
+//        doCompletion = {
+//            block?()
+//            let next: IntegrationCall<ModelType> = integrator.prepareCall(parameters: parameters)
+//            next.doBeginning = beginBlock
+//            next.doCompletion = block
+//            next.doSuccess = successBlock
+//            next.call(queue: queue, delay: delay)
+//        }
+//        return self
+//    }
 }
 
 extension IntegrationCall where ModelType: DelayingCompletionProtocol {

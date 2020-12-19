@@ -13,7 +13,7 @@ open class BlockDataProvider<P, D>: DataProviderProtocol {
     public typealias ParameterType = P
     public typealias DataType = D
 
-    public typealias RequestFunction = (P?) throws -> D?
+    public typealias RequestFunction = (P) throws -> D?
 
     fileprivate var block: RequestFunction
 
@@ -21,7 +21,7 @@ open class BlockDataProvider<P, D>: DataProviderProtocol {
         self.block = block
     }
 
-    open func request(parameters: ParameterType?, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
+    open func request(parameters: ParameterType, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
         return request(parameters: parameters) { success, data, error in
             var result: ResultType
             if success {
@@ -35,7 +35,7 @@ open class BlockDataProvider<P, D>: DataProviderProtocol {
         }
     }
 
-    open func request(parameters: P?, completion: @escaping (Bool, D?, Error?) -> Void) -> CancelHandler? {
+    open func request(parameters: P, completion: @escaping (Bool, D?, Error?) -> Void) -> CancelHandler? {
         do {
             let data = try block(parameters)
             completion(true, data, nil)
