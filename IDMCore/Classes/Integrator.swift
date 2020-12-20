@@ -61,6 +61,18 @@ extension AbstractIntegrator where Parameter == Void {
     }
 }
 
+extension AbstractIntegrator where Parameter == Any? {
+    public func prepareCall() -> IntegrationCall<Result> {
+        prepareCall(parameters: nil)
+    }
+}
+
+extension AbstractIntegrator where Parameter == Any {
+    public func prepareCall() -> IntegrationCall<Result> {
+        prepareCall(parameters: Any?.none as Any)
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 class IntegrationInfo<ModelType, ParameterType>: NSObject {
     var parameters: ParameterType
