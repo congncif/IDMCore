@@ -194,60 +194,6 @@ extension DataProviderProtocol {
     }
 }
 
-// MARK: - Quick Data Provider
-
-/**
- * `DataProvider` enables to quick initialize from a value closure.
- */
-
-public final class ValueDataProvider<ParameterType, ValueType>: AbstractDataProvider<ParameterType, ValueType> {
-    public typealias ValueResult = SimpleResult<ValueType?>
-    public typealias ValueFactory = (ParameterType?) -> ValueResult
-
-    private var valueFactory: ValueFactory
-
-    /**
-     Initialize a data provider.
-
-     - Parameter valueFactory: The closure which will be performed to return value from a parameter when the provider call request.
-     */
-
-    public init(valueFactory: @escaping ValueFactory) {
-        self.valueFactory = valueFactory
-    }
-
-    override public func request(parameters: ParameterType, completionResult: @escaping (ValueResult) -> Void) -> CancelHandler? {
-        return request(parameters: parameters) { success, data, error in
-            if success {
-                completionResult(.success(data))
-            } else if let error = error {
-                completionResult(.failure(error))
-            } else {
-                completionResult(.failure(UnknownError.default))
-            }
-        }
-    }
-
-    private func request(parameters: ParameterType,
-                         completion: @escaping (Bool, ValueType?, Error?) -> Void) -> CancelHandler? {
-        switch valueFactory(parameters) {
-        case let .success(data):
-            completion(true, data, nil)
-        case let .failure(error):
-            completion(false, nil, error)
-        }
-        return nil
-    }
-}
-
-extension ValueDataProvider where ParameterType == Void {
-    // flashFactory is a shortcut of valueFactory with no explicit parameters
-    public convenience init(flashFactory: @escaping () -> ValueResult) {
-        let _valueFactory: ValueFactory = { _ in flashFactory() }
-        self.init(valueFactory: _valueFactory)
-    }
-}
-
 // Some pre-defined providers
 
 public typealias AnyResultDataProvider<ParameterType> = AbstractDataProvider<ParameterType, Any>

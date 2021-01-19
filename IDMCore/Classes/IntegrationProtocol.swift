@@ -48,7 +48,7 @@ public protocol IntegrationProtocol: IntegratorProtocol where Self.ParameterType
                  completionHandler: (() -> Void)?)
 }
 
-public protocol IntegratorProtocol: class {
+public protocol IntegratorProtocol: AnyObject {
     associatedtype GParameterType
     associatedtype GResultType
 

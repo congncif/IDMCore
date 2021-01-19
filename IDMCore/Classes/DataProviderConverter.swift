@@ -81,85 +81,78 @@ open class ConvertDataProvider<P1, P2>: DataProviderProtocol {
     public typealias ParameterType = P1
     public typealias DataType = P2
 
-    private var converter: ((P1?) throws -> P2?)?
+    private var converter: ((P1) throws -> P2)?
+    private var queue: DispatchQueue?
 
-    public convenience init(converter: ((P1?) throws -> P2?)?) {
-        self.init()
+    public convenience init(queue: DispatchQueue? = nil, converter: @escaping ((P1) throws -> P2)) {
+        self.init(queue: queue)
         self.converter = converter
     }
 
-    public init() {}
+    public init(queue: DispatchQueue? = nil) {
+        self.queue = queue
+    }
 
     public func request(parameters: ParameterType, completionResult: @escaping (ResultType) -> Void) -> CancelHandler? {
-        return request(parameters: parameters) { success, data, error in
-            var result: ResultType
-            if success {
-                result = .success(data)
-            } else if let error = error {
-                result = .failure(error)
+        let block = { [weak self] in
+            if let convertFunc = self?.converter {
+                do {
+                    let outParameter = try convertFunc(parameters)
+                    completionResult(.success(outParameter))
+                } catch let ex {
+                    completionResult(.failure(ex))
+                }
             } else {
-                result = .failure(UnknownError.default)
+                do {
+                    let outParameter = try self?.convert(parameter: parameters)
+                    completionResult(.success(outParameter))
+                } catch let ex {
+                    completionResult(.failure(ex))
+                }
             }
-            completionResult(result)
         }
-    }
 
-    private func request(parameters: P1?,
-                         completion: @escaping (Bool, P2?, Error?) -> Void) -> CancelHandler? {
-        if let convertFunc = converter {
-            do {
-                let outParameter = try convertFunc(parameters)
-                completion(true, outParameter, nil)
-            } catch let ex {
-                completion(false, nil, ex)
-            }
+        if let queue = self.queue {
+            queue.async(execute: block)
         } else {
-            do {
-                let outParameter = try convert(parameter: parameters)
-                completion(true, outParameter, nil)
-            } catch let ex {
-                completion(false, nil, ex)
-            }
+            block()
         }
-
         return nil
     }
 
-    open func convert(parameter: P1?) throws -> P2? {
-        assertionFailure("Converter needs an implementation")
-        return nil
+    open func convert(parameter: P1) throws -> P2 {
+        preconditionFailure("Converter needs an implementation")
     }
 }
 
 public final class ForwardDataProvider<P>: ConvertDataProvider<P, P> {
-    private var forwarder: ((P?) throws -> P?)?
+    private let forwarder: (P) throws -> P
 
-    public convenience init(forwarder: ((P?) throws -> P?)?) {
-        self.init()
+    public init(queue: DispatchQueue? = nil, forwarder: @escaping ((P) throws -> P)) {
         self.forwarder = forwarder
+        super.init(queue: queue)
     }
 
-    override public init() {
-        super.init()
+    public convenience init(queue: DispatchQueue? = nil, sideEffect: @escaping (P) -> Void) {
+        self.init(queue: queue, forwarder: {
+            sideEffect($0)
+            return $0
+        })
     }
 
-    override public func convert(parameter: P?) throws -> P? {
-        if let forwardFunc = forwarder {
-            return try forwardFunc(parameter)
-        } else {
-            return parameter
-        }
+    override public func convert(parameter: P) throws -> P {
+        return try forwarder(parameter)
     }
 }
 
 public final class BridgeDataProvider<P, R: ModelProtocol>: ConvertDataProvider<P, R> where R.DataType == P {
-    override public init() {
-        super.init()
+    override public init(queue: DispatchQueue? = nil) {
+        super.init(queue: queue)
     }
 
-    override public func convert(parameter: P?) throws -> R? {
+    override public func convert(parameter: P) throws -> R {
         do {
-            let data: R? = try R(fromData: parameter)
+            let data: R = try R(fromData: parameter)
             return data
         } catch let ex {
             throw ex
